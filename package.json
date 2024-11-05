@@ -1,0 +1,26 @@
+{
+  "name": "book-my-show-project",
+  "version": "1.0.0",
+  "description": "This project aims to develop a backend API system for a movie ticket booking application, similar to BookMyShow. The system will cater to three user roles: admin, theatre owners, and customers. The focus is on creating a robust API structure without frontend implementation.",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/yash-gkmit/book-my-show.git"
+  },
+  "author": "Yash Gupta",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yash-gkmit/book-my-show/issues"
+  },
+  "homepage": "https://github.com/yash-gkmit/book-my-show#readme",
+  "dependencies": {
+    "express": "^4.21.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7"
+  }
+}
