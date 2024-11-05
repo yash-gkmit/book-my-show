@@ -1,0 +1,1 @@
+This project aims to develop a backend API system for a movie ticket booking application, similar to BookMyShow. The system will cater to three user roles: admin, theatre owners, and customers. The focus is on creating a robust API structure without frontend implementation.
