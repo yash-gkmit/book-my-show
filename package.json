@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/yash-gkmit/book-my-show#readme",
   "dependencies": {
+    "bcrypt": "^5.1.1",
     "express": "^4.21.1",
     "pg": "^8.13.1",
     "pg-hstore": "^2.3.4",
