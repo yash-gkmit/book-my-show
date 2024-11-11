@@ -26,4 +26,11 @@ router.get(
   theaterController.fetchAll,
 );
 
+router.get(
+  '/:id',
+  authMiddleware,
+  rbacMiddleware(['Admin', 'Theater Owner']),
+  theaterController.fetchById,
+);
+
 module.exports = router;
