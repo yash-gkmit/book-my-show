@@ -1,6 +1,7 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const { sequelize } = require('./src/models/');
+const { registerRoutes } = require('./src/routes');
 
 dotenv.config();
 
@@ -17,6 +18,9 @@ connectDb();
 
 const app = express();
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+registerRoutes(app);
 
 const PORT = process.env.PORT || 4700;
 app.listen(PORT, () => {
