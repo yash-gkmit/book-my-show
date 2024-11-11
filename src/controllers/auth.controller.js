@@ -75,3 +75,29 @@ exports.verifyOtp = async (req, res) => {
     return errorHandler(req, res, error.message, error.statusCode || 400);
   }
 };
+
+exports.login = async (req, res) => {
+  try {
+    console.log(req.body);
+
+    const rules = {
+      email: 'email',
+      password: 'password',
+    };
+    validateRequest(req.body, rules);
+
+    const { email, password, role } = req.body;
+    console.log(`Email:: ${email}, Password: ${password}, Role:, ${role}`);
+
+    const { token, roles } = await authService.login(email, password, role);
+
+    res.status(200).json({
+      message: 'Login successful',
+      token,
+      roles,
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    errorHandler(req, res, error.message, error.statusCode || 401);
+  }
+};

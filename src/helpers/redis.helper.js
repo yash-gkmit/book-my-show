@@ -1,6 +1,5 @@
 const redisClient = require('../config/redis');
 
-// Set OTP in Redis
 exports.setOtpInRedis = async (email, otp) => {
   try {
     await redisClient.set(email, otp, {
@@ -35,4 +34,25 @@ exports.deleteOtpFromRedis = email => {
     if (err) console.error(`Error deleting OTP from Redis: ${err}`);
     else console.log(`OTP deleted for ${email}: ${response}`);
   });
+};
+
+// Add token to Redis blacklist with expiry time
+exports.addTokenToBlacklist = async (token, expiresIn) => {
+  try {
+    await redisClient.set(token, 'blacklisted', 'EX', expiresIn);
+    return 'Token added to blacklist';
+  } catch (err) {
+    console.error('Error adding token to blacklist', err);
+    throw err;
+  }
+};
+
+exports.isTokenBlacklisted = async token => {
+  try {
+    const result = await redisClient.get(token);
+    return result === 'blacklisted';
+  } catch (err) {
+    console.error('Error checking if token is blacklisted', err);
+    throw err;
+  }
 };

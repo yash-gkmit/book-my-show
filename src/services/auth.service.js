@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const { User, Role } = require('../models');
 
 const {
@@ -69,4 +70,36 @@ exports.verifyOtp = async (email, otp) => {
   } else {
     throwCustomError('Invalid OTP', 400);
   }
+};
+
+exports.login = async (email, password, role) => {
+  console.log(`Email: ${email}`);
+
+  const user = await User.findOne({
+    where: { email },
+    include: 'Roles',
+  });
+
+  if (!user) throwCustomError('User not found', 404);
+
+  const passwordMatch = await bcrypt.compare(password, user.password);
+  if (!passwordMatch) throwCustomError('Invalid credentials', 401);
+
+  const userRoles = user.Roles.map(r => r.name);
+
+  if (!userRoles.includes(role)) {
+    throwCustomError(`User does not have the ${role} role`, 403);
+  }
+
+  const payload = {
+    user_id: user.id,
+    roles: userRoles,
+    selectedRole: role,
+  };
+
+  const token = jwt.sign(payload, process.env.JWT_SECRET, {
+    expiresIn: '1h',
+  });
+
+  return { message: 'Login successful', token, role };
 };
