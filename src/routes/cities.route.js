@@ -13,4 +13,6 @@ router.post(
   cityController.generate,
 );
 
+router.get('/', cityController.fetchAll);
+
 module.exports = router;
