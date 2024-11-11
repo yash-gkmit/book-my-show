@@ -20,4 +20,5 @@ router.post(
 
 router.post('/login', authMiddleware, authController.login);
 
+router.delete('/logout', authMiddleware, authController.logout);
 module.exports = router;
