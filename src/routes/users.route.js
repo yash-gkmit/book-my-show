@@ -8,10 +8,10 @@ const router = express.Router();
 router.get('/', authMiddleware, rbacMiddleware(['Admin']), fetchAll);
 
 router.get(
-	'/:user_id',
-	authMiddleware,
-	rbacMiddleware(['Admin', 'self']),
-	fetchById,
+  '/:user_id',
+  authMiddleware,
+  rbacMiddleware(['Admin', 'self']),
+  fetchById,
 );
 
 module.exports = router;
