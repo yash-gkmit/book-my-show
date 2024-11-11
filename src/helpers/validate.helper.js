@@ -26,6 +26,17 @@ exports.validatePassword = password => {
   }
 };
 
+exports.validateOtp = otp => {
+  const schema = Joi.string()
+    .length(6)
+    .pattern(/^\d{6}$/)
+    .required();
+  const { error } = schema.validate(otp);
+  if (error) {
+    throwCustomError('Invalid OTP format', 400);
+  }
+};
+
 exports.validatePhone = phone => {
   const schema = Joi.string()
     .length(10)
@@ -64,6 +75,9 @@ exports.validateRequest = (data, rules) => {
         break;
       case 'password':
         this.validatePassword(value);
+        break;
+      case 'otp':
+        this.validateOtp(value);
         break;
       case 'phone':
         this.validatePhone(value);
