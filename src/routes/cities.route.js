@@ -25,4 +25,11 @@ router.put(
   cityController.change,
 );
 
+router.delete(
+  '/:id',
+  authMiddleware,
+  rbacMiddleware(['Admin']),
+  cityController.remove,
+);
+
 module.exports = router;

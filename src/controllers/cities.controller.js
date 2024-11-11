@@ -39,3 +39,12 @@ exports.change = async (req, res) => {
     errorHandler(req, res, error.message, error.statusCode || 400);
   }
 };
+
+exports.remove = async (req, res) => {
+  try {
+    await cityService.delete(req.params.id);
+    res.status(200).json({ message: 'City deleted successfully' });
+  } catch (error) {
+    errorHandler(req, res, error.message, error.statusCode || 400);
+  }
+};

@@ -21,3 +21,9 @@ exports.update = async (id, data) => {
   await city.update(data);
   return city;
 };
+
+exports.delete = async id => {
+  const city = await City.findByPk(id);
+  if (!city) throwCustomError('City not found', 404);
+  await city.destroy();
+};
