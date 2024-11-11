@@ -1,6 +1,10 @@
 const bcrypt = require('bcrypt');
 const { User, Role } = require('../models');
 
+const { setOtpInRedis } = require('../helpers/redis.helper');
+
+const { sendOtpEmail } = require('../helpers/mail.helper');
+
 exports.register = async ({ name, email, password, phone, roles }) => {
   console.log('Register params:', { name, email, password, phone, roles });
 
@@ -28,4 +32,14 @@ exports.register = async ({ name, email, password, phone, roles }) => {
   }
 
   return { message: 'User registered successfully', userId: user.id };
+};
+
+exports.sendOtp = async email => {
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+  console.log(otp);
+  setOtpInRedis(email, otp);
+  await sendOtpEmail(email, otp);
+
+  return { message: 'OTP sent successfully' };
 };

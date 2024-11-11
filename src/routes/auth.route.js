@@ -9,4 +9,6 @@ router.post(
   authController.register,
 );
 
+router.post('/send-otp', authController.sendOtp);
+
 module.exports = router;

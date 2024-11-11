@@ -1,5 +1,9 @@
 const authService = require('../services/auth.service');
-const { errorHandler, throwCustomError } = require('../helpers/common.helper');
+const {
+  errorHandler,
+  throwCustomError,
+  responseHandler,
+} = require('../helpers/common.helper');
 const { validateRequest } = require('../helpers/validate.helper');
 
 exports.register = async (req, res) => {
@@ -38,5 +42,18 @@ exports.register = async (req, res) => {
   } catch (error) {
     console.log(error);
     errorHandler(req, res, error.message, error.statusCode || 400);
+  }
+};
+
+exports.sendOtp = async (req, res) => {
+  try {
+    validateRequest(req.body, { email: 'email' });
+
+    await authService.sendOtp(req.body.email);
+    res.data = { message: 'OTP sent successfully' };
+    res.statusCode = 200;
+    return responseHandler(req, res);
+  } catch (error) {
+    return errorHandler(req, res, error.message, error.statusCode || 400);
   }
 };
