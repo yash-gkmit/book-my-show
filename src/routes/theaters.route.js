@@ -45,4 +45,11 @@ router.put(
   theaterController.change,
 );
 
+router.delete(
+  '/:id',
+  authMiddleware,
+  rbacMiddleware(['Admin']),
+  theaterController.remove,
+);
+
 module.exports = router;

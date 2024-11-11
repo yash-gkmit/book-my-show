@@ -47,3 +47,14 @@ exports.change = async (req, res) => {
     errorHandler(req, res, error.message, error.statusCode || 400);
   }
 };
+
+exports.remove = async (req, res) => {
+  try {
+    await theaterService.delete(req.params.id);
+    res.statusCode = 204;
+    responseHandler(req, res);
+  } catch (error) {
+    console.log(error);
+    errorHandler(req, res, error.message, error.statusCode || 400);
+  }
+};

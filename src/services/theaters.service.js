@@ -18,3 +18,9 @@ exports.update = async (id, data) => {
   await theater.update(data);
   return theater;
 };
+
+exports.delete = async id => {
+  const theater = await Theater.findByPk(id);
+  if (!theater) throwCustomError('Theater not found', 404);
+  await theater.destroy();
+};
