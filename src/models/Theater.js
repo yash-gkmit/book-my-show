@@ -15,9 +15,9 @@ module.exports = (sequelize, DataTypes) => {
         as: 'movies',
       });
 
-      Theater.hasMany(models.Movieshow, {
+      Theater.hasMany(models.Show, {
         foreignKey: 'theater_id',
-        as: 'movieShows',
+        as: 'shows',
       });
     }
   }

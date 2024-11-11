@@ -16,27 +16,26 @@ module.exports = {
           key: 'id',
         },
       },
-      movieshow_id: {
+      show_id: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: 'movieshows',
+          model: 'shows',
           key: 'id',
         },
       },
-      numberOfSeat: {
+      number_of_seat: {
         type: Sequelize.INTEGER,
         allowNull: false,
       },
-      bookingStatus: {
+      booking_status: {
         type: Sequelize.ENUM('Confirmed', 'Canceled'),
         defaultValue: 'Confirmed',
         allowNull: false,
       },
-      totalAmount: {
+      total_amount: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        o,
       },
       created_at: {
         allowNull: false,

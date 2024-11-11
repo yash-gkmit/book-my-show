@@ -10,9 +10,9 @@ module.exports = (sequelize, DataTypes) => {
         as: 'theaters',
       });
 
-      Movie.hasMany(models.Movieshow, {
+      Movie.hasMany(models.Show, {
         foreignKey: 'movie_id',
-        as: 'movieShows',
+        as: 'shows',
       });
     }
   }
@@ -32,11 +32,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.TEXT,
         allowNull: true,
       },
-      releaseDate: {
+      release_date: {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      castMemberList: {
+      cast_member_list: {
         type: DataTypes.ARRAY(DataTypes.STRING),
         allowNull: false,
       },

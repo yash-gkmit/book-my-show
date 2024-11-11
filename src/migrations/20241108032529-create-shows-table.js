@@ -2,7 +2,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('movieshows', {
+    await queryInterface.createTable('shows', {
       id: {
         primaryKey: true,
         type: Sequelize.UUID,
@@ -24,11 +24,11 @@ module.exports = {
           key: 'id',
         },
       },
-      showtime: {
+      show_time: {
         type: Sequelize.ENUM('Morning', 'Afternoon', 'Evening', 'Night'),
         allowNull: false,
       },
-      availableSeats: {
+      available_seats: {
         type: Sequelize.INTEGER,
         allowNull: true,
       },
@@ -52,6 +52,6 @@ module.exports = {
     });
   },
   async down(queryInterface) {
-    await queryInterface.dropTable('movieshows');
+    await queryInterface.dropTable('shows');
   },
 };

@@ -16,11 +16,11 @@ module.exports = {
         type: Sequelize.TEXT,
         allowNull: true,
       },
-      releaseDate: {
+      release_date: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      castMemberList: {
+      cast_member_list: {
         type: Sequelize.ARRAY(Sequelize.STRING),
         allowNull: false,
       },
@@ -47,17 +47,17 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      createdAt: {
+      created_at: {
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
       },
-      updatedAt: {
+      updated_at: {
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
       },
-      deletedAt: {
+      deleted_at: {
         type: Sequelize.BOOLEAN,
         allowNull: true,
       },
