@@ -48,3 +48,18 @@ exports.change = async (req, res) => {
     errorHandler(req, res, error.message, 400);
   }
 };
+
+exports.remove = async (req, res) => {
+  try {
+    await userService.delete(req.params.user_id);
+    res.data = { message: 'User soft deleted successfully' };
+    res.statusCode = 200;
+    responseHandler(req, res);
+  } catch (error) {
+    console.log(error);
+    if (error.message === 'User not found') {
+      return errorHandler(req, res, 'User not found', 404);
+    }
+    errorHandler(req, res, error.message, 400);
+  }
+};

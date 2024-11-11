@@ -3,6 +3,7 @@ const {
 	fetchAll,
 	fetchById,
 	change,
+	remove,
 } = require('../controllers/users.controller');
 const { authMiddleware } = require('../middlewares/auth.middleware');
 const { rbacMiddleware } = require('../middlewares/rbac.middleware');
@@ -24,5 +25,7 @@ router.put(
 	rbacMiddleware(['Admin', 'self']),
 	change,
 );
+
+router.delete('/:user_id', authMiddleware, rbacMiddleware(['Admin']), remove);
 
 module.exports = router;
