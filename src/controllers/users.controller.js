@@ -15,3 +15,18 @@ exports.fetchAll = async (req, res) => {
     errorHandler(req, res, error.message, 404);
   }
 };
+
+exports.fetchById = async (req, res) => {
+  try {
+    const user = await userService.getById(req.params.user_id);
+    if (!user) {
+      return errorHandler(req, res, 'User not found', 404);
+    }
+    res.data = user;
+    res.statusCode = 200;
+    responseHandler(req, res);
+  } catch (error) {
+    console.log(error);
+    errorHandler(req, res, error.message, 404);
+  }
+};
