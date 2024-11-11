@@ -19,4 +19,11 @@ router.post(
   theaterController.generate,
 );
 
+router.get(
+  '/',
+  authMiddleware,
+  rbacMiddleware(['Admin']),
+  theaterController.fetchAll,
+);
+
 module.exports = router;
