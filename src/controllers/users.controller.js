@@ -30,3 +30,21 @@ exports.fetchById = async (req, res) => {
     errorHandler(req, res, error.message, 404);
   }
 };
+
+exports.change = async (req, res) => {
+  const userId = req.params.user_id;
+  const userData = req.body;
+
+  try {
+    const updatedUser = await userService.update(userId, userData);
+    res.data = updatedUser;
+    res.statusCode = 200;
+    responseHandler(req, res);
+  } catch (error) {
+    console.log(error);
+    if (error.message === 'User not found') {
+      return errorHandler(req, res, 'User not found', 404);
+    }
+    errorHandler(req, res, error.message, 400);
+  }
+};
