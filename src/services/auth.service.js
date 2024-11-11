@@ -9,9 +9,10 @@ const {
 } = require('../helpers/redis.helper');
 
 const { sendOtpEmail } = require('../helpers/mail.helper');
-
 const { generateToken } = require('../helpers/jwt.helper');
 const { throwCustomError } = require('../helpers/common.helper');
+
+const { addTokenToBlacklist } = require('../helpers/redis.helper');
 
 exports.register = async ({ name, email, password, phone, roles }) => {
   console.log('Register params:', { name, email, password, phone, roles });
@@ -102,4 +103,23 @@ exports.login = async (email, password, role) => {
   });
 
   return { message: 'Login successful', token, role };
+};
+
+exports.logout = async token => {
+  const decodedToken = jwt.decode(token);
+  if (!decodedToken) {
+    throwCustomError('Invalid token', 401);
+  }
+
+  const expiresIn = 300;
+
+  return addTokenToBlacklist(token, expiresIn)
+    .then(() => {
+      console.log('Token added to blacklist');
+      return { message: 'Logged out successfully' };
+    })
+    .catch(error => {
+      console.log(error);
+      throwCustomError('Logout failed', 400);
+    });
 };

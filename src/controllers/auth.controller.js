@@ -101,3 +101,21 @@ exports.login = async (req, res) => {
     errorHandler(req, res, error.message, error.statusCode || 401);
   }
 };
+
+exports.logout = async (req, res) => {
+  try {
+    const token = req.headers['authorization']?.split(' ')[1];
+
+    if (!token) {
+      throwCustomError('Token is required for logout', 401);
+    }
+
+    const result = await authService.logout(token);
+
+    res.status(200).json({
+      message: result.message || 'Successfully logged out',
+    });
+  } catch (error) {
+    errorHandler(req, res, error.message, error.statusCode || 400);
+  }
+};
