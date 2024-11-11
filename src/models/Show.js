@@ -1,20 +1,20 @@
 'use strict';
 const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class Movieshow extends Model {
+  class Show extends Model {
     static associate(models) {
-      Movieshow.belongsTo(models.Movie, {
+      Show.belongsTo(models.Movie, {
         foreignKey: 'movie_id',
         as: 'movie',
       });
 
-      Movieshow.belongsTo(models.Theater, {
+      Show.belongsTo(models.Theater, {
         foreignKey: 'theater_id',
         as: 'theater',
       });
     }
   }
-  Movieshow.init(
+  Show.init(
     {
       id: {
         type: DataTypes.UUID,
@@ -29,11 +29,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.UUID,
         allowNull: false,
       },
-      showtime: {
+      show_time: {
         type: DataTypes.ENUM('Morning', 'Afternoon', 'Evening', 'Night'),
         allowNull: false,
       },
-      availableSeats: {
+      available_seats: {
         type: DataTypes.INTEGER,
         allowNull: true,
       },
@@ -44,8 +44,8 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: 'Movieshow',
-      tableName: 'movieshows',
+      modelName: 'Show',
+      tableName: 'shows',
       timestamps: true,
       paranoid: true,
       createdAt: 'created_at',
@@ -54,5 +54,5 @@ module.exports = (sequelize, DataTypes) => {
     },
   );
 
-  return Movieshow;
+  return Show;
 };

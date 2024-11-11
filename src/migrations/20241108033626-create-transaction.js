@@ -24,15 +24,15 @@ module.exports = {
           key: 'id',
         },
       },
-      transactionStatus: {
+      transaction_status: {
         type: Sequelize.ENUM('Success', 'Failed'),
         allowNull: false,
       },
-      transactionDate: {
+      transaction_date: {
         type: Sequelize.DATE,
         allowNull: false,
       },
-      transactionAmount: {
+      transaction_amount: {
         type: Sequelize.INTEGER,
         allowNull: false,
       },

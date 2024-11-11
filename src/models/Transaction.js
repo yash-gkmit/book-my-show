@@ -20,15 +20,15 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.UUID,
         allowNull: false,
       },
-      transactionStatus: {
+      transaction_status: {
         type: DataTypes.ENUM('Success', 'Failed'),
         allowNull: false,
       },
-      transactionDate: {
+      transaction_date: {
         type: DataTypes.DATE,
         allowNull: false,
       },
-      transactionAmount: {
+      transaction_amount: {
         type: DataTypes.INTEGER,
         allowNull: false,
       },

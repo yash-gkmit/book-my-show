@@ -8,9 +8,9 @@ module.exports = (sequelize, DataTypes) => {
         as: 'user',
       });
 
-      Booking.belongsTo(models.Movieshow, {
-        foreignKey: 'movieshow_id',
-        as: 'movieshow',
+      Booking.belongsTo(models.Show, {
+        foreignKey: 'show_id',
+        as: 'show',
       });
 
       Booking.hasMany(models.Transaction, {
@@ -30,20 +30,20 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.UUID,
         allowNull: false,
       },
-      movieshow_id: {
+      show_id: {
         type: DataTypes.UUID,
         allowNull: false,
       },
-      numberOfSeat: {
+      number_of_seat: {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
-      bookingStatus: {
+      booking_status: {
         type: DataTypes.ENUM('Confirmed', 'Canceled'),
         defaultValue: 'Confirmed',
         allowNull: false,
       },
-      totalAmount: {
+      total_amount: {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
