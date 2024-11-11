@@ -57,3 +57,21 @@ exports.sendOtp = async (req, res) => {
     return errorHandler(req, res, error.message, error.statusCode || 400);
   }
 };
+
+exports.verifyOtp = async (req, res) => {
+  try {
+    const rules = {
+      email: 'email',
+      otp: 'otp',
+    };
+    validateRequest(req.body, rules);
+
+    await authService.verifyOtp(req.body.email, req.body.otp);
+    res.data = { message: 'OTP verified successfully' };
+    res.statusCode = 200;
+    return responseHandler(req, res);
+  } catch (error) {
+    console.log(error);
+    return errorHandler(req, res, error.message, error.statusCode || 400);
+  }
+};

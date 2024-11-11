@@ -11,4 +11,10 @@ router.post(
 
 router.post('/send-otp', authController.sendOtp);
 
+router.post(
+  '/verify-otp',
+  authValidator.otpValidation,
+  authController.verifyOtp,
+);
+
 module.exports = router;

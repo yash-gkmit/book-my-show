@@ -1,9 +1,16 @@
 const bcrypt = require('bcrypt');
 const { User, Role } = require('../models');
 
-const { setOtpInRedis } = require('../helpers/redis.helper');
+const {
+  setOtpInRedis,
+  getOtpFromRedis,
+  deleteOtpFromRedis,
+} = require('../helpers/redis.helper');
 
 const { sendOtpEmail } = require('../helpers/mail.helper');
+
+const { generateToken } = require('../helpers/jwt.helper');
+const { throwCustomError } = require('../helpers/common.helper');
 
 exports.register = async ({ name, email, password, phone, roles }) => {
   console.log('Register params:', { name, email, password, phone, roles });
@@ -42,4 +49,24 @@ exports.sendOtp = async email => {
   await sendOtpEmail(email, otp);
 
   return { message: 'OTP sent successfully' };
+};
+
+exports.verifyOtp = async (email, otp) => {
+  const storedOtp = await getOtpFromRedis(email);
+  console.log('Stored OTP:', storedOtp);
+
+  if (!storedOtp) {
+    throwCustomError('OTP expired or does not exist', 400);
+  }
+
+  if (storedOtp === otp) {
+    const token = generateToken({ email });
+    console.log(`token: ${token}`);
+    console.log({ message: 'OTP verify successful', token });
+    deleteOtpFromRedis(email);
+
+    return { message: 'OTP verified successfully', token };
+  } else {
+    throwCustomError('Invalid OTP', 400);
+  }
 };
