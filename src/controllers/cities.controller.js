@@ -30,3 +30,12 @@ exports.fetchById = async (req, res) => {
     errorHandler(req, res, error.message, error.statusCode || 404);
   }
 };
+
+exports.change = async (req, res) => {
+  try {
+    const city = await cityService.update(req.params.id, req.body);
+    res.status(200).json({ message: 'City updated successfully', data: city });
+  } catch (error) {
+    errorHandler(req, res, error.message, error.statusCode || 400);
+  }
+};
