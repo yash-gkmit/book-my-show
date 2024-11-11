@@ -8,3 +8,16 @@ exports.createValidation = [
   check('address').isString().notEmpty().withMessage('Address is required'),
   check('city_id').isUUID().withMessage('City ID must be a valid UUID'),
 ];
+
+exports.updateValidation = [
+  check('name')
+    .optional()
+    .isString()
+    .isLength({ max: 50 })
+    .withMessage('Invalid name'),
+  check('address')
+    .optional()
+    .isString()
+    .notEmpty()
+    .withMessage('Invalid address'),
+];

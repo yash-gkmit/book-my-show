@@ -4,7 +4,10 @@ const theaterController = require('../controllers/theaters.controller');
 const { validatorMiddleware } = require('../middlewares/validator.middleware');
 const { authMiddleware } = require('../middlewares/auth.middleware');
 const { rbacMiddleware } = require('../middlewares/rbac.middleware');
-const { createValidation } = require('../validators/theaters.validator');
+const {
+  createValidation,
+  updateValidation,
+} = require('../validators/theaters.validator');
 
 router.get('/test', (req, res) => {
   res.status(200).json({ message: 'Test route is working' });
@@ -31,6 +34,15 @@ router.get(
   authMiddleware,
   rbacMiddleware(['Admin', 'Theater Owner']),
   theaterController.fetchById,
+);
+
+router.put(
+  '/:id',
+  authMiddleware,
+  rbacMiddleware(['Theater Owner']),
+  updateValidation,
+  validatorMiddleware,
+  theaterController.change,
 );
 
 module.exports = router;

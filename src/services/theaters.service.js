@@ -11,3 +11,10 @@ exports.getById = async id => {
   if (!theater) throwCustomError('Theater not found', 404);
   return theater;
 };
+
+exports.update = async (id, data) => {
+  const theater = await Theater.findByPk(id);
+  if (!theater) throwCustomError('Theater not found', 404);
+  await theater.update(data);
+  return theater;
+};
