@@ -7,3 +7,9 @@ exports.create = async data => {
 exports.getAll = async () => {
   return await City.findAll();
 };
+
+exports.getById = async id => {
+  const city = await City.findByPk(id);
+  if (!city) throwCustomError('City not found', 404);
+  return city;
+};

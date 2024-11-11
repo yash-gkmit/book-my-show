@@ -21,3 +21,12 @@ exports.fetchAll = async (req, res) => {
     errorHandler(req, res, error.message, error.statusCode || 400);
   }
 };
+
+exports.fetchById = async (req, res) => {
+  try {
+    const city = await cityService.getById(req.params.id);
+    res.status(200).json({ data: city });
+  } catch (error) {
+    errorHandler(req, res, error.message, error.statusCode || 404);
+  }
+};
