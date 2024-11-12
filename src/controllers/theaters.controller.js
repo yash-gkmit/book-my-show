@@ -43,7 +43,6 @@ exports.change = async (req, res) => {
     responseHandler(req, res);
   } catch (error) {
     console.log(error);
-
     errorHandler(req, res, error.message, error.statusCode || 400);
   }
 };
