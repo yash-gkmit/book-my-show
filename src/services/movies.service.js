@@ -6,7 +6,7 @@ exports.getAll = async () => await Movie.findAll();
 
 exports.getById = async id => {
   const movie = await Movie.findByPk(id);
-  if (!movie) throwCustomError('Theater not found', 404);
+  if (!movie) throwCustomError('Movie not found', 404);
   return movie;
 };
 
@@ -15,4 +15,11 @@ exports.update = async (id, data) => {
   if (!movie) throwCustomError('Movie not found', 404);
   await movie.update(data);
   return movie;
+};
+
+exports.delete = async id => {
+  const movie = await Movie.findByPk(id);
+  console.log(movie);
+  if (!movie) throwCustomError('Movie not found', 404);
+  await movie.destroy();
 };

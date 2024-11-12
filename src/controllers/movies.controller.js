@@ -43,3 +43,15 @@ exports.change = async (req, res) => {
     errorHandler(res, error.message, error.statusCode || 400);
   }
 };
+
+exports.remove = async (req, res) => {
+  try {
+    await movieService.delete(req.params.id);
+    res.data = { message: 'Movie soft deleted successfully' };
+    res.statusCode = 200;
+    responseHandler(req, res);
+  } catch (error) {
+    console.log(error);
+    errorHandler(req, res, error.message, error.statusCode || 400);
+  }
+};

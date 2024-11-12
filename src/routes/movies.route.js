@@ -33,4 +33,11 @@ router.put(
   moviesController.change,
 );
 
+router.delete(
+  '/:id',
+  authMiddleware,
+  rbacMiddleware(['Admin', 'Theater Owner']),
+  moviesController.remove,
+);
+
 module.exports = router;
