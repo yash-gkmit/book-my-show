@@ -20,4 +20,6 @@ router.post(
 
 router.get('/', moviesController.fetchAll);
 
+router.get('/:id', moviesController.fetchById);
+
 module.exports = router;

@@ -24,3 +24,12 @@ exports.fetchAll = async (req, res) => {
     errorHandler(res, error.message, error.statusCode || 400);
   }
 };
+
+exports.fetchById = async (req, res) => {
+  try {
+    const movie = await movieService.getById(req.params.id);
+    res.status(200).json(movie);
+  } catch (error) {
+    errorHandler(res, error.message, error.statusCode || 400);
+  }
+};
