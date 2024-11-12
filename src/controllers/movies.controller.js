@@ -15,3 +15,12 @@ exports.create = async (req, res) => {
     errorHandler(req, res, error.message, error.statusCode || 400);
   }
 };
+
+exports.fetchAll = async (req, res) => {
+  try {
+    const movies = await movieService.getAll();
+    res.status(200).json(movies);
+  } catch (error) {
+    errorHandler(res, error.message, error.statusCode || 400);
+  }
+};

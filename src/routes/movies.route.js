@@ -18,4 +18,6 @@ router.post(
   moviesController.create,
 );
 
+router.get('/', moviesController.fetchAll);
+
 module.exports = router;
