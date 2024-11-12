@@ -9,3 +9,10 @@ exports.getById = async id => {
   if (!movie) throwCustomError('Theater not found', 404);
   return movie;
 };
+
+exports.update = async (id, data) => {
+  const movie = await Movie.findByPk(id);
+  if (!movie) throwCustomError('Movie not found', 404);
+  await movie.update(data);
+  return movie;
+};

@@ -4,7 +4,10 @@ const moviesController = require('../controllers/movies.controller');
 const upload = require('../middlewares/multer.middleware');
 const { authMiddleware } = require('../middlewares/auth.middleware');
 const { rbacMiddleware } = require('../middlewares/rbac.middleware');
-const { createValidation } = require('../validators/movies.validator');
+const {
+  createValidation,
+  updateValidation,
+} = require('../validators/movies.validator');
 
 router.post(
   '/',
@@ -21,5 +24,13 @@ router.post(
 router.get('/', moviesController.fetchAll);
 
 router.get('/:id', moviesController.fetchById);
+
+router.put(
+  '/:id',
+  authMiddleware,
+  rbacMiddleware(['Theater Owner']),
+  updateValidation,
+  moviesController.change,
+);
 
 module.exports = router;

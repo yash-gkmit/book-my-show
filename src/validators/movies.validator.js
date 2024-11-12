@@ -19,3 +19,18 @@ exports.createValidation = [
   check('language').notEmpty().withMessage('Language is required'),
   validatorMiddleware,
 ];
+
+exports.updateValidation = [
+  check('name').notEmpty().withMessage('Invalid name'),
+  check('summary').optional().isString(),
+  check('release_date').optional().notEmpty().isString(),
+  check('cast_member_list')
+    .optional()
+    .isArray()
+    .withMessage('Cast members must be an array'),
+  check('genre')
+    .optional()
+    .isIn(['Action', 'Comedy', 'Drama', 'Horror', 'Sci-Fi', 'Romance']),
+  check('language').optional().notEmpty().withMessage('Invalid Language'),
+  validatorMiddleware,
+];
