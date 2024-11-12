@@ -11,7 +11,6 @@ const createFileName = (originalFileName, uniqueName) => {
 async function uploadOnS3(file) {
   const bucketName = process.env.S3_BUCKET_NAME;
   const fileBuffer = await fs.readFile(file.path);
-  console.log('file ', file);
   const fileName = createFileName(file.originalname, file.filename);
   try {
     const command = new PutObjectCommand({
