@@ -18,7 +18,7 @@ router.post(
     { name: 'trailer', maxCount: 1 },
   ]),
   createValidation,
-  moviesController.create,
+  moviesController.generate,
 );
 
 router.get('/', moviesController.fetchAll);
@@ -38,6 +38,13 @@ router.delete(
   authMiddleware,
   rbacMiddleware(['Admin', 'Theater Owner']),
   moviesController.remove,
+);
+
+router.get(
+  '/:id/theaters',
+  authMiddleware,
+  rbacMiddleware(['Admin', 'Theater Owner']),
+  moviesController.getTheatersByMovieId,
 );
 
 module.exports = router;

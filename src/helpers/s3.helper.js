@@ -4,8 +4,7 @@ const s3Client = require('../utils/s3');
 require('dotenv').config();
 
 const createFileName = (originalFileName, uniqueName) => {
-  const fileExtension = originalFileName.split('.').pop();
-  return `${uniqueName}.${fileExtension}`;
+  return `${uniqueName}`;
 };
 
 async function uploadOnS3(file) {
