@@ -80,9 +80,30 @@ const update = async (id, data) => {
   }
 };
 
+const remove = async id => {
+  const t = await sequelize.transaction();
+
+  try {
+    const show = await Show.findByPk(id, { transaction: t });
+    if (!show) {
+      throwCustomError('Show with that id does not exist', 404);
+    }
+
+    await show.destroy({ transaction: t });
+
+    await t.commit();
+
+    return { message: 'Show successfully deleted' };
+  } catch (error) {
+    await t.rollback();
+    throw error;
+  }
+};
+
 module.exports = {
   create,
   getAll,
   getById,
   update,
+  remove,
 };

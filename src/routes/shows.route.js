@@ -27,4 +27,11 @@ router.put(
   showController.change,
 );
 
+router.delete(
+  '/:id',
+  authMiddleware,
+  rbacMiddleware(['Theater Owner', 'Admin']),
+  showController.remove,
+);
+
 module.exports = router;
