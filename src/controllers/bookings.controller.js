@@ -33,7 +33,19 @@ const fetchAll = async (req, res) => {
   }
 };
 
+const fetchById = async (req, res) => {
+  try {
+    const booking = await bookingService.getById(req.params.id);
+    res.data = { message: 'Fetched Booking By Id', booking };
+    (res.statusCode = 200), responseHandler(req, res);
+  } catch (error) {
+    console.log(error);
+    errorHandler(req, res, error.message, 404);
+  }
+};
+
 module.exports = {
   generate,
   fetchAll,
+  fetchById,
 };

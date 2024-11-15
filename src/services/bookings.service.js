@@ -71,7 +71,17 @@ const getAll = async (filters, page = 1, limit = 10) => {
   };
 };
 
+const getById = async id => {
+  const booking = Booking.findByPk(id);
+  if (!booking) {
+    throwCustomError('Booking not found', 404);
+  }
+
+  return booking;
+};
+
 module.exports = {
   create,
   getAll,
+  getById,
 };
