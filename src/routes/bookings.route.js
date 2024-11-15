@@ -6,5 +6,6 @@ const { createValidation } = require('../validators/bookings.validator');
 const { authMiddleware } = require('../middlewares/auth.middleware');
 
 router.post('/', authMiddleware, createValidation, bookingController.generate);
+router.get('/', authMiddleware, bookingController.fetchAll);
 
 module.exports = router;

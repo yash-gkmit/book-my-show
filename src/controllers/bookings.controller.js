@@ -13,6 +13,27 @@ const generate = async (req, res) => {
   }
 };
 
+const fetchAll = async (req, res) => {
+  const { page = 1, limit = 10, ...filters } = req.query;
+
+  try {
+    const result = await bookingService.getAll(filters, page, limit);
+
+    res.data = result;
+    res.statusCode = 200;
+    responseHandler(req, res);
+  } catch (error) {
+    console.error(error);
+
+    if (error.statusCode) {
+      errorHandler(req, res, error.message, error.statusCode);
+    } else {
+      errorHandler(req, res, 'Booking not found', 404);
+    }
+  }
+};
+
 module.exports = {
   generate,
+  fetchAll,
 };

@@ -1,4 +1,4 @@
-const { Booking, Show, sequelize } = require('../models');
+const { Booking, Show, Movie, sequelize } = require('../models');
 const { throwCustomError } = require('../helpers/common.helper');
 
 const create = async data => {
@@ -37,6 +37,41 @@ const create = async data => {
   }
 };
 
+const getAll = async (filters, page = 1, limit = 10) => {
+  const whereConditions = {};
+  for (const [key, value] of Object.entries(filters)) {
+    if (Object.keys(Booking.rawAttributes).includes(key)) {
+      whereConditions[key] = { [Op.eq]: value };
+    }
+  }
+
+  const offset = (page - 1) * limit;
+  const { count, rows } = await Booking.findAndCountAll({
+    where: whereConditions,
+    include: [
+      {
+        model: Show,
+        as: 'show',
+        include: [{ model: Movie, as: 'movie' }],
+      },
+    ],
+    offset,
+    limit: parseInt(limit, 10),
+    order: [['created_at', 'DESC']],
+  });
+
+  return {
+    data: rows,
+    pagination: {
+      totalItems: count,
+      currentPage: parseInt(page, 10),
+      itemsPerPage: parseInt(limit, 10),
+      totalPages: Math.ceil(count / limit),
+    },
+  };
+};
+
 module.exports = {
   create,
+  getAll,
 };
