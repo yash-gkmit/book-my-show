@@ -6,11 +6,11 @@ const { createValidation } = require('../validators/shows.validator');
 const { rbacMiddleware } = require('../middlewares/rbac.middleware');
 
 router.post(
-	'/',
-	authMiddleware,
-	rbacMiddleware(['Theater Owner']),
-	createValidation,
-	showController.generate,
+  '/',
+  authMiddleware,
+  rbacMiddleware(['Theater Owner']),
+  createValidation,
+  showController.generate,
 );
 
 module.exports = router;
