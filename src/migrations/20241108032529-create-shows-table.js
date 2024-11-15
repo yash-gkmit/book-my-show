@@ -36,6 +36,10 @@ module.exports = {
         type: Sequelize.ENUM('2D', '3D', '4D'),
         allowNull: true,
       },
+      price: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+      },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE,
