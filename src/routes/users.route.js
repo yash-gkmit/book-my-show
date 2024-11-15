@@ -4,6 +4,8 @@ const {
   fetchById,
   change,
   remove,
+  getBookings,
+  getTransactions,
 } = require('../controllers/users.controller');
 const { authMiddleware } = require('../middlewares/auth.middleware');
 const { rbacMiddleware } = require('../middlewares/rbac.middleware');
@@ -13,19 +15,28 @@ const router = express.Router();
 router.get('/', authMiddleware, rbacMiddleware(['Admin']), fetchAll);
 
 router.get(
-  '/:user_id',
+  '/:id',
   authMiddleware,
   rbacMiddleware(['Admin', 'self']),
   fetchById,
 );
 
-router.put(
-  '/:user_id',
+router.put('/:id', authMiddleware, rbacMiddleware(['Admin', 'self']), change);
+
+router.delete('/:id', authMiddleware, rbacMiddleware(['Admin']), remove);
+
+router.get(
+  '/:id/bookings',
   authMiddleware,
-  rbacMiddleware(['Admin', 'self']),
-  change,
+  rbacMiddleware(['Admin', 'Self']),
+  getBookings,
 );
 
-router.delete('/:user_id', authMiddleware, rbacMiddleware(['Admin']), remove);
+router.get(
+  '/:id/transactions',
+  authMiddleware,
+  rbacMiddleware(['Admin', 'Self']),
+  getTransactions,
+);
 
 module.exports = router;

@@ -1,24 +1,24 @@
 const userService = require('../services/users.service');
 const { errorHandler, responseHandler } = require('../helpers/common.helper');
 
-exports.fetchAll = async (req, res) => {
+const fetchAll = async (req, res) => {
+  const { page = 1, limit = 10 } = req.query;
+
   try {
-    const users = await userService.getAll();
-    if (!users || users.length === 0) {
-      return errorHandler(req, res, 'No users found', 404);
-    }
-    res.data = users;
-    res.statusCode = 200;
-    responseHandler(req, res);
+    const users = await userService.getAll(page, limit);
+
+    return res.status(200).json(users);
   } catch (error) {
-    console.log(error);
-    errorHandler(req, res, error.message, 404);
+    console.error('Error fetching users:', error);
+    return res.status(500).json({
+      message: 'An error occurred while fetching users.',
+      error: error.message,
+    });
   }
 };
-
-exports.fetchById = async (req, res) => {
+const fetchById = async (req, res) => {
   try {
-    const user = await userService.getById(req.params.user_id);
+    const user = await userService.getById(req.params.id);
     if (!user) {
       return errorHandler(req, res, 'User not found', 404);
     }
@@ -31,8 +31,8 @@ exports.fetchById = async (req, res) => {
   }
 };
 
-exports.change = async (req, res) => {
-  const userId = req.params.user_id;
+const change = async (req, res) => {
+  const userId = req.params.id;
   const userData = req.body;
 
   try {
@@ -49,9 +49,9 @@ exports.change = async (req, res) => {
   }
 };
 
-exports.remove = async (req, res) => {
+const remove = async (req, res) => {
   try {
-    await userService.delete(req.params.user_id);
+    await userService.delete(req.params.id);
     res.data = { message: 'User soft deleted successfully' };
     res.statusCode = 200;
     responseHandler(req, res);
@@ -62,4 +62,55 @@ exports.remove = async (req, res) => {
     }
     errorHandler(req, res, error.message, 400);
   }
+};
+
+const getBookings = async (req, res) => {
+  const { id } = req.params;
+  const { page = 1, limit = 10, filters = {} } = req.query;
+  try {
+    const result = await userService.getBookings(
+      id,
+      filters,
+      parseInt(page),
+      parseInt(limit),
+    );
+
+    return res.status(200).json(result);
+  } catch (error) {
+    console.error('Error fetching bookings:', error);
+    return res.status(500).json({
+      message: 'An error occurred while fetching bookings.',
+      error: error.message,
+    });
+  }
+};
+
+const getTransactions = async (req, res) => {
+  const { id } = req.params;
+  const { page = 1, limit = 10, filters = {} } = req.query;
+  try {
+    const result = await userService.getTransactions(
+      id,
+      filters,
+      parseInt(page),
+      parseInt(limit),
+    );
+
+    return res.status(200).json(result);
+  } catch (error) {
+    console.error('Error fetching bookings:', error);
+    return res.status(500).json({
+      message: 'An error occurred while fetching bookings.',
+      error: error.message,
+    });
+  }
+};
+
+module.exports = {
+  fetchAll,
+  fetchById,
+  change,
+  remove,
+  getBookings,
+  getTransactions,
 };
