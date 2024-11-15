@@ -33,27 +33,23 @@ module.exports = {
         allowNull: false,
       },
       transaction_amount: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.BIGINT,
         allowNull: false,
       },
       GST: {
-        type: Sequelize.DECIMAL(5, 2),
-        defaultValue: 18.0,
+        type: Sequelize.DECIMAL,
         allowNull: false,
       },
       CGST: {
-        type: Sequelize.DECIMAL(5, 2),
-        defaultValue: 9.0,
+        type: Sequelize.DECIMAL,
         allowNull: false,
       },
       IGST: {
-        type: Sequelize.DECIMAL(5, 2),
-        defaultValue: 18.0,
+        type: Sequelize.DECIMAL,
         allowNull: false,
       },
       SGST: {
-        type: Sequelize.DECIMAL(5, 2),
-        defaultValue: 9.0,
+        type: Sequelize.DECIMAL,
         allowNull: false,
       },
       created_at: {

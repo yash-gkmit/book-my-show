@@ -20,6 +20,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.UUID,
         allowNull: false,
       },
+      user_id: {
+        type: DataTypes.UUID,
+        allowNull: false,
+      },
       transaction_status: {
         type: DataTypes.ENUM('Success', 'Failed'),
         allowNull: false,
@@ -29,23 +33,23 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       transaction_amount: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.BIGINT,
         allowNull: false,
       },
       GST: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.DECIMAL,
         allowNull: false,
       },
       CGST: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.DECIMAL,
         allowNull: false,
       },
       IGST: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.DECIMAL,
         allowNull: false,
       },
       SGST: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.DECIMAL,
         allowNull: false,
       },
     },
