@@ -13,4 +13,6 @@ router.post(
   showController.generate,
 );
 
+router.get('/', showController.fetchAll);
+
 module.exports = router;

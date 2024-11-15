@@ -14,6 +14,31 @@ const generate = async (req, res) => {
   }
 };
 
+const fetchAll = async (req, res) => {
+  try {
+    const { page = 1, limit = 10, ...filters } = req.query;
+
+    const shows = await showService.getAll(filters, page, limit);
+
+    res.data = {
+      message: 'Fetched shows successfully',
+      shows,
+    };
+    res.statusCode = 200;
+
+    responseHandler(req, res);
+  } catch (error) {
+    console.log(error);
+
+    if (error.statusCode) {
+      errorHandler(req, res, error.message, error.statusCode);
+    } else {
+      errorHandler(req, res, 'An error occurred while fetching shows', 400);
+    }
+  }
+};
+
 module.exports = {
   generate,
+  fetchAll,
 };

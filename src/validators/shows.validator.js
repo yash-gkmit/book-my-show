@@ -40,6 +40,38 @@ const createValidation = [
   validatorMiddleware,
 ];
 
+const updateValidation = [
+  (req, res, next) => {
+    const schema = Joi.object({
+      show_time: Joi.string()
+        .valid('Morning', 'Afternoon', 'Evening', 'Night')
+        .required()
+        .message('Invalid show time'),
+      available_seats: Joi.number()
+        .integer()
+        .required()
+        .message('Invalid value for available seats'),
+      type: Joi.string()
+        .valid('2D', '3D', '4D')
+        .required()
+        .message('Invalid type'),
+    });
+
+    const { error } = schema.validate(req.body);
+
+    if (error) {
+      return res.status(400).json({
+        message: error.details[0].message,
+      });
+    }
+
+    next();
+  },
+
+  validatorMiddleware,
+];
+
 module.exports = {
   createValidation,
+  updateValidation,
 };
