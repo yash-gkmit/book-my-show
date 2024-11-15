@@ -38,7 +38,24 @@ const fetchAll = async (req, res) => {
   }
 };
 
+const fetchById = async (req, res) => {
+  try {
+    const show = await showService.getById(req.params.id);
+    res.data = {
+      message: 'Fetched show By Id successfully',
+      show,
+    };
+    res.statusCode = 200;
+
+    responseHandler(req, res);
+  } catch (error) {
+    console.log(error);
+    errorHandler(req, res, error.message, 400);
+  }
+};
+
 module.exports = {
   generate,
   fetchAll,
+  fetchById,
 };

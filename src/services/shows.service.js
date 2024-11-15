@@ -52,7 +52,16 @@ const getAll = async (filters, page = 1, limit = 10) => {
   };
 };
 
+const getById = async id => {
+  const show = Show.findByPk(id);
+  if (!show) {
+    throwCustomError('Show not available for that id', 404);
+  }
+  return show;
+};
+
 module.exports = {
   create,
   getAll,
+  getById,
 };

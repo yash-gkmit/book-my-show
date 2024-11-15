@@ -14,5 +14,6 @@ router.post(
 );
 
 router.get('/', showController.fetchAll);
+router.get('/:id', showController.fetchById);
 
 module.exports = router;
