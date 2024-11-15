@@ -25,4 +25,12 @@ router.put(
   updateValidation,
   bookingController.change,
 );
+
+router.delete(
+  '/:id',
+  authMiddleware,
+  rbacMiddleware(['Admin', 'Self']),
+  bookingController.remove,
+);
+
 module.exports = router;

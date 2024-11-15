@@ -58,9 +58,24 @@ const change = async (req, res) => {
   }
 };
 
+const remove = async (req, res) => {
+  try {
+    await bookingService.remove(req.params.id);
+    res.data = {
+      message: 'Booking deleted successfully!',
+    };
+    res.statusCode = 204;
+    responseHandler(req, res);
+  } catch (error) {
+    console.log(error);
+    errorHandler(req, res, error.message, 404);
+  }
+};
+
 module.exports = {
   generate,
   fetchAll,
   fetchById,
   change,
+  remove,
 };

@@ -99,9 +99,28 @@ const update = async (id, data) => {
   }
 };
 
+const remove = async id => {
+  const booking = await Booking.findByPk(id);
+  console.log(booking);
+  if (!booking) {
+    throwCustomError('Booking not found', 404);
+  }
+
+  await Booking.update(
+    { booking_status: 'Canceled' },
+    {
+      where: {
+        id: id,
+      },
+    },
+  );
+  await booking.destroy();
+};
+
 module.exports = {
   create,
   getAll,
   getById,
   update,
+  remove,
 };

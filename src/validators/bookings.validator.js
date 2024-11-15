@@ -54,14 +54,12 @@ const updateValidation = [
       show_id: Joi.string().uuid().optional().messages({
         'string.guid': 'Show ID must be a valid UUID',
       }),
-      number_of_seat: Joi.number().integer().min(1).optional().messages({
+      number_of_seat: Joi.number().integer().optional().messages({
         'number.base': 'Number of seats must be a number',
         'number.integer': 'Number of seats must be an integer',
-        'number.min': 'Number of seats must be at least 1',
       }),
-      booking_date: Joi.date().iso().optional().messages({
+      booking_date: Joi.date().optional().messages({
         'date.base': 'Booking date must be a valid date',
-        'date.iso': 'Booking date must be in ISO format',
       }),
       booking_status: Joi.string()
         .valid('Confirmed', 'Pending', 'Canceled')
@@ -70,10 +68,9 @@ const updateValidation = [
           'any.only':
             'Booking status must be one of Confirmed, Pending, or Canceled',
         }),
-      total_amount: Joi.number().integer().min(1).optional().messages({
+      total_amount: Joi.number().integer().optional().messages({
         'number.base': 'Total amount must be a number',
         'number.integer': 'Total amount must be an integer',
-        'number.min': 'Total amount must be at least 1',
       }),
     });
     const { error } = schema.validate(req.body);
