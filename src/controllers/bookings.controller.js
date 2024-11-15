@@ -44,8 +44,23 @@ const fetchById = async (req, res) => {
   }
 };
 
+const change = async (req, res) => {
+  try {
+    const booking = await bookingService.update(req.body);
+    res.data = {
+      message: 'Booking Updated Successfully',
+      booking,
+    };
+    (res.statusCode = 200), responseHandler(req, res);
+  } catch (error) {
+    console.log(error);
+    errorHandler(req, res, error.message, 404);
+  }
+};
+
 module.exports = {
   generate,
   fetchAll,
   fetchById,
+  change,
 };

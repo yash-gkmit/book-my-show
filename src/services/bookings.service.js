@@ -80,8 +80,28 @@ const getById = async id => {
   return booking;
 };
 
+const update = async (id, data) => {
+  const t = await sequelize.transaction();
+
+  try {
+    const booking = await Booking.findByPk(id, { transaction: t });
+    if (!booking) {
+      throwCustomError('Booking not found', 404);
+    }
+
+    await booking.update(data, { transaction: t });
+
+    await t.commit();
+    return booking;
+  } catch (error) {
+    await t.rollback();
+    throw error;
+  }
+};
+
 module.exports = {
   create,
   getAll,
   getById,
+  update,
 };

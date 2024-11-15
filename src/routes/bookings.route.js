@@ -2,7 +2,10 @@ const express = require('express');
 const router = express.Router();
 
 const bookingController = require('../controllers/bookings.controller');
-const { createValidation } = require('../validators/bookings.validator');
+const {
+  createValidation,
+  updateValidation,
+} = require('../validators/bookings.validator');
 const { authMiddleware } = require('../middlewares/auth.middleware');
 const { rbacMiddleware } = require('../middlewares/rbac.middleware');
 
@@ -15,4 +18,11 @@ router.get(
   bookingController.fetchById,
 );
 
+router.put(
+  '/:id',
+  authMiddleware,
+  rbacMiddleware(['Self']),
+  updateValidation,
+  bookingController.change,
+);
 module.exports = router;
