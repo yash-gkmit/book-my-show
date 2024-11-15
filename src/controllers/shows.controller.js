@@ -54,8 +54,20 @@ const fetchById = async (req, res) => {
   }
 };
 
+const change = async (req, res) => {
+  try {
+    const show = await showService.update(req.params.id, req.body);
+    res.data = show;
+    responseHandler(req, res);
+  } catch (error) {
+    console.log(error);
+    errorHandler(req, res, error.message, 400);
+  }
+};
+
 module.exports = {
   generate,
   fetchAll,
   fetchById,
+  change,
 };

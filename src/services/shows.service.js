@@ -60,8 +60,29 @@ const getById = async id => {
   return show;
 };
 
+const update = async (id, data) => {
+  const transaction = await sequelize.transaction();
+
+  try {
+    const show = await Show.findByPk(id, { transaction });
+
+    if (!show) {
+      throwCustomError('Show not available for that id', 404);
+    }
+    await show.update(data, { transaction });
+
+    await transaction.commit();
+
+    return show;
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
+  }
+};
+
 module.exports = {
   create,
   getAll,
   getById,
+  update,
 };
