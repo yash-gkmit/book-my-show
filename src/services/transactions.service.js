@@ -156,8 +156,28 @@ const getById = async id => {
   return transaction;
 };
 
+const remove = async id => {
+  const transaction = await sequelize.transaction();
+
+  try {
+    const transactionRecord = await Transaction.findByPk(id, { transaction });
+    if (!transactionRecord) {
+      throwCustomError('Transaction not found', 404);
+    }
+
+    await transactionRecord.destroy({ transaction });
+
+    await transaction.commit();
+    return { message: 'Transaction removed successfully' };
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
+  }
+};
+
 module.exports = {
   create,
   getAll,
   getById,
+  remove,
 };

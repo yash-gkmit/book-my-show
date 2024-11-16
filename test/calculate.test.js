@@ -9,7 +9,7 @@ describe('add', () => {
     expect(add(-6, -2)).toBe(-8);
   });
 
-it('should fail to check test', () => {
-    expect(add(2, 3)).toBe(6); 
+  it('should fail to check test', () => {
+    expect(add(2, 3)).toBe(6);
   });
 });

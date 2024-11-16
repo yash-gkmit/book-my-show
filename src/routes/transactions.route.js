@@ -15,4 +15,11 @@ router.get('/', authMiddleware, transactionController.fetchAll);
 
 router.get('/:id', authMiddleware, transactionController.fetchById);
 
+router.delete(
+  '/:id',
+  authMiddleware,
+  rbacMiddleware(['Admin', 'Self']),
+  transactionController.remove,
+);
+
 module.exports = router;
