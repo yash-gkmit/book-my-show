@@ -13,4 +13,6 @@ router.post(
 
 router.get('/', authMiddleware, transactionController.fetchAll);
 
+router.get('/:id', authMiddleware, transactionController.fetchById);
+
 module.exports = router;

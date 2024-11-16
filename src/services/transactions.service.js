@@ -128,7 +128,36 @@ const getAll = async (filters, page = 1, limit = 10) => {
   };
 };
 
+const getById = async id => {
+  const transaction = await Transaction.findOne({
+    where: { id },
+    include: [
+      {
+        model: Booking,
+        as: 'booking',
+        include: [
+          {
+            model: Show,
+            as: 'show',
+            include: [
+              { model: Movie, as: 'movie' },
+              { model: Theater, as: 'theater' },
+            ],
+          },
+        ],
+      },
+    ],
+  });
+
+  if (!transaction) {
+    throwCustomError('Transaction not found', 404);
+  }
+
+  return transaction;
+};
+
 module.exports = {
   create,
   getAll,
+  getById,
 };

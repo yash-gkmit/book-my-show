@@ -43,7 +43,28 @@ const fetchAll = async (req, res) => {
   }
 };
 
+const fetchById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const transaction = await transactionService.getById(id);
+
+    res.data = transaction;
+    res.statusCode = 200;
+    responseHandler(req, res);
+  } catch (error) {
+    console.error(error);
+
+    if (error.statusCode) {
+      errorHandler(req, res, error.message, error.statusCode);
+    } else {
+      errorHandler(req, res, 'Transaction not found', 404);
+    }
+  }
+};
+
 module.exports = {
   generate,
   fetchAll,
+  fetchById,
 };
