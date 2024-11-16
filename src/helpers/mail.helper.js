@@ -27,3 +27,37 @@ exports.sendOtpEmail = async (email, otp) => {
     throwCustomError('Failed to send OTP email', 403);
   }
 };
+
+exports.sendTransactionEmail = async ({
+  to,
+  subject,
+  description,
+  movie_name,
+  show_time,
+  show_date,
+  booking_date,
+  total_amount,
+  total_gst,
+  amount_paid,
+  booking_status,
+}) => {
+  const emailOptions = {
+    from: process.env.SMTP_USER,
+    to,
+    subject,
+    html: `
+      <h1>${subject}</h1>
+      <p>${description}</p>
+      <p><strong>Movie:</strong> ${movie_name}</p>
+      <p><strong>Show Time:</strong> ${show_time}</p>
+      <p><strong>Show Date:</strong> ${show_date}</p>
+      <p><strong>Booking Date:</strong> ${new Date(booking_date).toLocaleString()}</p>
+      <p><strong>Total Amount:</strong> ₹${total_amount}</p>
+      <p><strong>Total GST:</strong> ₹${total_gst}</p>
+      <p><strong>Amount Paid:</strong> ₹${amount_paid}</p>
+      <p><strong>Booking Status:</strong> ${booking_status}</p>
+    `,
+  };
+
+  await transporter.sendMail(emailOptions);
+};

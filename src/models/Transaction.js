@@ -7,6 +7,11 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'booking_id',
         as: 'booking',
       });
+
+      Transaction.belongsTo(models.User, {
+        foreignKey: 'user_id',
+        as: 'user',
+      });
     }
   }
   Transaction.init(
@@ -25,12 +30,9 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       transaction_status: {
-        type: DataTypes.ENUM('Success', 'Failed'),
-        allowNull: false,
-      },
-      transaction_date: {
-        type: DataTypes.DATE,
-        allowNull: false,
+        type: DataTypes.ENUM('Success', 'Pending', 'Failed'),
+        allowNull: true,
+        defaultValue: 'Pending',
       },
       transaction_amount: {
         type: DataTypes.BIGINT,

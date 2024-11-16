@@ -25,12 +25,9 @@ module.exports = {
         },
       },
       transaction_status: {
-        type: Sequelize.ENUM('Success', 'Failed'),
-        allowNull: false,
-      },
-      transaction_date: {
-        type: Sequelize.DATE,
-        allowNull: false,
+        type: Sequelize.ENUM('Success', 'Pending', 'Failed'),
+        allowNull: true,
+        defaultValue: 'Pending',
       },
       transaction_amount: {
         type: Sequelize.BIGINT,
