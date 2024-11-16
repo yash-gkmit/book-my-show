@@ -33,7 +33,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: 'TheatersMovies',
+      modelName: 'TheaterMovie',
       tableName: 'theaters_movies',
       timestamps: true,
       paranoid: true,
