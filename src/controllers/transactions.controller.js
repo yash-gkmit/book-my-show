@@ -1,6 +1,10 @@
 const transactionService = require('../services/transactions.service');
+const {
+  errorHandler,
+  responseHandler,
+} = require('../helpers/common.helper.js');
 
-const createTransaction = async (req, res) => {
+const generate = async (req, res) => {
   try {
     const transaction = await transactionService.create(req.body);
 
@@ -19,6 +23,27 @@ const createTransaction = async (req, res) => {
   }
 };
 
+const fetchAll = async (req, res) => {
+  try {
+    const { page = 1, limit = 10, ...filters } = req.query;
+
+    const result = await transactionService.getAll(filters, page, limit);
+
+    res.data = result;
+    res.statusCode = 200;
+    responseHandler(req, res);
+  } catch (error) {
+    console.error(error);
+
+    if (error.statusCode) {
+      errorHandler(req, res, error.message, error.statusCode);
+    } else {
+      errorHandler(req, res, 'Transaction not found', 404);
+    }
+  }
+};
+
 module.exports = {
-  createTransaction,
+  generate,
+  fetchAll,
 };

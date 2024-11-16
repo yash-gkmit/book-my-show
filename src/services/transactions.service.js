@@ -5,6 +5,7 @@ const {
   User,
   Movie,
   sequelize,
+  Theater,
 } = require('../models');
 const { sendTransactionEmail } = require('../helpers/mail.helper');
 
@@ -42,7 +43,6 @@ const create = async data => {
     const total_gst = GST + CGST + IGST + SGST;
     const amount_paid = transaction_amount + total_gst;
 
-    // Create the transaction without specifying transaction_status
     const transaction = await Transaction.create(
       {
         user_id,
@@ -56,11 +56,9 @@ const create = async data => {
       { transaction: t },
     );
 
-    // Update the transaction status to "Success" if the booking is confirmed
     transaction.transaction_status = 'Success';
     await transaction.save({ transaction: t });
 
-    // Update booking and show availability if transaction is successful
     if (transaction.transaction_status === 'Success') {
       booking.booking_status = 'Confirmed';
       await booking.save({ transaction: t });
@@ -68,7 +66,6 @@ const create = async data => {
       show.available_seats -= booking.number_of_seat;
       await show.save({ transaction: t });
 
-      // Send a transaction email notification
       await sendTransactionEmail({
         to: booking.user.email,
         subject: 'Transaction Completed',
@@ -92,6 +89,46 @@ const create = async data => {
   }
 };
 
+const getAll = async (filters, page = 1, limit = 10) => {
+  const whereConditions = {};
+
+  for (const [key, value] of Object.entries(filters)) {
+    if (Object.keys(Transaction.rawAttributes).includes(key)) {
+      whereConditions[key] = { [Op.eq]: value };
+    }
+  }
+
+  const offset = (page - 1) * limit;
+
+  const { count, rows } = await Transaction.findAndCountAll({
+    where: whereConditions,
+    include: [
+      {
+        model: Booking,
+        as: 'booking',
+        include: [
+          { model: Show, as: 'show', include: [{ model: Movie, as: 'movie' }] },
+          { model: User, as: 'user' },
+        ],
+      },
+    ],
+    offset,
+    limit: parseInt(limit),
+    order: [['created_at', 'DESC']],
+  });
+
+  return {
+    data: rows,
+    pagination: {
+      totalItems: count,
+      currentPage: parseInt(page),
+      itemsPerPage: parseInt(limit),
+      totalPages: Math.ceil(count / limit),
+    },
+  };
+};
+
 module.exports = {
   create,
+  getAll,
 };
