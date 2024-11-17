@@ -117,60 +117,6 @@ const remove = async id => {
   await booking.destroy();
 };
 
-// const getReports = async (startDate, endDate) => {
-//   const whereClause = {};
-//   if (startDate && endDate) {
-//     whereClause.created_at = {
-//       [Op.between]: [new Date(startDate), new Date(endDate)],
-//     };
-//   }
-//   const totalBookings = await Booking.count({ where: whereClause });
-//   const totalRevenue = await Booking.sum('total_amount', {
-//     where: whereClause,
-//   });
-//   const averageRevenuePerBooking = totalRevenue / totalBookings || 0;
-
-//   return { totalBookings, totalRevenue, averageRevenuePerBooking };
-// };
-
-// const getReports = async () => {
-//   const totalBookings = await Booking.count();
-//   const revenueGenerated = await Booking.sum('total_amount');
-
-//   const mostBookedMovies = await Booking.findAll({
-//     attributes: [
-//       [sequelize.col('show.movie.id'), 'movie_id'],
-//       [sequelize.col('show.movie.name'), 'movie_name'],
-//       [sequelize.fn('COUNT', sequelize.col('Booking.id')), 'booking_count'],
-//     ],
-//     include: [
-//       {
-//         model: Show,
-//         as: 'show',
-//         include: [
-//           {
-//             model: Movie,
-//             as: 'movie',
-//           },
-//         ],
-//       },
-//     ],
-//     group: ['show.movie.id', 'show.movie.name'],
-//     order: [[sequelize.fn('COUNT', sequelize.col('Booking.id')), 'DESC']],
-//     limit: 5,
-//   });
-
-//   return {
-//     totalBookings,
-//     revenueGenerated,
-//     mostBookedMovies: mostBookedMovies.map(movie => ({
-//       movieId: movie.get('movie_id'),
-//       movieName: movie.get('movie_name'),
-//       bookingCount: movie.get('booking_count'),
-//     })),
-//   };
-// };
-
 const getReports = async () => {
   const totalBookings = await Booking.count();
   const revenueGenerated = await Booking.sum('total_amount');

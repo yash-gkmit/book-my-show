@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const { throwCustomError } = require('./common.helper');
 
-exports.generateToken = payload => {
+const generateToken = payload => {
   try {
     return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
   } catch {
@@ -9,7 +9,7 @@ exports.generateToken = payload => {
   }
 };
 
-exports.verifyToken = token => {
+const verifyToken = token => {
   return new Promise((resolve, reject) => {
     jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
       if (err) {
@@ -19,4 +19,9 @@ exports.verifyToken = token => {
       }
     });
   });
+};
+
+module.exports = {
+  generateToken,
+  verifyToken,
 };
