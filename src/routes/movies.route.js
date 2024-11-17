@@ -23,6 +23,13 @@ router.post(
 
 router.get('/', moviesController.fetchAll);
 
+router.get(
+  '/reports',
+  authMiddleware,
+  rbacMiddleware(['Admin']),
+  moviesController.fetchReport,
+);
+
 router.get('/:id', moviesController.fetchById);
 
 router.put(

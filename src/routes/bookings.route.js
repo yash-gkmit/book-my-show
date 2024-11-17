@@ -11,6 +11,14 @@ const { rbacMiddleware } = require('../middlewares/rbac.middleware');
 
 router.post('/', authMiddleware, createValidation, bookingController.generate);
 router.get('/', authMiddleware, bookingController.fetchAll);
+
+router.get(
+  '/reports',
+  authMiddleware,
+  rbacMiddleware(['Admin']),
+  bookingController.fetchReports,
+);
+
 router.get(
   '/:id',
   authMiddleware,

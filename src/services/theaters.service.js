@@ -1,4 +1,4 @@
-const { Theater, Movie, TheaterMovie } = require('../models');
+const { Theater, Movie, TheaterMovie, Booking, Show } = require('../models');
 const { throwCustomError } = require('../helpers/common.helper.js');
 const create = async data => {
   const t = await Sequelize.transaction();
@@ -137,6 +137,47 @@ const getMovies = async (theaterId, page = 1, limit = 10) => {
   };
 };
 
+const getReports = async theaterId => {
+  const whereClause = {};
+  if (theaterId) {
+    whereClause.id = theaterId;
+  }
+
+  const theaters = await Theater.findAll({
+    where: whereClause,
+    include: {
+      model: Show,
+      as: 'shows',
+      include: {
+        model: Booking,
+        as: 'bookings',
+        attributes: ['total_amount'],
+      },
+    },
+  });
+
+  return theaters.map(theater => {
+    const totalBookings = theater.shows.reduce(
+      (acc, show) => acc + show.bookings.length,
+      0,
+    );
+
+    const totalRevenue = theater.shows.reduce(
+      (acc, show) =>
+        acc +
+        show.bookings.reduce((sum, booking) => sum + booking.total_amount, 0),
+      0,
+    );
+
+    return {
+      theaterId: theater.id,
+      theaterName: theater.name,
+      totalBookings,
+      totalRevenue,
+    };
+  });
+};
+
 module.exports = {
   create,
   getAll,
@@ -145,4 +186,5 @@ module.exports = {
   remove,
   getByCity,
   getMovies,
+  getReports,
 };

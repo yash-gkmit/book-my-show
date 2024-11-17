@@ -100,6 +100,19 @@ const fetchMovies = async (req, res) => {
     errorHandler(req, res, error.message, error.statusCode || 500);
   }
 };
+
+const fetchReports = async (req, res) => {
+  try {
+    const { theaterId } = req.query;
+    const data = await theaterService.getReports(theaterId);
+    res.data = data;
+    res.statusCode = 200;
+    responseHandler(req, res);
+  } catch (error) {
+    errorHandler(req, res, error.message, error.statusCode || 500);
+  }
+};
+
 module.exports = {
   generate,
   fetchAll,
@@ -108,4 +121,5 @@ module.exports = {
   change,
   fetchByCity,
   fetchMovies,
+  fetchReports,
 };
