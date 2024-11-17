@@ -41,4 +41,6 @@ router.delete(
   bookingController.remove,
 );
 
+router.patch('/:id/cancel', authMiddleware, bookingController.cancel);
+
 module.exports = router;
