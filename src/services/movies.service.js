@@ -11,6 +11,7 @@ const { parse } = require('json2csv');
 const fs = require('fs');
 const path = require('path');
 const { Op } = require('sequelize');
+const moment = require('moment');
 
 const create = async (movieData, theaterIds) => {
   const transaction = await sequelize.transaction();
@@ -158,46 +159,82 @@ const getTheatersByMovie = async movieId => {
 const generateReport = async (startDate, endDate) => {
   try {
     const whereClause = {};
+
     if (startDate && endDate) {
-      whereClause.createdAt = {
-        [Op.between]: [new Date(startDate), new Date(endDate)],
+      const parsedStartDate = moment(startDate, 'DD-MM-YYYY').format(
+        'YYYY-MM-DD',
+      );
+      const parsedEndDate = moment(endDate, 'DD-MM-YYYY').format('YYYY-MM-DD');
+
+      if (
+        !moment(parsedStartDate, 'YYYY-MM-DD', true).isValid() ||
+        !moment(parsedEndDate, 'YYYY-MM-DD', true).isValid()
+      ) {
+        throw new Error('Invalid date format. Please use DD-MM-YYYY.');
+      }
+
+      if (moment(parsedStartDate).isAfter(moment(parsedEndDate))) {
+        throw new Error('Start date must be before end date.');
+      }
+
+      whereClause.created_at = {
+        [Op.between]: [new Date(parsedStartDate), new Date(parsedEndDate)],
       };
     }
 
     const movies = await Movie.findAll({
+      attributes: ['id', 'name', 'release_date'],
+      where: whereClause,
       include: {
         model: Show,
         as: 'shows',
         include: {
           model: Booking,
           as: 'bookings',
-          where: whereClause,
           attributes: ['total_amount', 'created_at'],
         },
       },
     });
 
-    const reportData = movies.map(movie => ({
-      movieId: movie.id,
-      movieName: movie.name,
-      totalBookings: movie.shows.reduce(
+    if (!movies.length) {
+      console.log('No movies found within the specified date range.');
+    }
+
+    const reportData = movies.map(movie => {
+      const totalBookings = movie.shows.reduce(
         (sum, show) => sum + show.bookings.length,
         0,
-      ),
-      totalRevenue: movie.shows.reduce(
+      );
+      const totalRevenue = movie.shows.reduce(
         (sum, show) =>
           sum +
           show.bookings.reduce((acc, booking) => acc + booking.total_amount, 0),
         0,
-      ),
-    }));
+      );
 
-    const fields = ['movieId', 'movieName', 'totalBookings', 'totalRevenue'];
+      return {
+        movieId: movie.id,
+        movieName: movie.name,
+        releaseDate: movie.release_date,
+        totalBookings,
+        totalRevenue,
+      };
+    });
+
+    if (!reportData.length) {
+      console.log('No bookings data found for the movies.');
+    }
+
+    const fields = [
+      'movieId',
+      'movieName',
+      'releaseDate',
+      'totalBookings',
+      'totalRevenue',
+    ];
     const csv = parse(reportData, { fields });
 
-    // Path to save the report
     const reportsDir = path.join(__dirname, '../reports');
-    console.log('Reports directory path:', reportsDir); // Debugging
 
     if (!fs.existsSync(reportsDir)) {
       fs.mkdirSync(reportsDir);
@@ -205,12 +242,10 @@ const generateReport = async (startDate, endDate) => {
 
     const fileName = `report_${Date.now()}.csv`;
     const filePath = path.join(reportsDir, fileName);
-    console.log('Generated file path:', filePath); // Debugging
 
     fs.writeFileSync(filePath, csv);
-    console.log('CSV successfully written to:', filePath); // Debugging
-
-    return filePath; // Ensure filePath is returned
+    console.log('CSV successfully written to:', filePath);
+    return filePath;
   } catch (error) {
     console.error('Error in generateReport:', error.stack);
     throw new Error(`Failed to generate report: ${error.message}`);

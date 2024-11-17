@@ -53,10 +53,34 @@ const remove = async (req, res) => {
   }
 };
 
+const fetchReport = async (req, res) => {
+  try {
+    const { city, startDate, endDate } = req.query;
+
+    if (!city) {
+      return res.status(400).json({ message: 'City is required.' });
+    }
+
+    const filePath = await cityService.generateReport(city, startDate, endDate);
+
+    return res.status(200).json({
+      message: 'Report generated successfully.',
+      filePath: filePath,
+    });
+  } catch (error) {
+    console.error('Error generating city-based report:', error);
+    return res.status(500).json({
+      message: 'Failed to generate city-based report.',
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   generate,
   fetchAll,
   fetchById,
   change,
   remove,
+  fetchReport,
 };

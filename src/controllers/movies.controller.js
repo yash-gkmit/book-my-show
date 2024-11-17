@@ -115,27 +115,24 @@ const fetchReport = async (req, res) => {
     const filePath = await movieService.generateReport(startDate, endDate);
 
     if (!filePath) {
-      console.error('No file path returned from service');
-      return res.status(500).json({ message: 'Report generation failed' });
+      throwCustomError('Report generation failed', 422);
     }
 
     if (!fs.existsSync(filePath)) {
-      console.error('File not found at path:', filePath);
-      return res.status(404).json({ message: 'Report file not found' });
+      throwCustomError('Report file not found', 404);
     }
 
     res.download(filePath, path.basename(filePath), err => {
       if (err) {
         console.error('Error sending file:', err);
-        return res.status(500).json({ message: 'Failed to download report' });
+        return errorHandler(req, res, 'Failed to download report', 424);
       }
     });
   } catch (error) {
     console.error('Error in fetchReport:', error.stack);
-    res.status(500).json({ message: error.message });
+    errorHandler(req, res, error.message, error.statusCode || 400);
   }
 };
-
 module.exports = {
   generate,
   fetchAll,
