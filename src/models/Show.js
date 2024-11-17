@@ -12,6 +12,11 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'theater_id',
         as: 'theater',
       });
+
+      Show.hasMany(models.Booking, {
+        foreignKey: 'show_id',
+        as: 'bookings',
+      });
     }
   }
   Show.init(

@@ -24,6 +24,13 @@ router.get(
 );
 
 router.get(
+  '/reports',
+  authMiddleware,
+  rbacMiddleware(['Admin']),
+  theaterController.fetchReports,
+);
+
+router.get(
   '/:id',
   authMiddleware,
   rbacMiddleware(['Admin', 'Theater Owner']),
