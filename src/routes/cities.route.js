@@ -14,6 +14,12 @@ router.post(
 );
 
 router.get('/', cityController.fetchAll);
+router.get(
+  '/reports',
+  authMiddleware,
+  rbacMiddleware(['Admin']),
+  cityController.fetchReport,
+);
 
 router.get('/:id', cityController.fetchById);
 

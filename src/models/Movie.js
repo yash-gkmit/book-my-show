@@ -27,6 +27,7 @@ module.exports = (sequelize, DataTypes) => {
       name: {
         type: DataTypes.STRING(150),
         allowNull: false,
+        unique: true,
       },
       summary: {
         type: DataTypes.TEXT,
@@ -54,6 +55,10 @@ module.exports = (sequelize, DataTypes) => {
       language: {
         type: DataTypes.STRING(30),
         allowNull: false,
+      },
+      category: {
+        type: DataTypes.ENUM('U', 'U/A', 'A'),
+        allowNull: true,
       },
       poster: {
         type: DataTypes.STRING,
