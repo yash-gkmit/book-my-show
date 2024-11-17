@@ -1,7 +1,7 @@
 const Joi = require('joi');
 const { throwCustomError } = require('./common.helper');
 
-const validateEmail = email => {
+exports.validateEmail = email => {
   const schema = Joi.string().email().required();
   const { error } = schema.validate(email);
   if (error) {
@@ -9,7 +9,7 @@ const validateEmail = email => {
   }
 };
 
-const validatePassword = password => {
+exports.validatePassword = password => {
   const schema = Joi.string()
     .min(8)
     .pattern(
@@ -26,7 +26,7 @@ const validatePassword = password => {
   }
 };
 
-const validateOtp = otp => {
+exports.validateOtp = otp => {
   const schema = Joi.string()
     .length(6)
     .pattern(/^\d{6}$/)
@@ -37,7 +37,7 @@ const validateOtp = otp => {
   }
 };
 
-const validatePhone = phone => {
+exports.validatePhone = phone => {
   const schema = Joi.string()
     .length(10)
     .pattern(/^\d{10}$/)
@@ -48,7 +48,7 @@ const validatePhone = phone => {
   }
 };
 
-const validateString = value => {
+exports.validateString = value => {
   const schema = Joi.string().min(1).required();
   const { error } = schema.validate(value);
   if (error) {
@@ -56,7 +56,7 @@ const validateString = value => {
   }
 };
 
-const validateArray = value => {
+exports.validateArray = value => {
   const schema = Joi.array().min(1).required();
   const { error } = schema.validate(value);
   if (error) {
@@ -64,7 +64,7 @@ const validateArray = value => {
   }
 };
 
-const validateRequest = (data, rules) => {
+exports.validateRequest = (data, rules) => {
   for (const field in rules) {
     const value = data[field];
     const rule = rules[field];
@@ -92,14 +92,4 @@ const validateRequest = (data, rules) => {
         throwCustomError(`Unknown validation rule for ${field}`, 400);
     }
   }
-};
-
-module.exports = {
-  validateEmail,
-  validateOtp,
-  validateArray,
-  validatePhone,
-  validateString,
-  validatePassword,
-  validateRequest,
 };

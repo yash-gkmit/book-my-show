@@ -32,10 +32,6 @@ const create = async data => {
 
     const show = booking.show;
 
-    if (show.available_seats < booking.number_of_seat) {
-      throw new Error('Insufficient seats available');
-    }
-
     const GST = transaction_amount * 0.18;
     const CGST = transaction_amount * 0.18;
     const IGST = transaction_amount * 0.18;

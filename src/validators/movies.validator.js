@@ -1,39 +1,56 @@
-const { check } = require('express-validator');
-const { validatorMiddleware } = require('../middlewares/validator.middleware');
+const Joi = require('joi');
 
-const createValidation = [
-  check('name').notEmpty().withMessage('Movie name is required'),
-  check('summary').optional().isString(),
-  check('release_date').notEmpty().isString(),
-  check('cast_member_list')
-    .isArray()
-    .withMessage('Cast members must be an array'),
-  check('genre').isIn([
-    'Action',
-    'Comedy',
-    'Drama',
-    'Horror',
-    'Sci-Fi',
-    'Romance',
-  ]),
-  check('language').notEmpty().withMessage('Language is required'),
-  validatorMiddleware,
-];
+const createValidation = (req, res, next) => {
+  const schema = Joi.object({
+    name: Joi.string().required().message('Movie name is required'),
+    summary: Joi.string().optional(),
+    release_date: Joi.string().required(),
+    cast_member_list: Joi.array()
+      .items(Joi.string())
+      .required()
+      .message('Cast members must be an array'),
+    genre: Joi.string()
+      .valid('Action', 'Comedy', 'Drama', 'Horror', 'Sci-Fi', 'Romance')
+      .required(),
+    language: Joi.string().required().message('Language is required'),
+  });
 
-const updateValidation = [
-  check('name').notEmpty().withMessage('Invalid name'),
-  check('summary').optional().isString(),
-  check('release_date').optional().notEmpty().isString(),
-  check('cast_member_list')
-    .optional()
-    .isArray()
-    .withMessage('Cast members must be an array'),
-  check('genre')
-    .optional()
-    .isIn(['Action', 'Comedy', 'Drama', 'Horror', 'Sci-Fi', 'Romance']),
-  check('language').optional().notEmpty().withMessage('Invalid Language'),
-  validatorMiddleware,
-];
+  const { error } = schema.validate(req.body);
+
+  if (error) {
+    return res.status(400).json({
+      message: error.details[0].message,
+    });
+  }
+
+  next();
+};
+
+const updateValidation = (req, res, next) => {
+  const schema = Joi.object({
+    name: Joi.string().optional().message('Invalid name'),
+    summary: Joi.string().optional(),
+    release_date: Joi.string().optional().allow(''),
+    cast_member_list: Joi.array()
+      .items(Joi.string())
+      .optional()
+      .message('Cast members must be an array'),
+    genre: Joi.string()
+      .valid('Action', 'Comedy', 'Drama', 'Horror', 'Sci-Fi', 'Romance')
+      .optional(),
+    language: Joi.string().optional().allow('').message('Invalid Language'),
+  });
+
+  const { error } = schema.validate(req.body);
+
+  if (error) {
+    return res.status(400).json({
+      message: error.details[0].message,
+    });
+  }
+
+  next();
+};
 
 module.exports = {
   createValidation,

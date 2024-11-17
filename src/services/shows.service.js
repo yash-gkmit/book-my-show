@@ -1,4 +1,5 @@
 const { Show, Movie, Theater, sequelize } = require('../models');
+const { Op } = require('sequelize');
 
 const create = async data => {
   const t = await sequelize.transaction();
