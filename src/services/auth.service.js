@@ -14,7 +14,7 @@ const { throwCustomError } = require('../helpers/common.helper');
 
 const { addTokenToBlacklist } = require('../helpers/redis.helper');
 
-exports.register = async ({ name, email, password, phone, roles }) => {
+const register = async ({ name, email, password, phone, roles }) => {
   console.log('Register params:', { name, email, password, phone, roles });
 
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -43,7 +43,7 @@ exports.register = async ({ name, email, password, phone, roles }) => {
   return { message: 'User registered successfully', userId: user.id };
 };
 
-exports.sendOtp = async email => {
+const sendOtp = async email => {
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
   console.log(otp);
@@ -53,7 +53,7 @@ exports.sendOtp = async email => {
   return { message: 'OTP sent successfully' };
 };
 
-exports.verifyOtp = async (email, otp) => {
+const verifyOtp = async (email, otp) => {
   const storedOtp = await getOtpFromRedis(email);
   console.log('Stored OTP:', storedOtp);
 
@@ -73,7 +73,7 @@ exports.verifyOtp = async (email, otp) => {
   }
 };
 
-exports.login = async (email, password, role) => {
+const login = async (email, password, role) => {
   console.log(`Email: ${email}`);
 
   const user = await User.findOne({
@@ -105,7 +105,7 @@ exports.login = async (email, password, role) => {
   return { message: 'Login successful', token, role };
 };
 
-exports.logout = async token => {
+const logout = async token => {
   const decodedToken = jwt.decode(token);
   if (!decodedToken) {
     throwCustomError('Invalid token', 401);
@@ -122,4 +122,12 @@ exports.logout = async token => {
       console.log(error);
       throwCustomError('Logout failed', 400);
     });
+};
+
+module.exports = {
+  register,
+  sendOtp,
+  verifyOtp,
+  login,
+  logout,
 };

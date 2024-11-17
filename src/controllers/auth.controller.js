@@ -6,7 +6,7 @@ const {
 } = require('../helpers/common.helper');
 const { validateRequest } = require('../helpers/validate.helper');
 
-exports.register = async (req, res) => {
+const register = async (req, res) => {
   try {
     const rules = {
       name: 'string',
@@ -45,7 +45,7 @@ exports.register = async (req, res) => {
   }
 };
 
-exports.sendOtp = async (req, res) => {
+const sendOtp = async (req, res) => {
   try {
     validateRequest(req.body, { email: 'email' });
 
@@ -58,7 +58,7 @@ exports.sendOtp = async (req, res) => {
   }
 };
 
-exports.verifyOtp = async (req, res) => {
+const verifyOtp = async (req, res) => {
   try {
     const rules = {
       email: 'email',
@@ -76,7 +76,7 @@ exports.verifyOtp = async (req, res) => {
   }
 };
 
-exports.login = async (req, res) => {
+const login = async (req, res) => {
   try {
     console.log(req.body);
 
@@ -102,7 +102,7 @@ exports.login = async (req, res) => {
   }
 };
 
-exports.logout = async (req, res) => {
+const logout = async (req, res) => {
   try {
     const token = req.headers['authorization']?.split(' ')[1];
 
@@ -118,4 +118,12 @@ exports.logout = async (req, res) => {
   } catch (error) {
     errorHandler(req, res, error.message, error.statusCode || 400);
   }
+};
+
+module.exports = {
+  register,
+  sendOtp,
+  verifyOtp,
+  login,
+  logout,
 };
