@@ -1,21 +1,42 @@
-const { check } = require('express-validator');
-const { validatorMiddleware } = require('../middlewares/validator.middleware');
+const Joi = require('joi');
 
-const createCity = [
-  check('name')
-    .isString()
-    .isLength({ max: 50 })
-    .withMessage('City name must be a string up to 50 characters'),
-  validatorMiddleware,
-];
+const createCity = (req, res, next) => {
+  const schema = Joi.object({
+    name: Joi.string()
+      .max(50)
+      .required()
+      .message('City name must be a string up to 50 characters'),
+  });
 
-const updateCity = [
-  check('name')
-    .isString()
-    .isLength({ max: 50 })
-    .withMessage('City name must be a string up to 50 characters'),
-  validatorMiddleware,
-];
+  const { error } = schema.validate(req.body);
+
+  if (error) {
+    return res.status(400).json({
+      message: error.details[0].message,
+    });
+  }
+
+  next();
+};
+
+const updateCity = (req, res, next) => {
+  const schema = Joi.object({
+    name: Joi.string()
+      .max(50)
+      .required()
+      .message('City name must be a string up to 50 characters'),
+  });
+
+  const { error } = schema.validate(req.body);
+
+  if (error) {
+    return res.status(400).json({
+      message: error.details[0].message,
+    });
+  }
+
+  next();
+};
 
 module.exports = {
   createCity,

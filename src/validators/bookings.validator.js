@@ -4,8 +4,7 @@ const { validatorMiddleware } = require('../middlewares/validator.middleware');
 const createValidation = [
   (req, res, next) => {
     const schema = Joi.object({
-      user_id: Joi.string().uuid().required().messages({
-        'string.empty': 'User ID is required',
+      user_id: Joi.string().uuid().messages({
         'string.guid': 'User ID must be a valid UUID',
       }),
       show_id: Joi.string().uuid().required().messages({
@@ -26,8 +25,7 @@ const createValidation = [
           'any.only':
             'Booking status must be one of Confirmed, Pending, or Canceled',
         }),
-      total_amount: Joi.number().integer().required().messages({
-        'number.base': 'Total amount must be a number',
+      total_amount: Joi.number().integer().messages({
         'number.integer': 'Total amount must be an integer',
       }),
     });

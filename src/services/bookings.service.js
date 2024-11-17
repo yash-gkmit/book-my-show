@@ -25,9 +25,10 @@ const create = async data => {
 
     const booking = await Booking.create(bookingData, { transaction: t });
 
-    show.available_seats -= data.number_of_seat;
-    await show.save({ transaction: t });
-
+    if (show.available_seats > data.number_of_seat) {
+      show.available_seats -= data.number_of_seat;
+      await show.save({ transaction: t });
+    }
     await t.commit();
 
     return booking;
