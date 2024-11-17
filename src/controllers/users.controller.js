@@ -106,6 +106,17 @@ const getTransactions = async (req, res) => {
   }
 };
 
+const fetchReports = async (req, res) => {
+  try {
+    const data = await userService.getReports();
+    res.data = data;
+    responseHandler(req, res);
+  } catch (error) {
+    console.error(error);
+    errorHandler(req, res, error.message, error.statusCode || 500);
+  }
+};
+
 module.exports = {
   fetchAll,
   fetchById,
@@ -113,4 +124,5 @@ module.exports = {
   remove,
   getBookings,
   getTransactions,
+  fetchReports,
 };

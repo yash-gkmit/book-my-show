@@ -191,6 +191,25 @@ const getTransactions = async (userId, filters = {}, page = 1, limit = 10) => {
   }
 };
 
+const getReports = async () => {
+  const totalUsers = await User.count();
+  const newRegistrations = await User.count({
+    where: {
+      created_at: {
+        [Op.gte]: new Date(new Date() - 24 * 60 * 60 * 1000),
+      },
+    },
+  });
+  const registrationHistory = await User.findAll({
+    attributes: [
+      [sequelize.fn('DATE', sequelize.col('created_at')), 'registration_date'],
+      [sequelize.fn('COUNT', sequelize.col('id')), 'count'],
+    ],
+    group: 'registration_date',
+  });
+  return { totalUsers, newRegistrations, registrationHistory };
+};
+
 module.exports = {
   getAll,
   getById,
@@ -198,4 +217,5 @@ module.exports = {
   remove,
   getBookings,
   getTransactions,
+  getReports,
 };

@@ -6,6 +6,7 @@ const {
   remove,
   getBookings,
   getTransactions,
+  fetchReports,
 } = require('../controllers/users.controller');
 const { authMiddleware } = require('../middlewares/auth.middleware');
 const { rbacMiddleware } = require('../middlewares/rbac.middleware');
@@ -13,6 +14,8 @@ const { rbacMiddleware } = require('../middlewares/rbac.middleware');
 const router = express.Router();
 
 router.get('/', authMiddleware, rbacMiddleware(['Admin']), fetchAll);
+
+router.get('/reports', authMiddleware, rbacMiddleware(['Admin']), fetchReports);
 
 router.get(
   '/:id',
