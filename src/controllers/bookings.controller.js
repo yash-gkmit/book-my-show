@@ -72,10 +72,23 @@ const remove = async (req, res) => {
   }
 };
 
+const fetchReports = async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+    const data = await bookingService.getReports(startDate, endDate);
+    res.data = data;
+    res.statusCode = 200;
+    responseHandler(req, res);
+  } catch (error) {
+    errorHandler(req, res, error.message, error.statusCode || 500);
+  }
+};
+
 module.exports = {
   generate,
   fetchAll,
   fetchById,
   change,
   remove,
+  fetchReports,
 };
