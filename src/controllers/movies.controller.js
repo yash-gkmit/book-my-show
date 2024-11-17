@@ -1,8 +1,10 @@
 const movieService = require('../services/movies.service');
 const { uploadOnS3 } = require('../helpers/s3.helper');
 const { errorHandler, responseHandler } = require('../helpers/common.helper');
+const path = require('path');
+const fs = require('fs');
 
-exports.generate = async (req, res) => {
+const generate = async (req, res) => {
   try {
     const posterUrl = await uploadOnS3(req.files.poster[0], 'poster');
     const trailerUrl = await uploadOnS3(req.files.trailer[0], 'trailer');
@@ -27,14 +29,22 @@ exports.generate = async (req, res) => {
   }
 };
 
-exports.fetchAll = async (req, res) => {
+const fetchAll = async (req, res) => {
   try {
-    const movies = await movieService.getAll();
-    if (!movies.length) {
+    const { query } = req;
+    const movies = await movieService.getAll(query);
+
+    if (!movies.data.length) {
       return errorHandler(req, res, 'No movies found', 404);
     }
 
-    res.data = movies;
+    res.data = {
+      message: 'Movies fetched successfully',
+      currentPage: movies.currentPage,
+      totalPages: movies.totalPages,
+      totalRecords: movies.totalRecords,
+      movies: movies.data,
+    };
     res.statusCode = 200;
     responseHandler(req, res);
   } catch (error) {
@@ -42,9 +52,11 @@ exports.fetchAll = async (req, res) => {
   }
 };
 
-exports.fetchById = async (req, res) => {
+module.exports = { fetchAll };
+
+const fetchById = async (req, res) => {
   try {
-    const movie = await movieService.getMovieById(req.params.id);
+    const movie = await movieService.getById(req.params.id);
     if (!movie) {
       return errorHandler(req, res, 'Movie not found', 404);
     }
@@ -57,7 +69,7 @@ exports.fetchById = async (req, res) => {
   }
 };
 
-exports.change = async (req, res) => {
+const change = async (req, res) => {
   try {
     const updatedMovie = await movieService.update(req.params.id, req.body);
     res.data = {
@@ -70,8 +82,7 @@ exports.change = async (req, res) => {
     errorHandler(req, res, error.message, error.statusCode || 400);
   }
 };
-
-exports.remove = async (req, res) => {
+const remove = async (req, res) => {
   try {
     await movieService.delete(req.params.id);
     res.data = { message: 'Movie Soft deleted successfully' };
@@ -82,7 +93,7 @@ exports.remove = async (req, res) => {
   }
 };
 
-exports.getTheatersByMovieId = async (req, res) => {
+const getTheatersByMovieId = async (req, res) => {
   try {
     const theaters = await movieService.getTheatersByMovie(req.params.id);
     if (!theaters.length) {
@@ -95,4 +106,42 @@ exports.getTheatersByMovieId = async (req, res) => {
   } catch (error) {
     errorHandler(req, res, error.message, error.statusCode || 400);
   }
+};
+
+const fetchReport = async (req, res) => {
+  const { startDate, endDate } = req.query;
+
+  try {
+    const filePath = await movieService.generateReport(startDate, endDate);
+
+    if (!filePath) {
+      console.error('No file path returned from service');
+      return res.status(500).json({ message: 'Report generation failed' });
+    }
+
+    if (!fs.existsSync(filePath)) {
+      console.error('File not found at path:', filePath);
+      return res.status(404).json({ message: 'Report file not found' });
+    }
+
+    res.download(filePath, path.basename(filePath), err => {
+      if (err) {
+        console.error('Error sending file:', err);
+        return res.status(500).json({ message: 'Failed to download report' });
+      }
+    });
+  } catch (error) {
+    console.error('Error in fetchReport:', error.stack);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports = {
+  generate,
+  fetchAll,
+  fetchById,
+  change,
+  remove,
+  getTheatersByMovieId,
+  fetchReport,
 };
