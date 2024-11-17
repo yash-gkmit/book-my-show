@@ -97,7 +97,7 @@ const fetchMovies = async (req, res) => {
     responseHandler(req, res);
   } catch (error) {
     console.error(error);
-    errorHandler(req, res, error.message, error.statusCode || 500);
+    errorHandler(req, res, error.message, error.statusCode || 400);
   }
 };
 
@@ -109,7 +109,7 @@ const fetchReports = async (req, res) => {
     res.statusCode = 200;
     responseHandler(req, res);
   } catch (error) {
-    errorHandler(req, res, error.message, error.statusCode || 500);
+    errorHandler(req, res, error.message, error.statusCode || 400);
   }
 };
 

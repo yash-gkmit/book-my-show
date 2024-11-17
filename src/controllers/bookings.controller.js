@@ -1,5 +1,6 @@
 const bookingService = require('../services/bookings.service');
 const { errorHandler, responseHandler } = require('../helpers/common.helper');
+const { Booking } = require('../models');
 
 const generate = async (req, res) => {
   try {
@@ -80,7 +81,26 @@ const fetchReports = async (req, res) => {
     res.statusCode = 200;
     responseHandler(req, res);
   } catch (error) {
-    errorHandler(req, res, error.message, error.statusCode || 500);
+    errorHandler(req, res, error.message, error.statusCode);
+  }
+};
+
+const cancel = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const booking = await Booking.findByPk(id);
+    if (!booking) {
+      throwCustomError('Booking not found', 404);
+    }
+    if (booking.booking_status === 'Canceled') {
+      throwCustomError('Booking is already cancelled', 409);
+    }
+    booking.booking_status = 'Canceled';
+    await booking.save();
+    res.status(200).json({ booking });
+  } catch (error) {
+    console.error('Error in cancelBooking:', error);
+    errorHandler(req, res, error.message, 404);
   }
 };
 
@@ -91,4 +111,5 @@ module.exports = {
   change,
   remove,
   fetchReports,
+  cancel,
 };

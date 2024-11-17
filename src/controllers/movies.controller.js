@@ -52,8 +52,6 @@ const fetchAll = async (req, res) => {
   }
 };
 
-module.exports = { fetchAll };
-
 const fetchById = async (req, res) => {
   try {
     const movie = await movieService.getById(req.params.id);

@@ -159,6 +159,27 @@ const getReports = async () => {
     })),
   };
 };
+
+const cancel = async (bookingId, userId) => {
+  const booking = await Booking.findOne({
+    where: {
+      id: bookingId,
+      user_id: userId,
+    },
+    include: [{ model: User, as: 'user', attributes: ['name', 'email'] }],
+  });
+  if (!booking) {
+    throw new Error(
+      "Booking not found or you're not authorized to cancel this booking.",
+    );
+  }
+  if (booking.status === 'Cancelled') {
+    throw new Error('This booking has already been cancelled.');
+  }
+  booking.status = 'Cancelled';
+  await booking.save();
+  return booking;
+};
 module.exports = {
   create,
   getAll,
@@ -166,4 +187,5 @@ module.exports = {
   update,
   remove,
   getReports,
+  cancel,
 };
