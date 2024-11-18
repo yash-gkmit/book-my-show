@@ -82,7 +82,7 @@ const change = async (req, res) => {
 };
 const remove = async (req, res) => {
   try {
-    await movieService.delete(req.params.id);
+    await movieService.remove(req.params.id);
     res.data = { message: 'Movie Soft deleted successfully' };
     res.statusCode = 200;
     responseHandler(req, res);

@@ -1,5 +1,9 @@
 const bookingService = require('../services/bookings.service');
-const { errorHandler, responseHandler } = require('../helpers/common.helper');
+const {
+  errorHandler,
+  responseHandler,
+  throwCustomError,
+} = require('../helpers/common.helper');
 const { Booking } = require('../models');
 
 const generate = async (req, res) => {

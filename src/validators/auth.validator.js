@@ -2,14 +2,35 @@ const Joi = require('joi');
 
 const registerValidation = (req, res, next) => {
   const schema = Joi.object({
-    email: Joi.string()
-      .email()
+    name: Joi.string().max(50).required().messages({
+      'string.max': 'Name must be a string up to 50 characters',
+      'any.required': 'Name is required',
+    }),
+    email: Joi.string().email().required().messages({
+      'string.email': 'Invalid email',
+      'any.required': 'Email is required',
+    }),
+    password: Joi.string().min(6).required().messages({
+      'string.min': 'Password must be at least 6 characters',
+      'any.required': 'Password is required',
+    }),
+    phone: Joi.string()
+      .pattern(/^\d{10,15}$/)
       .required()
-      .messages({ 'string.email': 'Invalid email' }),
-    password: Joi.string()
-      .min(6)
+      .messages({
+        'string.pattern.base': 'Phone number must be between 10 and 15 digits',
+        'any.required': 'Phone number is required',
+      }),
+    roles: Joi.array()
+      .items(Joi.string().valid('Admin', 'Theater Owner', 'Customer'))
+      .min(1)
       .required()
-      .messages({ 'string.min': 'Password must be at least 6 characters' }),
+      .messages({
+        'array.base': 'Roles must be an array of strings',
+        'array.min': 'At least one role must be specified',
+        'any.required': 'Roles are required',
+        'any.only': 'Invalid role provided',
+      }),
   });
 
   const { error } = schema.validate(req.body);

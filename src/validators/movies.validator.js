@@ -24,6 +24,19 @@ const createValidation = (req, res, next) => {
     language: Joi.string().required().messages({
       'any.required': 'Language is required',
     }),
+    theaterIds: Joi.array()
+      .items(Joi.string().uuid())
+      .min(1)
+      .required()
+      .messages({
+        'array.base': 'Theater IDs must be an array of UUIDs',
+        'array.min': 'At least one theater ID is required',
+        'string.guid': 'Each theater ID must be a valid UUID',
+        'any.required': 'Theater IDs are required',
+      }),
+    category: Joi.string().messages({
+      'string.max': 'City name must be a string up to 50 characters',
+    }),
   });
 
   const { error } = schema.validate(req.body);

@@ -1,7 +1,14 @@
-const { Theater, Movie, TheaterMovie, Booking, Show } = require('../models');
+const {
+  Theater,
+  Movie,
+  TheaterMovie,
+  Booking,
+  Show,
+  sequelize,
+} = require('../models');
 const { throwCustomError } = require('../helpers/common.helper.js');
 const create = async data => {
-  const t = await Sequelize.transaction();
+  const t = await sequelize.transaction();
 
   try {
     const theater = await Theater.create(data, { transaction: t });
@@ -40,7 +47,7 @@ const getById = async id => {
 };
 
 const update = async (id, data) => {
-  const t = await Sequelize.transaction();
+  const t = await sequelize.transaction();
 
   try {
     const theater = await Theater.findByPk(id, { transaction: t });
@@ -55,7 +62,7 @@ const update = async (id, data) => {
 };
 
 const remove = async id => {
-  const t = await Sequelize.transaction();
+  const t = await sequelize.transaction();
 
   try {
     const theater = await Theater.findByPk(id, { transaction: t });
