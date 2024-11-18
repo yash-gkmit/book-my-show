@@ -173,10 +173,10 @@ const cancel = async (bookingId, userId) => {
       "Booking not found or you're not authorized to cancel this booking.",
     );
   }
-  if (booking.status === 'Cancelled') {
+  if (booking.status === 'Canceled') {
     throw new Error('This booking has already been cancelled.');
   }
-  booking.status = 'Cancelled';
+  booking.status = 'Canceled';
   await booking.save();
   return booking;
 };

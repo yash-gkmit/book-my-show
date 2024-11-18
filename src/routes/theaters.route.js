@@ -48,7 +48,7 @@ router.put(
 router.delete(
   '/:id',
   authMiddleware,
-  rbacMiddleware(['Admin']),
+  rbacMiddleware(['Admin', 'Theater Owner']),
   theaterController.remove,
 );
 

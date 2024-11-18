@@ -51,7 +51,7 @@ const change = async (req, res) => {
 
 const remove = async (req, res) => {
   try {
-    await userService.delete(req.params.id);
+    await userService.remove(req.params.id);
     res.data = { message: 'User soft deleted successfully' };
     res.statusCode = 200;
     responseHandler(req, res);
