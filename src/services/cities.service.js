@@ -17,7 +17,7 @@ const create = async data => {
     return city;
   } catch (error) {
     await transaction.rollback();
-    throw error;
+    throwCustomError(error);
   }
 };
 
@@ -41,7 +41,7 @@ const getAll = async (page = 1, limit = 10) => {
       },
     };
   } catch (error) {
-    throw error;
+    throwCustomError(error);
   }
 };
 

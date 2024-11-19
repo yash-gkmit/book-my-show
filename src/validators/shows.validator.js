@@ -49,18 +49,17 @@ const updateValidation = (req, res, next) => {
   const schema = Joi.object({
     show_time: Joi.string()
       .valid('Morning', 'Afternoon', 'Evening', 'Night')
-      .required()
       .messages({
         'any.only':
           '"Show time" must be one of: Morning, Afternoon, Evening, or Night',
         'any.required': '"Show time" is required',
       }),
-    available_seats: Joi.number().integer().required().messages({
+    available_seats: Joi.number().integer().messages({
       'number.base': '"Available seats" should be a valid number',
       'number.integer': '"Available seats" should be an integer',
       'any.required': '"Available seats" is required',
     }),
-    type: Joi.string().valid('2D', '3D', '4D').required().messages({
+    type: Joi.string().valid('2D', '3D', '4D').messages({
       'any.only': '"Type" must be one of: 2D, 3D, or 4D',
       'any.required': '"Type" is required',
     }),

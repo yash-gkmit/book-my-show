@@ -28,18 +28,8 @@ router.put('/:id', authMiddleware, rbacMiddleware(['Admin', 'self']), change);
 
 router.delete('/:id', authMiddleware, rbacMiddleware(['Admin']), remove);
 
-router.get(
-  '/:id/bookings',
-  authMiddleware,
-  rbacMiddleware(['Admin', 'Self']),
-  getBookings,
-);
+router.get('/:id/bookings', authMiddleware, getBookings);
 
-router.get(
-  '/:id/transactions',
-  authMiddleware,
-  rbacMiddleware(['Admin', 'Self']),
-  getTransactions,
-);
+router.get('/:id/transactions', authMiddleware, getTransactions);
 
 module.exports = router;

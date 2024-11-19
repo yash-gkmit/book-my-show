@@ -10,7 +10,7 @@ const create = async data => {
     return show;
   } catch (error) {
     await t.rollback();
-    throw error;
+    throwCustomError(error);
   }
 };
 
@@ -77,7 +77,7 @@ const update = async (id, data) => {
     return show;
   } catch (error) {
     await transaction.rollback();
-    throw error;
+    throwCustomError(error);
   }
 };
 
@@ -97,7 +97,7 @@ const remove = async id => {
     return { message: 'Show successfully deleted' };
   } catch (error) {
     await t.rollback();
-    throw error;
+    throwCustomError(error);
   }
 };
 

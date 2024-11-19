@@ -6,6 +6,7 @@ const {
   Show,
   sequelize,
 } = require('../models');
+const { Sequelize } = require('sequelize');
 const { throwCustomError } = require('../helpers/common.helper.js');
 const create = async data => {
   const t = await sequelize.transaction();
@@ -17,7 +18,7 @@ const create = async data => {
     return theater;
   } catch (error) {
     await t.rollback();
-    throw error;
+    throwCustomError(error);
   }
 };
 const getAll = async (page = 1, limit = 10) => {
@@ -150,41 +151,42 @@ const getReports = async theaterId => {
     whereClause.id = theaterId;
   }
 
-  const theaters = await Theater.findAll({
+  const reports = await Theater.findAll({
     where: whereClause,
-    include: {
-      model: Show,
-      as: 'shows',
-      include: {
-        model: Booking,
-        as: 'bookings',
-        attributes: ['total_amount'],
+    attributes: [
+      'id',
+      'name',
+      [Sequelize.fn('COUNT', Sequelize.col('shows.id')), 'totalBookings'],
+      [
+        Sequelize.fn('SUM', Sequelize.col('shows.bookings.total_amount')),
+        'totalRevenue',
+      ],
+    ],
+    include: [
+      {
+        model: Show,
+        as: 'shows',
+        attributes: [],
+        include: [
+          {
+            model: Booking,
+            as: 'bookings',
+            attributes: [],
+          },
+        ],
       },
-    },
+    ],
+    group: ['Theater.id'],
+    raw: true,
   });
 
-  return theaters.map(theater => {
-    const totalBookings = theater.shows.reduce(
-      (acc, show) => acc + show.bookings.length,
-      0,
-    );
-
-    const totalRevenue = theater.shows.reduce(
-      (acc, show) =>
-        acc +
-        show.bookings.reduce((sum, booking) => sum + booking.total_amount, 0),
-      0,
-    );
-
-    return {
-      theaterId: theater.id,
-      theaterName: theater.name,
-      totalBookings,
-      totalRevenue,
-    };
-  });
+  return reports.map(theater => ({
+    theaterId: theater.id,
+    theaterName: theater.name,
+    totalBookings: theater.totalBookings,
+    totalRevenue: parseFloat(theater.totalRevenue),
+  }));
 };
-
 module.exports = {
   create,
   getAll,

@@ -1,10 +1,16 @@
 const cityService = require('../services/cities.service');
-const { errorHandler, throwCustomError } = require('../helpers/common.helper');
+const {
+  errorHandler,
+  throwCustomError,
+  responseHandler,
+} = require('../helpers/common.helper');
 
 const generate = async (req, res) => {
   try {
     const city = await cityService.create(req.body);
-    res.status(201).json({ message: 'City created successfully', data: city });
+    res.data = { message: 'City created successfully', city };
+    res.statusCode = 201;
+    responseHandler(req, res);
   } catch (error) {
     errorHandler(req, res, error.message, error.statusCode || 400);
   }
@@ -20,7 +26,9 @@ const fetchAll = async (req, res) => {
       throwCustomError('No cities found', 404);
     }
 
-    res.status(200).json(cities);
+    res.data = { message: 'Fetching all cities details', cities };
+    res.statusCode = 200;
+    responseHandler(req, res);
   } catch (error) {
     errorHandler(req, res, error.message, error.statusCode || 400);
   }
@@ -29,7 +37,9 @@ const fetchAll = async (req, res) => {
 const fetchById = async (req, res) => {
   try {
     const city = await cityService.getById(req.params.id);
-    res.status(200).json({ data: city });
+    res.data = { message: 'Fetching specific city details', city };
+    res.statusCode = 200;
+    responseHandler(req, res);
   } catch (error) {
     errorHandler(req, res, error.message, error.statusCode || 404);
   }
@@ -38,7 +48,9 @@ const fetchById = async (req, res) => {
 const change = async (req, res) => {
   try {
     const city = await cityService.update(req.params.id, req.body);
-    res.status(200).json({ message: 'City updated successfully', data: city });
+    res.data = { message: 'City updated successfully', city };
+    res.statusCode = 200;
+    responseHandler(req, res);
   } catch (error) {
     errorHandler(req, res, error.message, error.statusCode || 400);
   }
@@ -47,7 +59,9 @@ const change = async (req, res) => {
 const remove = async (req, res) => {
   try {
     await cityService.remove(req.params.id);
-    res.status(200).json({ message: 'City deleted successfully' });
+    res.data = { message: 'City deleted successfully' };
+    res.statusCode = 200;
+    responseHandler(req, res);
   } catch (error) {
     errorHandler(req, res, error.message, error.statusCode || 400);
   }
@@ -58,15 +72,17 @@ const fetchReport = async (req, res) => {
     const { city, startDate, endDate } = req.query;
 
     if (!city) {
-      return res.status(400).json({ message: 'City is required.' });
+      throwCustomError('City Not found');
     }
 
     const filePath = await cityService.generateReport(city, startDate, endDate);
 
-    return res.status(200).json({
+    res.data = {
       message: 'Report generated successfully.',
       filePath: filePath,
-    });
+    };
+    res.statusCode = 200;
+    responseHandler(req, res);
   } catch (error) {
     console.error('Error generating city-based report:', error);
     return res.status(500).json({

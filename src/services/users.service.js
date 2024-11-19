@@ -52,7 +52,7 @@ const update = async (userId, data) => {
     return user;
   } catch (error) {
     await transaction.rollback();
-    throw error;
+    throwCustomError(error);
   }
 };
 
@@ -61,7 +61,7 @@ const remove = async userId => {
 
   try {
     const user = await User.findByPk(userId, { transaction });
-    if (!user) throw new Error('User not found');
+    if (!user) throwCustomError('User not found');
     await user.destroy({ transaction });
 
     await UserRole.update(
@@ -78,11 +78,10 @@ const remove = async userId => {
     return { message: 'User soft deleted successfully' };
   } catch (error) {
     await transaction.rollback();
-    throw error;
+    throwCustomError(error);
   }
 };
 const getBookings = async (userId, filters = {}, page = 1, limit = 10) => {
-  console.log(userId);
   const offset = (page - 1) * limit;
   const bookingConditions = { user_id: userId };
   const showConditions = {};
@@ -144,7 +143,7 @@ const getBookings = async (userId, filters = {}, page = 1, limit = 10) => {
     };
   } catch (error) {
     await transaction.rollback();
-    throw error;
+    throwCustomError(error);
   }
 };
 
@@ -187,12 +186,15 @@ const getTransactions = async (userId, filters = {}, page = 1, limit = 10) => {
     };
   } catch (error) {
     await dbTransaction.rollback();
-    throw error;
+    throwCustomError(error);
   }
 };
 
-const getReports = async () => {
+const getReports = async (page, limit) => {
+  const offset = (page - 1) * limit;
+
   const totalUsers = await User.count();
+
   const newRegistrations = await User.count({
     where: {
       created_at: {
@@ -200,16 +202,23 @@ const getReports = async () => {
       },
     },
   });
+
   const registrationHistory = await User.findAll({
     attributes: [
       [sequelize.fn('DATE', sequelize.col('created_at')), 'registration_date'],
       [sequelize.fn('COUNT', sequelize.col('id')), 'count'],
     ],
-    group: 'registration_date',
+    group: ['registration_date'],
+    limit,
+    offset,
   });
-  return { totalUsers, newRegistrations, registrationHistory };
-};
 
+  return {
+    totalUsers,
+    newRegistrations,
+    registrationHistory,
+  };
+};
 module.exports = {
   getAll,
   getById,
