@@ -9,7 +9,6 @@ const generate = async (req, res) => {
   try {
     const theater = await theaterService.create(req.body);
     res.data = theater;
-    console.log(res.data);
     res.statusCode = 201;
     responseHandler(req, res);
   } catch (error) {
@@ -75,7 +74,12 @@ const fetchByCity = async (req, res) => {
         .json({ message: 'No theaters found for the specified city.' });
     }
 
-    return res.status(200).json(theaters);
+    res.data = {
+      message: 'Theater fetched by city successfully!',
+      theaters,
+    };
+    res.statusCode = 200;
+    responseHandler(req, res);
   } catch (error) {
     errorHandler(req, res, error.message, error.statusCode || 404);
   }
