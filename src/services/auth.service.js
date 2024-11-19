@@ -14,8 +14,8 @@ const { throwCustomError } = require('../helpers/common.helper');
 
 const { addTokenToBlacklist } = require('../helpers/redis.helper');
 
-const register = async ({ name, email, password, phone, roles }) => {
-  console.log('Register params:', { name, email, password, phone, roles });
+const register = async payload => {
+  const { name, email, password, phone, roles } = payload;
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -73,7 +73,7 @@ const verifyOtp = async (email, otp) => {
   }
 };
 
-const login = async (email, password, role) => {
+const login = async (email, role) => {
   console.log(`Email: ${email}`);
 
   const user = await User.findOne({
@@ -82,9 +82,6 @@ const login = async (email, password, role) => {
   });
 
   if (!user) throwCustomError('User not found', 404);
-
-  const passwordMatch = await bcrypt.compare(password, user.password);
-  if (!passwordMatch) throwCustomError('Invalid credentials', 401);
 
   const userRoles = user.Roles.map(r => r.name);
 
@@ -102,7 +99,7 @@ const login = async (email, password, role) => {
     expiresIn: '1h',
   });
 
-  return { message: 'Login successful', token, role };
+  return { message: 'Login successful', token, roles: userRoles };
 };
 
 const logout = async token => {

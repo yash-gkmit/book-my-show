@@ -18,27 +18,23 @@ const register = async (req, res) => {
 
     validateRequest(req.body, rules);
 
-    const { name, email, password, phone, roles } = req.body;
+    const payload = req.body;
 
-    if (!Array.isArray(roles) || roles.length === 0) {
+    if (!Array.isArray(payload.roles) || payload.roles.length === 0) {
       throwCustomError(
         'Roles must be an array and at least one role must be provided',
         400,
       );
     }
 
-    const result = await authService.register({
-      name,
-      email,
-      password,
-      phone,
-      roles,
-    });
+    const result = await authService.register(payload);
 
-    res.status(201).json({
+    res.data = {
       message: result.message,
       userId: result.userId,
-    });
+    };
+    res.statusCode = 201;
+    responseHandler(req, res);
   } catch (error) {
     console.log(error);
     errorHandler(req, res, error.message, error.statusCode || 400);
@@ -66,8 +62,9 @@ const verifyOtp = async (req, res) => {
     };
     validateRequest(req.body, rules);
 
-    await authService.verifyOtp(req.body.email, req.body.otp);
-    res.data = { message: 'OTP verified successfully' };
+    const { token } = await authService.verifyOtp(req.body.email, req.body.otp);
+
+    res.data = { message: 'OTP verified successfully', Token: token };
     res.statusCode = 200;
     return responseHandler(req, res);
   } catch (error) {
@@ -78,30 +75,22 @@ const verifyOtp = async (req, res) => {
 
 const login = async (req, res) => {
   try {
-    console.log(req.body);
+    console.log(req.headers);
+    const { email } = req.user;
 
-    const rules = {
-      email: 'email',
-      password: 'password',
-    };
-    validateRequest(req.body, rules);
+    console.log(`Decoded Email: ${email}`);
+    const { role } = req.body;
 
-    const { email, password, role } = req.body;
-    console.log(`Email:: ${email}, Password: ${password}, Role:, ${role}`);
+    const { token: newToken, roles } = await authService.login(email, role);
 
-    const { token, roles } = await authService.login(email, password, role);
-
-    res.status(200).json({
-      message: 'Login successful',
-      token,
-      roles,
-    });
+    res.data = { message: 'Login successful', token: newToken, roles };
+    res.statusCode = 200;
+    return responseHandler(req, res);
   } catch (error) {
     console.error('Login error:', error);
     errorHandler(req, res, error.message, error.statusCode || 401);
   }
 };
-
 const logout = async (req, res) => {
   try {
     const token = req.headers['authorization']?.split(' ')[1];
@@ -112,9 +101,9 @@ const logout = async (req, res) => {
 
     const result = await authService.logout(token);
 
-    res.status(200).json({
-      message: result.message || 'Successfully logged out',
-    });
+    res.data = { message: 'Successfully logged out', result };
+    res.statusCode = 200;
+    return responseHandler(req, res);
   } catch (error) {
     errorHandler(req, res, error.message, error.statusCode || 400);
   }
