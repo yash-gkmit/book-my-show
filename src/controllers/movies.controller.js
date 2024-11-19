@@ -18,8 +18,7 @@ const generate = async (req, res) => {
     res.data = {
       message: 'Movie created successfully',
       movie: {
-        ...movie.toJSON(),
-        theaters: movie.theaters || [],
+        ...movie?.toJSON(),
       },
     };
     res.statusCode = 201;
