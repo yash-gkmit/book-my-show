@@ -8,18 +8,20 @@ const generate = async (req, res) => {
   try {
     const transaction = await transactionService.create(req.body);
 
-    return res.status(201).json({
+    res.data = {
       success: true,
       message: 'Transaction created successfully',
       data: transaction,
-    });
+    };
+    (res.statusCode = 201), responseHandler(req, res);
   } catch (error) {
     console.error('Error creating transaction:', error.message);
-    return res.status(400).json({
-      success: false,
-      message:
-        error.message || 'An error occurred while creating the transaction.',
-    });
+    errorHandler(
+      req,
+      res,
+      error.message || 'An error occurred while creating the transaction.',
+      400,
+    );
   }
 };
 
