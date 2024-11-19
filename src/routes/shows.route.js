@@ -16,8 +16,8 @@ router.post(
   showController.generate,
 );
 
-router.get('/', showController.fetchAll);
-router.get('/:id', showController.fetchById);
+router.get('/', authMiddleware, showController.fetchAll);
+router.get('/:id', authMiddleware, showController.fetchById);
 
 router.put(
   '/:id',
