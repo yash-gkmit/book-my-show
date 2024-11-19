@@ -34,7 +34,7 @@ const create = async data => {
     return booking;
   } catch (error) {
     await t.rollback();
-    throw error;
+    throwCustomError(error);
   }
 };
 
@@ -96,7 +96,7 @@ const update = async (id, data) => {
     return booking;
   } catch (error) {
     await t.rollback();
-    throw error;
+    throwCustomError(error);
   }
 };
 
@@ -161,25 +161,26 @@ const getReports = async () => {
 };
 
 const cancel = async (bookingId, userId) => {
-  const booking = await Booking.findOne({
-    where: {
-      id: bookingId,
-      user_id: userId,
-    },
+  const booking = await Booking.findByPk(bookingId, {
     include: [{ model: User, as: 'user', attributes: ['name', 'email'] }],
   });
+  console.log(booking);
   if (!booking) {
-    throw new Error(
+    throwCustomError(
       "Booking not found or you're not authorized to cancel this booking.",
     );
   }
+  if (booking.user_id !== userId) {
+    throwCustomError('User not authorized for cancelling this booking');
+  }
   if (booking.status === 'Canceled') {
-    throw new Error('This booking has already been cancelled.');
+    throwCustomError('This booking has already been cancelled.');
   }
   booking.status = 'Canceled';
   await booking.save();
   return booking;
 };
+
 module.exports = {
   create,
   getAll,

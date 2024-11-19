@@ -1,10 +1,5 @@
 const bookingService = require('../services/bookings.service');
-const {
-  errorHandler,
-  responseHandler,
-  throwCustomError,
-} = require('../helpers/common.helper');
-const { Booking } = require('../models');
+const { errorHandler, responseHandler } = require('../helpers/common.helper');
 
 const generate = async (req, res) => {
   try {
@@ -91,20 +86,17 @@ const fetchReports = async (req, res) => {
 
 const cancel = async (req, res) => {
   const { id } = req.params;
+  const userId = req.user.id;
   try {
-    const booking = await Booking.findByPk(id);
-    if (!booking) {
-      throwCustomError('Booking not found', 404);
-    }
-    if (booking.booking_status === 'Canceled') {
-      throwCustomError('Booking is already cancelled', 409);
-    }
-    booking.booking_status = 'Canceled';
-    await booking.save();
-    res.status(200).json({ booking });
+    const booking = await bookingService.cancelBooking(id, userId);
+    res.data = {
+      message: 'booking cancelled successfully',
+      booking,
+    };
+    res.status = 200;
+    responseHandler(req, res);
   } catch (error) {
-    console.error('Error in cancelBooking:', error);
-    errorHandler(req, res, error.message, 404);
+    errorHandler(req, res, error.message, 400);
   }
 };
 
