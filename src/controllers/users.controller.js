@@ -1,5 +1,9 @@
 const userService = require('../services/users.service');
-const { errorHandler, responseHandler } = require('../helpers/common.helper');
+const {
+  errorHandler,
+  responseHandler,
+  throwCustomError,
+} = require('../helpers/common.helper');
 
 const fetchAll = async (req, res) => {
   const { page = 1, limit = 10 } = req.query;
@@ -7,13 +11,12 @@ const fetchAll = async (req, res) => {
   try {
     const users = await userService.getAll(page, limit);
 
-    return res.status(200).json(users);
+    res.data = users;
+    res.statusCode = 200;
+    responseHandler(req, res);
   } catch (error) {
     console.error('Error fetching users:', error);
-    return res.status(500).json({
-      message: 'An error occurred while fetching users.',
-      error: error.message,
-    });
+    errorHandler(req, res, error.message, 404);
   }
 };
 const fetchById = async (req, res) => {
@@ -68,20 +71,26 @@ const getBookings = async (req, res) => {
   const { id } = req.params;
   const { page = 1, limit = 10, filters = {} } = req.query;
   try {
+    const { selectedRole, user_id } = req.user;
+
+    if (selectedRole !== 'Admin' && user_id !== id) {
+      throwCustomError('Not authorized for fetching details');
+    }
     const result = await userService.getBookings(
       id,
       filters,
       parseInt(page),
       parseInt(limit),
     );
-
-    return res.status(200).json(result);
+    res.data = {
+      message: 'Booking of specific user fetched successfully!',
+      result,
+    };
+    res.statusCode = 200;
+    responseHandler(req, res);
   } catch (error) {
     console.error('Error fetching bookings:', error);
-    return res.status(400).json({
-      message: 'An error occurred while fetching bookings.',
-      error: error.message,
-    });
+    errorHandler(req, res, 'An error occurred while fetching bookings.', 400);
   }
 };
 
@@ -89,6 +98,11 @@ const getTransactions = async (req, res) => {
   const { id } = req.params;
   const { page = 1, limit = 10, filters = {} } = req.query;
   try {
+    const { selectedRole, user_id } = req.user;
+
+    if (selectedRole !== 'Admin' && user_id !== id) {
+      throwCustomError('Not authorized for fetching details');
+    }
     const result = await userService.getTransactions(
       id,
       filters,
@@ -96,7 +110,12 @@ const getTransactions = async (req, res) => {
       parseInt(limit),
     );
 
-    return res.status(200).json(result);
+    res.data = {
+      message: 'Transaction of user fetched successfully!',
+      result,
+    };
+    res.statusCode = 200;
+    responseHandler(req, res);
   } catch (error) {
     console.error('Error fetching bookings:', error);
     return res.status(400).json({
@@ -107,12 +126,23 @@ const getTransactions = async (req, res) => {
 };
 
 const fetchReports = async (req, res) => {
+  const { page = 1, limit = 10 } = req.query; // Default to page 1 and limit 10
+
   try {
-    const data = await userService.getReports();
-    res.data = data;
-    responseHandler(req, res);
+    const parsedPage = parseInt(page, 10);
+    const parsedLimit = parseInt(limit, 10);
+
+    const data = await userService.getReports(parsedPage, parsedLimit);
+
+    res.data = {
+      ...data,
+      page: parsedPage,
+      limit: parsedLimit,
+    };
+
+    responseHandler(req, res); // Send the paginated response
   } catch (error) {
-    console.error(error);
+    console.error('Error fetching reports:', error);
     errorHandler(req, res, error.message, error.statusCode || 400);
   }
 };
