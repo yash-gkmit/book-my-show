@@ -1,22 +1,18 @@
 const cityService = require('../services/cities.service');
-const {
-  errorHandler,
-  throwCustomError,
-  responseHandler,
-} = require('../helpers/common.helper');
+const { errorHandler, throwCustomError } = require('../helpers/common.helper');
 
-const generate = async (req, res) => {
+const generate = async (req, res, next) => {
   try {
     const city = await cityService.create(req.body);
     res.data = { message: 'City created successfully', city };
     res.statusCode = 201;
-    responseHandler(req, res);
+    next();
   } catch (error) {
     errorHandler(req, res, error.message, error.statusCode || 400);
   }
 };
 
-const fetchAll = async (req, res) => {
+const fetchAll = async (req, res, next) => {
   const { page = 1, limit = 10 } = req.query;
 
   try {
@@ -28,46 +24,46 @@ const fetchAll = async (req, res) => {
 
     res.data = { message: 'Fetching all cities details', cities };
     res.statusCode = 200;
-    responseHandler(req, res);
+    next();
   } catch (error) {
     errorHandler(req, res, error.message, error.statusCode || 400);
   }
 };
 
-const fetchById = async (req, res) => {
+const fetchById = async (req, res, next) => {
   try {
     const city = await cityService.getById(req.params.id);
     res.data = { message: 'Fetching specific city details', city };
     res.statusCode = 200;
-    responseHandler(req, res);
+    next();
   } catch (error) {
     errorHandler(req, res, error.message, error.statusCode || 404);
   }
 };
 
-const change = async (req, res) => {
+const change = async (req, res, next) => {
   try {
     const city = await cityService.update(req.params.id, req.body);
     res.data = { message: 'City updated successfully', city };
     res.statusCode = 200;
-    responseHandler(req, res);
+    next();
   } catch (error) {
     errorHandler(req, res, error.message, error.statusCode || 400);
   }
 };
 
-const remove = async (req, res) => {
+const remove = async (req, res, next) => {
   try {
     await cityService.remove(req.params.id);
     res.data = { message: 'City deleted successfully' };
     res.statusCode = 200;
-    responseHandler(req, res);
+    next();
   } catch (error) {
     errorHandler(req, res, error.message, error.statusCode || 400);
   }
 };
 
-const fetchTheaters = async (req, res) => {
+const fetchTheaters = async (req, res, next) => {
   const { id } = req.params;
   const { page = 1, limit = 10 } = req.query;
 
@@ -83,13 +79,13 @@ const fetchTheaters = async (req, res) => {
       theaters,
     };
     res.statusCode = 200;
-    responseHandler(req, res);
+    next();
   } catch (error) {
     errorHandler(req, res, error.message, error.statusCode || 404);
   }
 };
 
-const fetchReport = async (req, res) => {
+const fetchReport = async (req, res, next) => {
   try {
     const { city, startDate, endDate } = req.query;
 
@@ -104,7 +100,7 @@ const fetchReport = async (req, res) => {
       filePath: filePath,
     };
     res.statusCode = 200;
-    responseHandler(req, res);
+    next();
   } catch (error) {
     console.error('Error generating city-based report:', error);
     return res.status(500).json({
