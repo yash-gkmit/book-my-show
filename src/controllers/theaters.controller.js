@@ -61,30 +61,6 @@ const remove = async (req, res) => {
   }
 };
 
-const fetchByCity = async (req, res) => {
-  const { city_id } = req.params;
-  const { page = 1, limit = 10 } = req.query;
-
-  try {
-    const theaters = await theaterService.getByCity(city_id, page, limit);
-
-    if (!theaters.data.length) {
-      return res
-        .status(404)
-        .json({ message: 'No theaters found for the specified city.' });
-    }
-
-    res.data = {
-      message: 'Theater fetched by city successfully!',
-      theaters,
-    };
-    res.statusCode = 200;
-    responseHandler(req, res);
-  } catch (error) {
-    errorHandler(req, res, error.message, error.statusCode || 404);
-  }
-};
-
 const fetchMovies = async (req, res) => {
   const { id } = req.params;
   const { page = 1, limit = 10 } = req.query;
@@ -123,7 +99,6 @@ module.exports = {
   fetchById,
   remove,
   change,
-  fetchByCity,
   fetchMovies,
   fetchReports,
 };

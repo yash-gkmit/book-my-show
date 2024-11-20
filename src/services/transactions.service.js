@@ -8,6 +8,7 @@ const {
   Theater,
 } = require('../models');
 const { sendTransactionEmail } = require('../helpers/mail.helper');
+const { throwCustomError } = require('../helpers/common.helper');
 
 const create = async data => {
   const { user_id, booking_id, transaction_amount } = data;

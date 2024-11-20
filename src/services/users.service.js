@@ -23,7 +23,7 @@ const getAll = async (page = 1, limit = 10) => {
     const totalUsers = await User.count();
 
     return {
-      data: users,
+      rows: users,
       pagination: {
         totalItems: totalUsers,
         currentPage: parseInt(page, 10),

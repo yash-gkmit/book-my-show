@@ -21,7 +21,7 @@ router.post(
   moviesController.generate,
 );
 
-router.get('/', moviesController.fetchAll);
+router.get('/', authMiddleware, moviesController.fetchAll);
 
 router.get(
   '/reports',
@@ -30,7 +30,7 @@ router.get(
   moviesController.fetchReport,
 );
 
-router.get('/:id', moviesController.fetchById);
+router.get('/:id', authMiddleware, moviesController.fetchById);
 
 router.put(
   '/:id',

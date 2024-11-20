@@ -38,4 +38,11 @@ router.delete(
   cityController.remove,
 );
 
+router.get(
+  '/:id/theaters',
+  authMiddleware,
+  rbacMiddleware(['Admin']),
+  cityController.fetchTheaters,
+);
+
 module.exports = router;

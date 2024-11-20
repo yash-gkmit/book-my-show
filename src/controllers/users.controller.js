@@ -126,7 +126,7 @@ const getTransactions = async (req, res) => {
 };
 
 const fetchReports = async (req, res) => {
-  const { page = 1, limit = 10 } = req.query; // Default to page 1 and limit 10
+  const { page = 1, limit = 10 } = req.query;
 
   try {
     const parsedPage = parseInt(page, 10);
@@ -140,7 +140,7 @@ const fetchReports = async (req, res) => {
       limit: parsedLimit,
     };
 
-    responseHandler(req, res); // Send the paginated response
+    responseHandler(req, res);
   } catch (error) {
     console.error('Error fetching reports:', error);
     errorHandler(req, res, error.message, error.statusCode || 400);
