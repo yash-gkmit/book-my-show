@@ -75,15 +75,11 @@ const verifyOtp = async (req, res) => {
 
 const login = async (req, res) => {
   try {
-    console.log(req.headers);
-    const { email } = req.user;
+    const { email, role } = req.body;
 
-    console.log(`Decoded Email: ${email}`);
-    const { role } = req.body;
+    const { token: newToken } = await authService.login(email, role);
 
-    const { token: newToken, roles } = await authService.login(email, role);
-
-    res.data = { message: 'Login successful', token: newToken, roles };
+    res.data = { message: 'Login successful', token: newToken };
     res.statusCode = 200;
     return responseHandler(req, res);
   } catch (error) {

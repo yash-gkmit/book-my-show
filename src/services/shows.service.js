@@ -1,5 +1,6 @@
 const { Show, Movie, Theater, sequelize } = require('../models');
 const { Op } = require('sequelize');
+const { throwCustomError } = require('../helpers/common.helper');
 
 const create = async data => {
   const t = await sequelize.transaction();
@@ -54,7 +55,7 @@ const getAll = async (filters, page = 1, limit = 10) => {
 };
 
 const getById = async id => {
-  const show = Show.findByPk(id);
+  const show = await Show.findByPk(id);
   if (!show) {
     throwCustomError('Show not available for that id', 404);
   }

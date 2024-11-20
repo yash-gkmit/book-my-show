@@ -79,33 +79,6 @@ const remove = async id => {
   }
 };
 
-const getByCity = async (cityId, page = 1, limit = 10) => {
-  const offset = (page - 1) * limit;
-
-  try {
-    const theaters = await Theater.findAndCountAll({
-      where: { city_id: cityId },
-      limit,
-      offset,
-      order: [['created_at', 'DESC']],
-    });
-
-    return {
-      data: theaters.rows,
-      pagination: {
-        totalItems: theaters.count,
-        currentPage: parseInt(page, 10),
-        itemsPerPage: parseInt(limit, 10),
-        totalPages: Math.ceil(theaters.count / limit),
-      },
-    };
-  } catch (error) {
-    throw new Error(
-      `Error retrieving theaters for city ${cityId}: ${error.message}`,
-    );
-  }
-};
-
 const getMovies = async (theaterId, page = 1, limit = 10) => {
   const offset = (page - 1) * limit;
 
@@ -193,7 +166,6 @@ module.exports = {
   getById,
   update,
   remove,
-  getByCity,
   getMovies,
   getReports,
 };
