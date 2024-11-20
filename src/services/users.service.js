@@ -157,37 +157,29 @@ const getTransactions = async (userId, filters = {}, page = 1, limit = 10) => {
     }
   }
 
-  const dbTransaction = await sequelize.transaction();
-  try {
-    const result = await Transaction.findAndCountAll({
-      where: transactionConditions,
-      include: [
-        {
-          model: User,
-          as: 'user',
-          where: { id: userId },
-        },
-      ],
-      limit,
-      offset,
-      order: [['created_at', 'DESC']],
-      transaction: dbTransaction,
-    });
-
-    await dbTransaction.commit();
-    return {
-      data: result.rows,
-      pagination: {
-        totalItems: result.count,
-        currentPage: parseInt(page, 10),
-        itemsPerPage: parseInt(limit, 10),
-        totalPages: Math.ceil(result.count / limit),
+  const result = await Transaction.findAndCountAll({
+    where: transactionConditions,
+    include: [
+      {
+        model: User,
+        as: 'user',
+        where: { id: userId },
       },
-    };
-  } catch (error) {
-    await dbTransaction.rollback();
-    throwCustomError(error);
-  }
+    ],
+    order: [['created_at', 'DESC']],
+    limit,
+    offset,
+  });
+
+  return {
+    data: result.rows,
+    pagination: {
+      totalItems: result.count,
+      currentPage: parseInt(page, 10),
+      itemsPerPage: parseInt(limit, 10),
+      totalPages: Math.ceil(result.count / limit),
+    },
+  };
 };
 
 const getReports = async (page, limit) => {

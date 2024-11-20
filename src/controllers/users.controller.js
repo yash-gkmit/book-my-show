@@ -5,7 +5,7 @@ const {
   throwCustomError,
 } = require('../helpers/common.helper');
 
-const fetchAll = async (req, res) => {
+const fetchAll = async (req, res, next) => {
   const { page = 1, limit = 10 } = req.query;
 
   try {
@@ -13,13 +13,13 @@ const fetchAll = async (req, res) => {
 
     res.data = users;
     res.statusCode = 200;
-    responseHandler(req, res);
+    next();
   } catch (error) {
     console.error('Error fetching users:', error);
     errorHandler(req, res, error.message, 404);
   }
 };
-const fetchById = async (req, res) => {
+const fetchById = async (req, res, next) => {
   try {
     const user = await userService.getById(req.params.id);
     if (!user) {
@@ -27,14 +27,14 @@ const fetchById = async (req, res) => {
     }
     res.data = user;
     res.statusCode = 200;
-    responseHandler(req, res);
+    next();
   } catch (error) {
     console.log(error);
     errorHandler(req, res, error.message, 404);
   }
 };
 
-const change = async (req, res) => {
+const change = async (req, res, next) => {
   const userId = req.params.id;
   const userData = req.body;
 
@@ -42,7 +42,7 @@ const change = async (req, res) => {
     const updatedUser = await userService.update(userId, userData);
     res.data = updatedUser;
     res.statusCode = 200;
-    responseHandler(req, res);
+    next();
   } catch (error) {
     console.log(error);
     if (error.message === 'User not found') {
@@ -67,7 +67,7 @@ const remove = async (req, res) => {
   }
 };
 
-const getBookings = async (req, res) => {
+const getBookings = async (req, res, next) => {
   const { id } = req.params;
   const { page = 1, limit = 10, filters = {} } = req.query;
   try {
@@ -87,14 +87,14 @@ const getBookings = async (req, res) => {
       result,
     };
     res.statusCode = 200;
-    responseHandler(req, res);
+    next();
   } catch (error) {
     console.error('Error fetching bookings:', error);
     errorHandler(req, res, 'An error occurred while fetching bookings.', 400);
   }
 };
 
-const getTransactions = async (req, res) => {
+const getTransactions = async (req, res, next) => {
   const { id } = req.params;
   const { page = 1, limit = 10, filters = {} } = req.query;
   try {
@@ -115,7 +115,7 @@ const getTransactions = async (req, res) => {
       result,
     };
     res.statusCode = 200;
-    responseHandler(req, res);
+    next();
   } catch (error) {
     console.error('Error fetching bookings:', error);
     return res.status(400).json({
@@ -125,7 +125,7 @@ const getTransactions = async (req, res) => {
   }
 };
 
-const fetchReports = async (req, res) => {
+const fetchReports = async (req, res, next) => {
   const { page = 1, limit = 10 } = req.query;
 
   try {
@@ -140,7 +140,7 @@ const fetchReports = async (req, res) => {
       limit: parsedLimit,
     };
 
-    responseHandler(req, res);
+    next();
   } catch (error) {
     console.error('Error fetching reports:', error);
     errorHandler(req, res, error.message, error.statusCode || 400);
