@@ -52,7 +52,6 @@ router.delete(
   theaterController.remove,
 );
 
-router.get('/cities/:city_id', authMiddleware, theaterController.fetchByCity);
 router.get('/:id/movies', authMiddleware, theaterController.fetchMovies);
 
 module.exports = router;
