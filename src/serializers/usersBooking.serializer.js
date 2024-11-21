@@ -18,51 +18,45 @@ const serialize = (req, res, next) => {
 
         response.bookings = items.map(booking => ({
           id: booking.id,
-          user_id: booking.user_id,
-          show_id: booking.show_id,
-          number_of_seat: booking.number_of_seat,
-          booking_date: booking.booking_date,
-          booking_status: booking.booking_status,
-          total_amount: booking.total_amount,
-          show: booking.show
-            ? {
-                id: booking.show.id,
-                movie_id: booking.show.movie_id,
-                theater_id: booking.show.theater_id,
-                show_time: booking.show.show_time,
-                available_seats: booking.show.available_seats,
-                type: booking.show.type,
-                price: booking.show.price,
-                theater: booking.show.theater
-                  ? {
-                      id: booking.show.theater.id,
-                      city_id: booking.show.theater.city_id,
-                      name: booking.show.theater.name,
-                      address: booking.show.theater.address,
-                    }
-                  : null,
-              }
-            : null,
-          transaction: booking.transaction
-            ? booking.transaction.map(txn => ({
-                id: txn.id,
-                booking_id: txn.booking_id,
-                transaction_status: txn.transaction_status,
-                transaction_amount: txn.transaction_amount,
-                GST: txn.GST,
-                CGST: txn.CGST,
-                IGST: txn.IGST,
-                SGST: txn.SGST,
-              }))
-            : [],
-          user: booking.user
-            ? {
-                id: booking.user.id,
-                name: booking.user.name,
-                email: booking.user.email,
-                phone: booking.user.phone,
-              }
-            : null,
+          userId: booking.user_id,
+          showId: booking.show_id,
+          numberOfSeat: booking.number_of_seat,
+          bookingDate: booking.booking_date,
+          bookingStatus: booking.booking_status,
+          totalAmount: booking.total_amount,
+          show: booking?.show && {
+            id: booking.show.id,
+            movieId: booking.show.movie_id,
+            theaterId: booking.show.theater_id,
+            showTime: booking.show.show_time,
+            availableSeats: booking.show.available_seats,
+            type: booking.show.type,
+            price: booking.show.price,
+            theater: booking?.show?.theater && {
+              id: booking.show.theater.id,
+              cityId: booking.show.theater.city_id,
+              name: booking.show.theater.name,
+              address: booking.show.theater.address,
+            },
+          },
+          transaction:
+            booking?.transaction &&
+            booking.transaction.map(txn => ({
+              id: txn.id,
+              bookingId: txn.booking_id,
+              transactionStatus: txn.transaction_status,
+              transactionAmount: txn.transaction_amount,
+              GST: txn.GST,
+              CGST: txn.CGST,
+              IGST: txn.IGST,
+              SGST: txn.SGST,
+            })),
+          user: booking?.user && {
+            id: booking.user.id,
+            name: booking.user.name,
+            email: booking.user.email,
+            phone: booking.user.phone,
+          },
         }));
       }
 
@@ -71,27 +65,23 @@ const serialize = (req, res, next) => {
         response.message = 'Transaction of specific user fetched successfully!';
 
         response.transactions = items.map(transaction => ({
-          id: transaction.id,
-          show: transaction.show
-            ? {
-                id: transaction.show.id,
-                movie_id: transaction.show.movie_id,
-                theater_id: transaction.show.theater_id,
-                show_time: transaction.show.show_time,
-                available_seats: transaction.show.available_seats,
-                type: transaction.show.type,
-                price: transaction.show.price,
-              }
-            : null,
-          transaction: transaction.transaction || [],
-          user: transaction.user
-            ? {
-                id: transaction.user.id,
-                name: transaction.user.name,
-                email: transaction.user.email,
-                phone: transaction.user.phone,
-              }
-            : null,
+          id: transaction?.id,
+          show: transaction?.show && {
+            id: transaction.show.id,
+            movieId: transaction.show.movie_id,
+            theaterId: transaction.show.theater_id,
+            showTime: transaction.show.show_time,
+            availableSeats: transaction.show.available_seats,
+            type: transaction.show.type,
+            price: transaction.show.price,
+          },
+          transaction: transaction?.transaction,
+          user: transaction.user && {
+            id: transaction.user.id,
+            name: transaction.user.name,
+            email: transaction.user.email,
+            phone: transaction.user.phone,
+          },
         }));
       }
     }
