@@ -1,10 +1,10 @@
 const movieService = require('../services/movies.service');
 const { uploadOnS3 } = require('../helpers/s3.helper');
-const { errorHandler, responseHandler } = require('../helpers/common.helper');
+const { errorHandler } = require('../helpers/common.helper');
 const path = require('path');
 const fs = require('fs');
 
-const generate = async (req, res) => {
+const generate = async (req, res, next) => {
   try {
     const posterUrl = await uploadOnS3(req.files.poster[0], 'poster');
     const trailerUrl = await uploadOnS3(req.files.trailer[0], 'trailer');
@@ -22,13 +22,13 @@ const generate = async (req, res) => {
       },
     };
     res.statusCode = 201;
-    responseHandler(req, res);
+    next();
   } catch (error) {
     errorHandler(req, res, error.message, error.statusCode || 400);
   }
 };
 
-const fetchAll = async (req, res) => {
+const fetchAll = async (req, res, next) => {
   try {
     const { query } = req;
     const movies = await movieService.getAll(query);
@@ -45,13 +45,13 @@ const fetchAll = async (req, res) => {
       movies: movies.data,
     };
     res.statusCode = 200;
-    responseHandler(req, res);
+    next();
   } catch (error) {
     errorHandler(req, res, error.message, error.statusCode || 400);
   }
 };
 
-const fetchById = async (req, res) => {
+const fetchById = async (req, res, next) => {
   try {
     const movie = await movieService.getById(req.params.id);
     if (!movie) {
@@ -60,13 +60,13 @@ const fetchById = async (req, res) => {
 
     res.data = movie;
     res.statusCode = 200;
-    responseHandler(req, res);
+    next();
   } catch (error) {
     errorHandler(req, res, error.message, error.statusCode || 400);
   }
 };
 
-const change = async (req, res) => {
+const change = async (req, res, next) => {
   try {
     const updatedMovie = await movieService.update(req.params.id, req.body);
     res.data = {
@@ -74,23 +74,23 @@ const change = async (req, res) => {
       movie: updatedMovie,
     };
     res.statusCode = 200;
-    responseHandler(req, res);
+    next();
   } catch (error) {
     errorHandler(req, res, error.message, error.statusCode || 400);
   }
 };
-const remove = async (req, res) => {
+const remove = async (req, res, next) => {
   try {
     await movieService.remove(req.params.id);
     res.data = { message: 'Movie Soft deleted successfully' };
     res.statusCode = 200;
-    responseHandler(req, res);
+    next();
   } catch (error) {
     errorHandler(req, res, error.message, error.statusCode || 400);
   }
 };
 
-const getTheatersByMovieId = async (req, res) => {
+const getTheatersByMovieId = async (req, res, next) => {
   try {
     const theaters = await movieService.getTheatersByMovie(req.params.id);
     if (!theaters.length) {
@@ -99,7 +99,7 @@ const getTheatersByMovieId = async (req, res) => {
 
     res.data = theaters;
     res.statusCode = 200;
-    responseHandler(req, res);
+    next();
   } catch (error) {
     errorHandler(req, res, error.message, error.statusCode || 400);
   }
