@@ -6,17 +6,11 @@ exports.rbacMiddleware = allowedRoles => {
     const userRoles = user.roles || [];
     const userIdFromParams = req.params.user_id;
 
-    console.log('Authenticated User:', user);
-    console.log('User Roles:', userRoles);
-    console.log('Allowed Roles:', allowedRoles);
-
     if (userRoles.includes('Admin')) {
       console.log('Admin access granted.');
       return next();
     }
 
-    console.log('User ID from Token:', user.user_id);
-    console.log('User ID from Params:', userIdFromParams);
     if (allowedRoles.includes('self') && user.user_id === userIdFromParams) {
       console.log('Self access granted.');
       return next();
