@@ -3,7 +3,6 @@ const usersController = require('../controllers/users.controller');
 const { authMiddleware } = require('../middlewares/auth.middleware');
 const { rbacMiddleware } = require('../middlewares/rbac.middleware');
 const commonHelper = require('../helpers/common.helper');
-const userBookingSerializer = require('../serializers/usersBooking.serializer');
 const usersSerializer = require('../serializers/users.serializer');
 
 const router = express.Router();
@@ -29,7 +28,7 @@ router.get(
   '/:id',
   authMiddleware,
   rbacMiddleware(['Admin', 'self']),
-  usersController.fetchById,
+  usersController.fetch,
   usersSerializer.serialize,
   commonHelper.responseHandler,
 );
@@ -55,7 +54,7 @@ router.get(
   authMiddleware,
   rbacMiddleware(['Admin']),
   usersController.getBookings,
-  userBookingSerializer.serialize,
+  usersSerializer.bookingSerialize,
   commonHelper.responseHandler,
 );
 
@@ -64,7 +63,7 @@ router.get(
   authMiddleware,
   rbacMiddleware(['Admin']),
   usersController.getTransactions,
-  userBookingSerializer.serialize,
+  usersSerializer.bookingSerialize,
   commonHelper.responseHandler,
 );
 
