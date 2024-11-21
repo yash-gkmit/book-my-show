@@ -8,12 +8,17 @@ const {
   updateValidation,
 } = require('../validators/theaters.validator');
 
+const commonHelper = require('../helpers/common.helper');
+const theatersSerializer = require('../serializers/theaters.serializer');
+
 router.post(
   '/',
   authMiddleware,
   rbacMiddleware(['Admin']),
   createValidation,
   theaterController.generate,
+  theatersSerializer.serialize,
+  commonHelper.responseHandler,
 );
 
 router.get(
@@ -21,6 +26,8 @@ router.get(
   authMiddleware,
   rbacMiddleware(['Admin']),
   theaterController.fetchAll,
+  theatersSerializer.serialize,
+  commonHelper.responseHandler,
 );
 
 router.get(
@@ -28,6 +35,7 @@ router.get(
   authMiddleware,
   rbacMiddleware(['Admin']),
   theaterController.fetchReports,
+  commonHelper.responseHandler,
 );
 
 router.get(
@@ -35,6 +43,8 @@ router.get(
   authMiddleware,
   rbacMiddleware(['Admin', 'Theater Owner']),
   theaterController.fetchById,
+  theatersSerializer.serialize,
+  commonHelper.responseHandler,
 );
 
 router.put(
@@ -43,6 +53,8 @@ router.put(
   rbacMiddleware(['Theater Owner']),
   updateValidation,
   theaterController.change,
+  theatersSerializer.serialize,
+  commonHelper.responseHandler,
 );
 
 router.delete(
@@ -50,8 +62,14 @@ router.delete(
   authMiddleware,
   rbacMiddleware(['Admin', 'Theater Owner']),
   theaterController.remove,
+  commonHelper.responseHandler,
 );
 
-router.get('/:id/movies', authMiddleware, theaterController.fetchMovies);
+router.get(
+  '/:id/movies',
+  authMiddleware,
+  theaterController.fetchMovies,
+  commonHelper.responseHandler,
+);
 
 module.exports = router;

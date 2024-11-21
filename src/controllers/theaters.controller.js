@@ -1,67 +1,66 @@
 const theaterService = require('../services/theaters.service');
-const {
-  responseHandler,
-  errorHandler,
-  throwCustomError,
-} = require('../helpers/common.helper');
+const { errorHandler, throwCustomError } = require('../helpers/common.helper');
 
-const generate = async (req, res) => {
+const generate = async (req, res, next) => {
   try {
     const theater = await theaterService.create(req.body);
     res.data = theater;
     res.statusCode = 201;
-    responseHandler(req, res);
+    next();
   } catch (error) {
     console.log(error);
     errorHandler(req, res, error.message, error.statusCode || 400);
   }
 };
 
-const fetchAll = async (req, res) => {
+const fetchAll = async (req, res, next) => {
   try {
     const theaters = await theaterService.getAll();
     res.data = theaters;
-    responseHandler(req, res);
+    res.statusCode = 200;
+    next();
   } catch (error) {
     console.log(error);
     errorHandler(req, res, error.message, error.statusCode || 400);
   }
 };
 
-const fetchById = async (req, res) => {
+const fetchById = async (req, res, next) => {
   try {
     const theater = await theaterService.getById(req.params.id);
     res.data = theater;
-    responseHandler(req, res);
+    res.statusCode = 200;
+    next();
   } catch (error) {
     console.log(error);
     errorHandler(req, res, error.message, error.statusCode || 400);
   }
 };
 
-const change = async (req, res) => {
+const change = async (req, res, next) => {
   try {
     const theater = await theaterService.update(req.params.id, req.body);
     res.data = theater;
-    responseHandler(req, res);
+    res.statusCode = 200;
+    next();
   } catch (error) {
     console.log(error);
     errorHandler(req, res, error.message, error.statusCode || 400);
   }
 };
 
-const remove = async (req, res) => {
+const remove = async (req, res, next) => {
   try {
     await theaterService.remove(req.params.id);
     res.statusCode = 204;
-    responseHandler(req, res);
+    next();
   } catch (error) {
     console.log(error);
     errorHandler(req, res, error.message, error.statusCode || 400);
   }
 };
 
-const fetchMovies = async (req, res) => {
+const fetchMovies = async (req, res, next) => {
   const { id } = req.params;
   const { page = 1, limit = 10 } = req.query;
 
@@ -74,20 +73,20 @@ const fetchMovies = async (req, res) => {
 
     res.data = movies;
     res.statusCode = 200;
-    responseHandler(req, res);
+    next();
   } catch (error) {
     console.error(error);
     errorHandler(req, res, error.message, error.statusCode || 400);
   }
 };
 
-const fetchReports = async (req, res) => {
+const fetchReports = async (req, res, next) => {
   try {
     const { theaterId } = req.query;
     const data = await theaterService.getReports(theaterId);
     res.data = data;
     res.statusCode = 200;
-    responseHandler(req, res);
+    next();
   } catch (error) {
     errorHandler(req, res, error.message, error.statusCode || 400);
   }
