@@ -4,7 +4,8 @@ const { errorHandler, throwCustomError } = require('../helpers/common.helper');
 const generate = async (req, res, next) => {
   try {
     const city = await cityService.create(req.body);
-    res.data = { message: 'City created successfully', city };
+    res.message = 'City created successfully';
+    res.data = city;
     res.statusCode = 201;
     next();
   } catch (error) {
@@ -22,7 +23,8 @@ const fetchAll = async (req, res, next) => {
       throwCustomError('No cities found', 404);
     }
 
-    res.data = { message: 'Fetching all cities details', cities };
+    res.message = 'Fetching all cities details';
+    res.data = cities;
     res.statusCode = 200;
     next();
   } catch (error) {
@@ -30,10 +32,11 @@ const fetchAll = async (req, res, next) => {
   }
 };
 
-const fetchById = async (req, res, next) => {
+const fetch = async (req, res, next) => {
   try {
-    const city = await cityService.getById(req.params.id);
-    res.data = { message: 'Fetching specific city details', city };
+    const city = await cityService.get(req.params.id);
+    res.message = 'Fetching specific city details';
+    res.data = city;
     res.statusCode = 200;
     next();
   } catch (error) {
@@ -44,7 +47,8 @@ const fetchById = async (req, res, next) => {
 const change = async (req, res, next) => {
   try {
     const city = await cityService.update(req.params.id, req.body);
-    res.data = { message: 'City updated successfully', city };
+    res.message = 'City updated successfully';
+    res.data = city;
     res.statusCode = 200;
     next();
   } catch (error) {
@@ -55,7 +59,6 @@ const change = async (req, res, next) => {
 const remove = async (req, res, next) => {
   try {
     await cityService.remove(req.params.id);
-    res.data = { message: 'City deleted successfully' };
     res.statusCode = 200;
     next();
   } catch (error) {
@@ -113,7 +116,7 @@ const fetchReport = async (req, res, next) => {
 module.exports = {
   generate,
   fetchAll,
-  fetchById,
+  fetch,
   change,
   remove,
   fetchTheaters,
