@@ -84,7 +84,7 @@ const getAll = async query => {
   };
 };
 
-const getById = async movieId => {
+const get = async movieId => {
   return await Movie.findByPk(movieId, {
     include: {
       model: Theater,
@@ -255,7 +255,7 @@ const generateReport = async (startDate, endDate) => {
 module.exports = {
   create,
   getAll,
-  getById,
+  get,
   update,
   remove,
   getTheatersByMovie,

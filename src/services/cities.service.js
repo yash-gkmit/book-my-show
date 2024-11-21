@@ -24,28 +24,24 @@ const create = async data => {
 const getAll = async (page = 1, limit = 10) => {
   const offset = (page - 1) * limit;
 
-  try {
-    const cities = await City.findAndCountAll({
-      order: [['created_at', 'DESC']],
-      limit,
-      offset,
-    });
+  const cities = await City.findAndCountAll({
+    order: [['created_at', 'DESC']],
+    limit,
+    offset,
+  });
 
-    return {
-      data: cities.rows,
-      pagination: {
-        totalItems: cities.count,
-        currentPage: parseInt(page, 10),
-        itemsPerPage: parseInt(limit, 10),
-        totalPages: Math.ceil(cities.count / limit),
-      },
-    };
-  } catch (error) {
-    throwCustomError(error);
-  }
+  return {
+    data: cities.rows,
+    pagination: {
+      totalItems: cities.count,
+      currentPage: parseInt(page, 10),
+      itemsPerPage: parseInt(limit, 10),
+      totalPages: Math.ceil(cities.count / limit),
+    },
+  };
 };
 
-const getById = async id => {
+const get = async id => {
   const city = await City.findByPk(id);
   if (!city) throwCustomError('City not found', 404);
   return city;
@@ -222,7 +218,7 @@ const generateReport = async (city, startDate, endDate) => {
 module.exports = {
   create,
   getAll,
-  getById,
+  get,
   update,
   remove,
   getTheaters,

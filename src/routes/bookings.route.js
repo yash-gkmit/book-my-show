@@ -39,7 +39,7 @@ router.get(
   '/:id',
   authMiddleware,
   rbacMiddleware(['Admin', 'Theater Owner']),
-  bookingController.fetchById,
+  bookingController.fetch,
   bookingsSerializer.serialize,
   commonHandler.responseHandler,
 );

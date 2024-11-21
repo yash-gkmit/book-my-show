@@ -125,7 +125,7 @@ const getAll = async (filters, page = 1, limit = 10) => {
   };
 };
 
-const getById = async id => {
+const get = async id => {
   const transaction = await Transaction.findOne({
     where: { id },
     include: [
@@ -175,6 +175,6 @@ const remove = async id => {
 module.exports = {
   create,
   getAll,
-  getById,
+  get,
   remove,
 };

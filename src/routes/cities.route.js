@@ -6,7 +6,6 @@ const { createCity, updateCity } = require('../validators/cities.validator');
 const { authMiddleware } = require('../middlewares/auth.middleware');
 const { rbacMiddleware } = require('../middlewares/rbac.middleware');
 const citiesSerializer = require('../serializers/cities.serializer');
-const cityTheaterSerializer = require('../serializers/cityTheater.serializer');
 
 router.post(
   '/',
@@ -24,6 +23,7 @@ router.get(
   citiesSerializer.serialize,
   commonHelper.responseHandler,
 );
+
 router.get(
   '/reports',
   authMiddleware,
@@ -34,7 +34,7 @@ router.get(
 
 router.get(
   '/:id',
-  cityController.fetchById,
+  cityController.fetch,
   citiesSerializer.serialize,
   commonHelper.responseHandler,
 );
@@ -62,7 +62,7 @@ router.get(
   authMiddleware,
   rbacMiddleware(['Admin']),
   cityController.fetchTheaters,
-  cityTheaterSerializer.serialize,
+  citiesSerializer.theaterSerialize,
   commonHelper.responseHandler,
 );
 

@@ -23,7 +23,7 @@ const getAll = async (page = 1, limit = 10) => {
     const totalUsers = await User.count();
 
     return {
-      rows: users,
+      users: users,
       pagination: {
         totalItems: totalUsers,
         currentPage: parseInt(page, 10),
@@ -35,7 +35,7 @@ const getAll = async (page = 1, limit = 10) => {
     throw error;
   }
 };
-const getById = async userId => {
+const get = async userId => {
   return await User.findByPk(userId);
 };
 
@@ -98,53 +98,41 @@ const getBookings = async (userId, filters = {}, page = 1, limit = 10) => {
     }
   }
 
-  const transaction = await sequelize.transaction();
-  try {
-    const result = await Booking.findAndCountAll({
-      where: bookingConditions,
-      include: [
-        {
-          model: Show,
-          as: 'show',
-          where: showConditions,
-          include: [
-            {
-              model: Theater,
-              as: 'theater',
-            },
-          ],
-        },
-        {
-          model: Transaction,
-          as: 'transaction',
-        },
-        {
-          model: User,
-          as: 'user',
-          where: { id: userId },
-        },
-      ],
-      limit,
-      offset,
-      order: [['created_at', 'DESC']],
-      transaction,
-    });
-
-    await transaction.commit();
-
-    return {
-      data: result.rows,
-      pagination: {
-        totalItems: result.count,
-        currentPage: parseInt(page, 10),
-        itemsPerPage: parseInt(limit, 10),
-        totalPages: Math.ceil(result.count / limit),
+  const result = await Booking.findAndCountAll({
+    where: bookingConditions,
+    include: [
+      {
+        model: Show,
+        as: 'show',
+        where: showConditions,
+        include: [
+          {
+            model: Theater,
+            as: 'theater',
+          },
+        ],
       },
-    };
-  } catch (error) {
-    await transaction.rollback();
-    throwCustomError(error);
-  }
+      {
+        model: User,
+        as: 'user',
+        where: { id: userId },
+      },
+    ],
+    order: [['created_at', 'DESC']],
+    limit,
+    offset,
+  });
+
+  console.log(result);
+  return {
+    data: result.rows,
+    pagination: {
+      totalItems: result.count,
+      currentPage: parseInt(page, 10),
+      itemsPerPage: parseInt(limit, 10),
+      totalPages: Math.ceil(result.count / limit),
+    },
+  };
 };
 
 const getTransactions = async (userId, filters = {}, page = 1, limit = 10) => {
@@ -198,7 +186,10 @@ const getReports = async (page, limit) => {
   const registrationHistory = await User.findAll({
     attributes: [
       [sequelize.fn('DATE', sequelize.col('created_at')), 'registrationDate'],
-      [sequelize.fn('COUNT', sequelize.col('id')), 'count'],
+      [
+        sequelize.cast(sequelize.fn('COUNT', sequelize.col('id')), 'integer'),
+        'count',
+      ],
     ],
     group: ['registrationDate'],
     limit,
@@ -213,7 +204,7 @@ const getReports = async (page, limit) => {
 };
 module.exports = {
   getAll,
-  getById,
+  get,
   update,
   remove,
   getBookings,

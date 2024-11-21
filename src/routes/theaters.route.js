@@ -42,7 +42,7 @@ router.get(
   '/:id',
   authMiddleware,
   rbacMiddleware(['Admin', 'Theater Owner']),
-  theaterController.fetchById,
+  theaterController.fetch,
   theatersSerializer.serialize,
   commonHelper.responseHandler,
 );
@@ -69,6 +69,7 @@ router.get(
   '/:id/movies',
   authMiddleware,
   theaterController.fetchMovies,
+  theatersSerializer.movieSerialize,
   commonHelper.responseHandler,
 );
 

@@ -4,6 +4,7 @@ const { errorHandler, throwCustomError } = require('../helpers/common.helper');
 const generate = async (req, res, next) => {
   try {
     const theater = await theaterService.create(req.body);
+    res.message = 'Theaters created successfully!';
     res.data = theater;
     res.statusCode = 201;
     next();
@@ -25,9 +26,9 @@ const fetchAll = async (req, res, next) => {
   }
 };
 
-const fetchById = async (req, res, next) => {
+const fetch = async (req, res, next) => {
   try {
-    const theater = await theaterService.getById(req.params.id);
+    const theater = await theaterService.get(req.params.id);
     res.data = theater;
     res.statusCode = 200;
     next();
@@ -95,7 +96,7 @@ const fetchReports = async (req, res, next) => {
 module.exports = {
   generate,
   fetchAll,
-  fetchById,
+  fetch,
   remove,
   change,
   fetchMovies,

@@ -38,9 +38,9 @@ const fetchAll = async (req, res, next) => {
   }
 };
 
-const fetchById = async (req, res, next) => {
+const fetch = async (req, res, next) => {
   try {
-    const show = await showService.getById(req.params.id);
+    const show = await showService.get(req.params.id);
     res.data = {
       message: 'Fetched show By Id successfully',
       show,
@@ -79,7 +79,7 @@ const remove = async (req, res, next) => {
 module.exports = {
   generate,
   fetchAll,
-  fetchById,
+  fetch,
   change,
   remove,
 };

@@ -1,25 +1,16 @@
 const serialize = (req, res, next) => {
-  console.log(
-    'res.data before serialization:',
-    JSON.stringify(res.data, null, 2),
-  );
-
-  let { message, booking, data: bookings, pagination } = res.data || {};
-  console.log('CVBNM', bookings);
+  let { booking, data: bookings, pagination } = res.data || {};
 
   const response = {
-    message: message || 'Bookings fetched successfully!',
     booking: null,
     bookings: [],
     pagination: {},
   };
 
-  // Handle single booking case
   if (!res.data.data && !booking) {
     booking = res.data;
   }
 
-  // Populate single booking
   if (booking) {
     response.booking = {
       id: booking?.id,
@@ -29,6 +20,8 @@ const serialize = (req, res, next) => {
       bookingDate: booking?.booking_date,
       bookingStatus: booking?.booking_status,
       totalAmount: booking?.total_amount,
+      createdAt: booking?.created_at,
+      updatedAt: booking?.updated_at,
       show: booking?.show && {
         id: booking?.show?.id,
         movieId: booking?.show?.movie_id,
@@ -37,6 +30,8 @@ const serialize = (req, res, next) => {
         availableSeats: booking?.show?.available_seats,
         type: booking?.show?.type,
         price: booking?.show?.price,
+        createdAt: booking?.show?.created_at,
+        updatedAt: booking?.show?.updated_at,
         movie: booking?.show?.movie && {
           id: booking?.show.movie.id,
           name: booking?.show?.movie?.name,
@@ -48,12 +43,13 @@ const serialize = (req, res, next) => {
           category: booking?.show?.movie?.category,
           poster: booking?.show?.movie?.poster,
           trailer: booking?.show?.movie?.trailer,
+          createdAt: booking?.show?.movie?.created_at,
+          updatedAt: booking?.show?.movie?.updated_at,
         },
       },
     };
   }
 
-  // Populate multiple bookings
   if (Array.isArray(bookings) && bookings?.length > 0) {
     response.bookings = bookings.map(booking => ({
       id: booking?.id,
@@ -63,6 +59,8 @@ const serialize = (req, res, next) => {
       bookingDate: booking?.booking_date,
       bookingStatus: booking?.booking_status,
       totalAmount: booking?.total_amount,
+      createdAt: booking?.created_at,
+      updatedAt: booking?.updated_at,
       show: booking?.show && {
         id: booking?.show.id,
         movieId: booking?.show?.movie_id,
@@ -71,6 +69,8 @@ const serialize = (req, res, next) => {
         availableSeats: booking?.show?.available_seats,
         type: booking?.show?.type,
         price: booking?.show?.price,
+        createdAt: booking?.show?.created_at,
+        updatedAt: booking?.show?.updated_at,
         movie: booking?.show?.movie && {
           id: booking?.show?.movie.id,
           name: booking?.show?.movie.name,
@@ -82,6 +82,8 @@ const serialize = (req, res, next) => {
           category: booking?.show?.movie?.category,
           poster: booking?.show?.movie?.poster,
           trailer: booking?.show?.movie?.trailer,
+          createdAt: booking?.show?.movie?.created_at,
+          updatedAt: booking?.show?.movie?.updated_at,
         },
       },
     }));
@@ -91,30 +93,24 @@ const serialize = (req, res, next) => {
     }
   }
 
-  // Handle case where no data is found
   if (!response.booking && response.bookings.length === 0) {
     response.message = 'No booking data found!';
   }
 
-  // Adjust response for getAll
   if (response.bookings.length > 0) {
     delete response.booking;
   }
 
-  // Remove pagination if no data is available
   if (!pagination || Object.keys(pagination).length === 0) {
     delete response.pagination;
   }
 
-  // Final response structure
   res.data = {
-    message: response.message,
     booking: response.booking || undefined,
     bookings: response.bookings.length > 0 ? response.bookings : undefined,
     pagination: response.pagination || undefined,
   };
 
-  console.log('Serialized response:', JSON.stringify(res.data, null, 2));
   next();
 };
 

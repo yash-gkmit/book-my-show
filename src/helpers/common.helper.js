@@ -14,8 +14,10 @@ function errorHandler(req, res, message, statusCode = 400) {
 
 function responseHandler(req, res) {
   const response = {
+    message: res.message || 'success',
     data: res.data,
   };
+
   res.status(res.statusCode).json(response);
 }
 

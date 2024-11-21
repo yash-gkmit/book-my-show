@@ -11,6 +11,7 @@ const fetchAll = async (req, res, next) => {
   try {
     const users = await userService.getAll(page, limit);
 
+    res.message = 'Users details fetched Successfully!';
     res.data = users;
     res.statusCode = 200;
     next();
@@ -19,9 +20,9 @@ const fetchAll = async (req, res, next) => {
     errorHandler(req, res, error.message, 404);
   }
 };
-const fetchById = async (req, res, next) => {
+const fetch = async (req, res, next) => {
   try {
-    const user = await userService.getById(req.params.id);
+    const user = await userService.get(req.params.id);
     if (!user) {
       return errorHandler(req, res, 'User not found', 404);
     }
@@ -29,7 +30,6 @@ const fetchById = async (req, res, next) => {
     res.statusCode = 200;
     next();
   } catch (error) {
-    console.log(error);
     errorHandler(req, res, error.message, 404);
   }
 };
@@ -40,11 +40,11 @@ const change = async (req, res, next) => {
 
   try {
     const updatedUser = await userService.update(userId, userData);
+    res.message = 'User updated successfully!';
     res.data = updatedUser;
     res.statusCode = 200;
     next();
   } catch (error) {
-    console.log(error);
     if (error.message === 'User not found') {
       return errorHandler(req, res, 'User not found', 404);
     }
@@ -55,7 +55,7 @@ const change = async (req, res, next) => {
 const remove = async (req, res) => {
   try {
     await userService.remove(req.params.id);
-    res.data = { message: 'User soft deleted successfully' };
+    res.message = 'User soft deleted successfully';
     res.statusCode = 200;
     responseHandler(req, res);
   } catch (error) {
@@ -82,10 +82,9 @@ const getBookings = async (req, res, next) => {
       parseInt(page),
       parseInt(limit),
     );
-    res.data = {
-      message: 'Booking of specific user fetched successfully!',
-      result,
-    };
+    console.log('sedfghjk', result);
+    res.message = 'Fetch users booking details successfully!';
+    res.data = result;
     res.statusCode = 200;
     next();
   } catch (error) {
@@ -110,10 +109,8 @@ const getTransactions = async (req, res, next) => {
       parseInt(limit),
     );
 
-    res.data = {
-      message: 'Transaction of user fetched successfully!',
-      result,
-    };
+    res.message = 'Transaction of specific user fetched successfully!';
+    res.data = result;
     res.statusCode = 200;
     next();
   } catch (error) {
@@ -149,7 +146,7 @@ const fetchReports = async (req, res, next) => {
 
 module.exports = {
   fetchAll,
-  fetchById,
+  fetch,
   change,
   remove,
   getBookings,

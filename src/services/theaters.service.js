@@ -10,10 +10,8 @@ const { Sequelize } = require('sequelize');
 const { throwCustomError } = require('../helpers/common.helper.js');
 const create = async data => {
   const t = await sequelize.transaction();
-
   try {
     const theater = await Theater.create(data, { transaction: t });
-
     await t.commit();
     return theater;
   } catch (error) {
@@ -41,7 +39,7 @@ const getAll = async (page = 1, limit = 10) => {
   };
 };
 
-const getById = async id => {
+const get = async id => {
   const theater = await Theater.findByPk(id);
   if (!theater) throwCustomError('Theater not found', 404);
   return theater;
@@ -129,7 +127,13 @@ const getReports = async theaterId => {
     attributes: [
       'id',
       'name',
-      [Sequelize.fn('COUNT', Sequelize.col('shows.id')), 'totalBookings'],
+      [
+        sequelize.cast(
+          sequelize.fn('COUNT', sequelize.col('shows.id')),
+          'integer',
+        ),
+        'totalBookings',
+      ],
       [
         Sequelize.fn('SUM', Sequelize.col('shows.bookings.total_amount')),
         'totalRevenue',
@@ -163,7 +167,7 @@ const getReports = async theaterId => {
 module.exports = {
   create,
   getAll,
-  getById,
+  get,
   update,
   remove,
   getMovies,

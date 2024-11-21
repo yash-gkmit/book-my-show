@@ -1,24 +1,16 @@
 const serialize = (req, res, next) => {
-  console.log(
-    'res.data before serialization:',
-    JSON.stringify(res.data, null, 2),
-  );
-
-  let { message, transaction, data: transactions, pagination } = res.data || {};
+  let { transaction, data: transactions, pagination } = res.data || {};
 
   const response = {
-    message: message || 'Transactions fetched successfully!',
     transaction: null,
     transactions: [],
     pagination: {},
   };
 
-  // Handle single transaction case
   if (!res.data.data && !transaction) {
     transaction = res.data;
   }
 
-  // Populate single transaction
   if (transaction) {
     response.transaction = {
       id: transaction?.id,
@@ -30,6 +22,8 @@ const serialize = (req, res, next) => {
       CGST: transaction?.CGST,
       IGST: transaction?.IGST,
       SGST: transaction?.SGST,
+      createdAt: transaction?.created_at,
+      updatedAt: transaction?.updated_at,
       booking: transaction?.booking && {
         id: transaction?.booking?.id,
         userId: transaction?.booking?.user_id,
@@ -38,6 +32,8 @@ const serialize = (req, res, next) => {
         bookingDate: transaction?.booking?.booking_date,
         bookingStatus: transaction?.booking?.booking_status,
         totalAmount: transaction?.booking?.total_amount,
+        createdAt: transaction?.booking?.created_at,
+        updatedAt: transaction?.booking?.updated_at,
         show: transaction?.booking?.show && {
           id: transaction?.booking?.show?.id,
           movieId: transaction?.booking?.show?.movie_id,
@@ -46,6 +42,8 @@ const serialize = (req, res, next) => {
           availableSeats: transaction.booking.show.available_seats || 0,
           type: transaction?.booking?.show?.type,
           price: transaction?.booking?.show?.price,
+          createdAt: transaction?.booking?.show?.created_at,
+          updatedAt: transaction?.booking?.show?.updated_at,
           movie: transaction?.booking?.show?.movie && {
             id: transaction?.booking?.show?.movie?.id,
             name: transaction?.booking?.show?.movie?.name,
@@ -57,13 +55,14 @@ const serialize = (req, res, next) => {
             category: transaction?.booking?.show?.movie?.category,
             poster: transaction?.booking?.show?.movie?.poster,
             trailer: transaction?.booking?.show?.movie?.trailer,
+            createdAt: transaction?.booking?.show?.movie?.created_at,
+            updatedAt: transaction?.booking?.show?.movie?.updated_at,
           },
         },
       },
     };
   }
 
-  // Populate multiple transactions
   if (Array.isArray(transactions) && transactions?.length > 0) {
     response.transactions = transactions.map(transaction => ({
       id: transaction?.id,
@@ -75,6 +74,8 @@ const serialize = (req, res, next) => {
       CGST: transaction?.CGST,
       IGST: transaction?.IGST,
       SGST: transaction?.SGST,
+      createdAt: transaction?.created_at,
+      updatedAt: transaction?.updated_at,
       booking: transaction?.booking && {
         id: transaction?.booking?.id,
         userId: transaction?.booking?.user_id,
@@ -83,6 +84,8 @@ const serialize = (req, res, next) => {
         bookingDate: transaction?.booking?.booking_date,
         bookingStatus: transaction?.booking?.booking_status,
         totalAmount: transaction?.booking?.total_amount,
+        createdAt: transaction?.booking?.created_at,
+        updatedAt: transaction?.booking?.updated_at,
         show: transaction?.booking?.show && {
           id: transaction?.booking?.show?.id,
           movieId: transaction?.booking?.show?.movie_id,
@@ -91,6 +94,8 @@ const serialize = (req, res, next) => {
           availableSeats: transaction.booking.show.available_seats || 0,
           type: transaction?.booking?.show?.type,
           price: transaction?.booking?.show?.price,
+          createdAt: transaction?.booking?.show?.created_at,
+          updatedAt: transaction?.booking?.show?.updated_at,
           movie: transaction?.booking?.show?.movie && {
             id: transaction?.booking?.show?.movie?.id,
             name: transaction?.booking?.show?.movie?.name,
@@ -103,6 +108,8 @@ const serialize = (req, res, next) => {
             category: transaction?.booking?.show?.movie?.category,
             poster: transaction?.booking?.show?.movie?.poster,
             trailer: transaction?.booking?.show?.movie?.trailer,
+            createdAt: transaction?.booking?.show?.movie?.created_at,
+            updatedAt: transaction?.booking?.show?.movie?.updated_at,
           },
         },
       },
@@ -113,31 +120,25 @@ const serialize = (req, res, next) => {
     }
   }
 
-  // Handle case where no data is found
   if (!response.transaction && response.transactions.length === 0) {
     response.message = 'No transaction data found!';
   }
 
-  // Adjust response for getAll
   if (response.transactions.length > 0) {
     delete response.transaction;
   }
 
-  // Remove pagination if no data is available
   if (!pagination || Object.keys(pagination).length === 0) {
     delete response.pagination;
   }
 
-  // Final response structure
   res.data = {
-    message: response.message,
     transaction: response.transaction || undefined,
     transactions:
       response.transactions.length > 0 ? response.transactions : undefined,
     pagination: response.pagination || undefined,
   };
 
-  console.log('Serialized response:', JSON.stringify(res.data, null, 2));
   next();
 };
 
