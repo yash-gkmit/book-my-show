@@ -37,11 +37,11 @@ const fetchAll = async (req, res, next) => {
   }
 };
 
-const fetchById = async (req, res, next) => {
+const fetch = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const transaction = await transactionService.getById(id);
+    const transaction = await transactionService.get(id);
 
     res.data = transaction;
     res.statusCode = 200;
@@ -74,6 +74,6 @@ const remove = async (req, res, next) => {
 module.exports = {
   generate,
   fetchAll,
-  fetchById,
+  fetch,
   remove,
 };

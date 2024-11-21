@@ -25,7 +25,7 @@ router.get(
 router.get(
   '/:id',
   authMiddleware,
-  transactionController.fetchById,
+  transactionController.fetch,
   transactionsSerialize.serialize,
   commonHelper.responseHandler,
 );
