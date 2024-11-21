@@ -29,10 +29,8 @@ const register = async (req, res) => {
 
     const result = await authService.register(payload);
 
-    res.data = {
-      message: result.message,
-      userId: result.userId,
-    };
+    res.message = 'user created successfully!';
+    res.data = result;
     res.statusCode = 201;
     responseHandler(req, res);
   } catch (error) {
@@ -46,7 +44,7 @@ const sendOtp = async (req, res) => {
     validateRequest(req.body, { email: 'email' });
 
     await authService.sendOtp(req.body.email);
-    res.data = { message: 'OTP sent successfully' };
+    res.message = `otp send successfully to ${req.body.email}`;
     res.statusCode = 200;
     return responseHandler(req, res);
   } catch (error) {
@@ -62,9 +60,10 @@ const verifyOtp = async (req, res) => {
     };
     validateRequest(req.body, rules);
 
-    const { token } = await authService.verifyOtp(req.body.email, req.body.otp);
+    const result = await authService.verifyOtp(req.body.email, req.body.otp);
 
-    res.data = { message: 'OTP verified successfully', Token: token };
+    res.message = 'OTP verified successfully!';
+    res.data = result;
     res.statusCode = 200;
     return responseHandler(req, res);
   } catch (error) {
@@ -75,11 +74,12 @@ const verifyOtp = async (req, res) => {
 
 const login = async (req, res) => {
   try {
-    const { email, role } = req.body;
+    const { body: payload } = req;
 
-    const { token: newToken } = await authService.login(email, role);
+    const result = await authService.login(payload);
 
-    res.data = { message: 'Login successful', token: newToken };
+    res.message = 'Login successful';
+    res.data = result;
     res.statusCode = 200;
     return responseHandler(req, res);
   } catch (error) {
@@ -95,9 +95,9 @@ const logout = async (req, res) => {
       throwCustomError('Token is required for logout', 401);
     }
 
-    const result = await authService.logout(token);
+    await authService.logout(token);
 
-    res.data = { message: 'Successfully logged out', result };
+    res.message = 'Successfully logged out';
     res.statusCode = 200;
     return responseHandler(req, res);
   } catch (error) {

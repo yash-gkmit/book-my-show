@@ -40,7 +40,7 @@ const register = async payload => {
     console.error(`Roles not found for names: ${roles}`);
   }
 
-  return { message: 'User registered successfully', userId: user.id };
+  return { userId: user.id };
 };
 
 const sendOtp = async email => {
@@ -63,18 +63,16 @@ const verifyOtp = async (email, otp) => {
 
   if (storedOtp === otp) {
     const token = generateToken({ email });
-    console.log(`token: ${token}`);
-    console.log({ message: 'OTP verify successful', token });
     deleteOtpFromRedis(email);
 
-    return { message: 'OTP verified successfully', token };
+    return { token: token };
   } else {
     throwCustomError('Invalid OTP', 400);
   }
 };
 
-const login = async (email, role) => {
-  console.log(`Email: ${email}`);
+const login = async payload => {
+  const { email, role, password } = payload;
 
   const user = await User.findOne({
     where: { email },
@@ -83,23 +81,29 @@ const login = async (email, role) => {
 
   if (!user) throwCustomError('User not found', 404);
 
+  const isPasswordCorrect = await bcrypt.compare(password, user.password);
+
+  if (!isPasswordCorrect) {
+    throwCustomError('Password is not correct', 401);
+  }
+
   const userRoles = user.Roles.map(r => r.name);
 
   if (!userRoles.includes(role)) {
     throwCustomError(`User does not have the ${role} role`, 403);
   }
 
-  const payload = {
+  const jwtContent = {
     user_id: user.id,
     roles: userRoles,
     selectedRole: role,
   };
 
-  const token = jwt.sign(payload, process.env.JWT_SECRET, {
-    expiresIn: '1h',
+  const token = jwt.sign(jwtContent, process.env.JWT_SECRET, {
+    expiresIn: '24h',
   });
 
-  return { message: 'Login successful', token, roles: userRoles };
+  return { token, role: userRoles };
 };
 
 const logout = async token => {
@@ -111,10 +115,7 @@ const logout = async token => {
   const expiresIn = 300;
 
   return addTokenToBlacklist(token, expiresIn)
-    .then(() => {
-      console.log('Token added to blacklist');
-      return { message: 'Logged out successfully' };
-    })
+    .then()
     .catch(error => {
       console.log(error);
       throwCustomError('Logout failed', 400);
