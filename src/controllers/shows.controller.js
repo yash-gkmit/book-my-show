@@ -1,20 +1,20 @@
 const showService = require('../services/shows.service');
-const { responseHandler, errorHandler } = require('../helpers/common.helper');
+const { errorHandler } = require('../helpers/common.helper');
 
-const generate = async (req, res) => {
+const generate = async (req, res, next) => {
   try {
     const show = await showService.create(req.body);
     res.data = show;
     console.log(res.data);
     res.statusCode = 201;
-    responseHandler(req, res);
+    next();
   } catch (error) {
     console.log(error);
     errorHandler(req, res, error.message, error.statusCode || 400);
   }
 };
 
-const fetchAll = async (req, res) => {
+const fetchAll = async (req, res, next) => {
   try {
     const { page = 1, limit = 10, ...filters } = req.query;
 
@@ -26,7 +26,7 @@ const fetchAll = async (req, res) => {
     };
     res.statusCode = 200;
 
-    responseHandler(req, res);
+    next();
   } catch (error) {
     console.log(error);
 
@@ -38,7 +38,7 @@ const fetchAll = async (req, res) => {
   }
 };
 
-const fetchById = async (req, res) => {
+const fetchById = async (req, res, next) => {
   try {
     const show = await showService.getById(req.params.id);
     res.data = {
@@ -47,29 +47,29 @@ const fetchById = async (req, res) => {
     };
     res.statusCode = 200;
 
-    responseHandler(req, res);
+    next();
   } catch (error) {
     console.log(error);
     errorHandler(req, res, error.message, 400);
   }
 };
 
-const change = async (req, res) => {
+const change = async (req, res, next) => {
   try {
     const show = await showService.update(req.params.id, req.body);
     res.data = show;
-    responseHandler(req, res);
+    next();
   } catch (error) {
     console.log(error);
     errorHandler(req, res, error.message, 400);
   }
 };
 
-const remove = async (req, res) => {
+const remove = async (req, res, next) => {
   try {
     await showService.remove(req.params.id);
     res.statusCode = 204;
-    responseHandler(req, res);
+    next();
   } catch (error) {
     console.log(error);
     errorHandler(req, res, error.message, 400);
