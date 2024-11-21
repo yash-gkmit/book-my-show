@@ -54,7 +54,7 @@ const getAll = async (filters, page = 1, limit = 10) => {
   };
 };
 
-const getById = async id => {
+const get = async id => {
   const show = await Show.findByPk(id);
   if (!show) {
     throwCustomError('Show not available for that id', 404);
@@ -105,7 +105,7 @@ const remove = async id => {
 module.exports = {
   create,
   getAll,
-  getById,
+  get,
   update,
   remove,
 };

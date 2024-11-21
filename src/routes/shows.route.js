@@ -31,7 +31,7 @@ router.get(
 router.get(
   '/:id',
   authMiddleware,
-  showController.fetchById,
+  showController.fetch,
   showsSerializer.serialize,
   commonHelper.responseHandler,
 );
