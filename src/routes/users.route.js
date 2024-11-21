@@ -53,6 +53,7 @@ router.delete(
 router.get(
   '/:id/bookings',
   authMiddleware,
+  rbacMiddleware(['Admin']),
   usersController.getBookings,
   userBookingSerializer.serialize,
   commonHelper.responseHandler,
@@ -61,6 +62,7 @@ router.get(
 router.get(
   '/:id/transactions',
   authMiddleware,
+  rbacMiddleware(['Admin']),
   usersController.getTransactions,
   userBookingSerializer.serialize,
   commonHelper.responseHandler,

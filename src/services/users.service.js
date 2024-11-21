@@ -197,10 +197,10 @@ const getReports = async (page, limit) => {
 
   const registrationHistory = await User.findAll({
     attributes: [
-      [sequelize.fn('DATE', sequelize.col('created_at')), 'registration_date'],
+      [sequelize.fn('DATE', sequelize.col('created_at')), 'registrationDate'],
       [sequelize.fn('COUNT', sequelize.col('id')), 'count'],
     ],
-    group: ['registration_date'],
+    group: ['registrationDate'],
     limit,
     offset,
   });
