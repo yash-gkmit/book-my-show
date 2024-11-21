@@ -72,7 +72,7 @@ const getAll = async (filters, page = 1, limit = 10) => {
   };
 };
 
-const getById = async id => {
+const get = async id => {
   const booking = Booking.findByPk(id);
   if (!booking) {
     throwCustomError('Booking not found', 404);
@@ -184,7 +184,7 @@ const cancel = async (bookingId, userId) => {
 module.exports = {
   create,
   getAll,
-  getById,
+  get,
   update,
   remove,
   getReports,

@@ -33,9 +33,9 @@ const fetchAll = async (req, res, next) => {
   }
 };
 
-const fetchById = async (req, res, next) => {
+const fetch = async (req, res, next) => {
   try {
-    const booking = await bookingService.getById(req.params.id);
+    const booking = await bookingService.get(req.params.id);
     res.data = { message: 'Fetched Booking By Id', booking };
     (res.statusCode = 200), next();
   } catch (error) {
@@ -103,7 +103,7 @@ const cancel = async (req, res, next) => {
 module.exports = {
   generate,
   fetchAll,
-  fetchById,
+  fetch,
   change,
   remove,
   fetchReports,
