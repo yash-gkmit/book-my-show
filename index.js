@@ -1,3 +1,9 @@
+const swaggerUi = require('swagger-ui-express');
+const YAML = require('yamljs');
+const path = require('path');
+const swaggerDocument = YAML.load(
+  path.join(__dirname, 'src/swagger/swagger.yaml'),
+);
 const express = require('express');
 const dotenv = require('dotenv');
 const { sequelize } = require('./src/models/');
@@ -19,6 +25,7 @@ connectDb();
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 registerRoutes(app);
 

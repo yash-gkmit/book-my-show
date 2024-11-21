@@ -39,7 +39,9 @@
     "pg-hstore": "^2.3.4",
     "redis": "^4.7.0",
     "sequelize": "^6.37.5",
-    "supertest": "^7.0.0"
+    "supertest": "^7.0.0",
+    "swagger-ui-express": "^5.0.1",
+    "yamljs": "^0.3.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.14.0",
