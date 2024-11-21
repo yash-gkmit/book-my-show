@@ -1,15 +1,14 @@
-const { throwCustomError } = require('../helpers/common.helper');
+const { throwCustomError, errorHandler } = require('../helpers/common.helper');
 const { isTokenBlacklisted } = require('../helpers/redis.helper');
 const { verifyToken } = require('../helpers/jwt.helper');
 
 exports.authMiddleware = async (req, res, next) => {
   const token = req.headers['authorization']?.split(' ')[1];
-
-  if (!token) {
-    throwCustomError('Token is required', 401);
-  }
-
   try {
+    if (!token) {
+      throwCustomError('Token is required', 401);
+    }
+
     const isBlacklisted = await isTokenBlacklisted(token);
     if (isBlacklisted) {
       throwCustomError('Token is blacklisted', 401);
@@ -20,6 +19,7 @@ exports.authMiddleware = async (req, res, next) => {
     next();
   } catch (error) {
     console.log(error);
-    throwCustomError('Unauthorized', 401);
+    // throwCustomError('Unauthorized', 401);
+    errorHandler(req, res, error.message, error.statusCode);
   }
 };

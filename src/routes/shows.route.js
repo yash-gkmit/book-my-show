@@ -7,6 +7,8 @@ const {
   updateValidation,
 } = require('../validators/shows.validator');
 const { rbacMiddleware } = require('../middlewares/rbac.middleware');
+const commonHelper = require('../helpers/common.helper');
+const showsSerializer = require('../serializers/shows.serializer');
 
 router.post(
   '/',
@@ -14,10 +16,25 @@ router.post(
   rbacMiddleware(['Theater Owner']),
   createValidation,
   showController.generate,
+  showsSerializer.serialize,
+  commonHelper.responseHandler,
 );
 
-router.get('/', authMiddleware, showController.fetchAll);
-router.get('/:id', authMiddleware, showController.fetchById);
+router.get(
+  '/',
+  authMiddleware,
+  showController.fetchAll,
+  showsSerializer.serialize,
+  commonHelper.responseHandler,
+);
+
+router.get(
+  '/:id',
+  authMiddleware,
+  showController.fetchById,
+  showsSerializer.serialize,
+  commonHelper.responseHandler,
+);
 
 router.put(
   '/:id',
@@ -25,6 +42,8 @@ router.put(
   rbacMiddleware(['Theater Owner']),
   updateValidation,
   showController.change,
+  showsSerializer.serialize,
+  commonHelper.responseHandler,
 );
 
 router.delete(
@@ -32,6 +51,7 @@ router.delete(
   authMiddleware,
   rbacMiddleware(['Theater Owner', 'Admin']),
   showController.remove,
+  commonHelper.responseHandler,
 );
 
 module.exports = router;

@@ -1,4 +1,4 @@
-const { Booking, Show, Movie, sequelize } = require('../models');
+const { Booking, Show, Movie, sequelize, User } = require('../models');
 const { throwCustomError } = require('../helpers/common.helper');
 
 const create = async data => {

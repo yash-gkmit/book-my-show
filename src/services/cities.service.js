@@ -26,9 +26,9 @@ const getAll = async (page = 1, limit = 10) => {
 
   try {
     const cities = await City.findAndCountAll({
+      order: [['created_at', 'DESC']],
       limit,
       offset,
-      order: [['created_at', 'DESC']],
     });
 
     return {
@@ -97,9 +97,9 @@ const getTheaters = async (id, page = 1, limit = 10) => {
   try {
     const theaters = await Theater.findAndCountAll({
       where: { city_id: id },
+      order: [['created_at', 'DESC']],
       limit,
       offset,
-      order: [['created_at', 'DESC']],
     });
 
     return {
