@@ -15,8 +15,8 @@ const generate = async (req, res, next) => {
 
     const movie = await movieService.create(movieData, theaterIds);
 
+    res.message = 'Movie created successfully!';
     res.data = {
-      message: 'Movie created successfully',
       movie: {
         ...movie?.toJSON(),
       },
@@ -51,9 +51,9 @@ const fetchAll = async (req, res, next) => {
   }
 };
 
-const fetchById = async (req, res, next) => {
+const fetch = async (req, res, next) => {
   try {
-    const movie = await movieService.getById(req.params.id);
+    const movie = await movieService.get(req.params.id);
     if (!movie) {
       return errorHandler(req, res, 'Movie not found', 404);
     }
@@ -133,7 +133,7 @@ const fetchReport = async (req, res) => {
 module.exports = {
   generate,
   fetchAll,
-  fetchById,
+  fetch,
   change,
   remove,
   getTheatersByMovieId,

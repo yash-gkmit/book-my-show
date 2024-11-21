@@ -46,7 +46,7 @@ router.get(
 router.get(
   '/:id',
   authMiddleware,
-  moviesController.fetchById,
+  moviesController.fetch,
   moviesSerializer.serialize,
   commonHelper.responseHandler,
 );
@@ -74,7 +74,7 @@ router.get(
   authMiddleware,
   rbacMiddleware(['Admin', 'Theater Owner']),
   moviesController.getTheatersByMovieId,
-  //moviesSerializer.serialize,
+  moviesSerializer.theaterSerialize,
   commonHelper.responseHandler,
 );
 
