@@ -1,19 +1,19 @@
 const bookingService = require('../services/bookings.service');
-const { errorHandler, responseHandler } = require('../helpers/common.helper');
+const { errorHandler } = require('../helpers/common.helper');
 
-const generate = async (req, res) => {
+const generate = async (req, res, next) => {
   try {
     const booking = await bookingService.create(req.body);
     res.data = booking;
     res.statusCode = 201;
-    responseHandler(req, res);
+    next();
   } catch (error) {
     console.error(error);
     errorHandler(req, res, error.message, error.statusCode || 400);
   }
 };
 
-const fetchAll = async (req, res) => {
+const fetchAll = async (req, res, next) => {
   const { page = 1, limit = 10, ...filters } = req.query;
 
   try {
@@ -21,7 +21,7 @@ const fetchAll = async (req, res) => {
 
     res.data = result;
     res.statusCode = 200;
-    responseHandler(req, res);
+    next();
   } catch (error) {
     console.error(error);
 
@@ -33,68 +33,68 @@ const fetchAll = async (req, res) => {
   }
 };
 
-const fetchById = async (req, res) => {
+const fetchById = async (req, res, next) => {
   try {
     const booking = await bookingService.getById(req.params.id);
     res.data = { message: 'Fetched Booking By Id', booking };
-    (res.statusCode = 200), responseHandler(req, res);
+    (res.statusCode = 200), next();
   } catch (error) {
     console.log(error);
     errorHandler(req, res, error.message, 404);
   }
 };
 
-const change = async (req, res) => {
+const change = async (req, res, next) => {
   try {
     const booking = await bookingService.update(req.body);
     res.data = {
       message: 'Booking Updated Successfully',
       booking,
     };
-    (res.statusCode = 200), responseHandler(req, res);
+    (res.statusCode = 200), next();
   } catch (error) {
     console.log(error);
     errorHandler(req, res, error.message, 404);
   }
 };
 
-const remove = async (req, res) => {
+const remove = async (req, res, next) => {
   try {
     await bookingService.remove(req.params.id);
     res.data = {
       message: 'Booking deleted successfully!',
     };
     res.statusCode = 204;
-    responseHandler(req, res);
+    next();
   } catch (error) {
     console.log(error);
     errorHandler(req, res, error.message, 404);
   }
 };
 
-const fetchReports = async (req, res) => {
+const fetchReports = async (req, res, next) => {
   try {
     const { startDate, endDate } = req.query;
     const data = await bookingService.getReports(startDate, endDate);
     res.data = data;
     res.statusCode = 200;
-    responseHandler(req, res);
+    next();
   } catch (error) {
     errorHandler(req, res, error.message, error.statusCode);
   }
 };
 
-const cancel = async (req, res) => {
+const cancel = async (req, res, next) => {
   const { id } = req.params;
   const userId = req.user.id;
   try {
-    const booking = await bookingService.cancelBooking(id, userId);
+    const booking = await bookingService.cancel(id, userId);
     res.data = {
       message: 'booking cancelled successfully',
       booking,
     };
     res.status = 200;
-    responseHandler(req, res);
+    next();
   } catch (error) {
     errorHandler(req, res, error.message, 400);
   }
