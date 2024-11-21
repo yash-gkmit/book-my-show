@@ -1,0 +1,1208 @@
+openapi: 3.0.0
+info:
+  title: book-my-show
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+security:
+  - bearerAuth: []
+tags:
+  - name: auth
+  - name: user
+  - name: city
+  - name: theater
+  - name: movie
+  - name: show
+  - name: booking
+  - name: transaction
+paths:
+  /api/auth/register:
+    post:
+      tags:
+        - auth
+      summary: register-user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                name: Munnendra Gandhi
+                email: begupta7225@gmail.com
+                password: Munna@1234
+                phone: '9876543210'
+                roles:
+                  - Theater Owner
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/auth/send-otp:
+    post:
+      tags:
+        - auth
+      summary: send-otp
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                email: khannaaakriti@gmail.com
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/auth/verify-otp:
+    post:
+      tags:
+        - auth
+      summary: verify-otp
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                email: fgh7@gmail.com
+                otp: '352040'
+      parameters:
+        - name: authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            bearer
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImJlZ3VwdGE3MjI1QGdtaWFsLmNvbSIsImlhdCI6MTczMTk5NTU0NSwiZXhwIjoxNzMxOTk5MTQ1fQ.mGX2iqYCp6RuJ5wz9YuZqT1llM7UPWlWcmmc6z6rn-g
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/auth/login:
+    post:
+      tags:
+        - auth
+      summary: login-user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                email: adityasinghrajawat393@gmail.com
+                role: Theater Owner
+                password: Aditya@1234
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/auth/logout:
+    delete:
+      tags:
+        - auth
+      summary: logout-user
+      parameters:
+        - name: authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            bearer
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMjZlMmU5MmEtYmY3OC00MWQxLThlZDUtYmJiOTU3ZTZlYTFhIiwicm9sZXMiOlsiQ3VzdG9tZXIiXSwic2VsZWN0ZWRSb2xlIjoiQ3VzdG9tZXIiLCJpYXQiOjE3MzEzNDE2MjYsImV4cCI6MTczMTM0NTIyNn0.N3OftcXN5TbcR2L0YHxhxcCS_1aZeSl59_MRJMNBE3U
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/users:
+    get:
+      tags:
+        - user
+      summary: get user by id(Admin and user themselves)
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            Bearer
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzE2OTI5MTAsImV4cCI6MTczMTY5NjUxMH0.x8YrePgDZEwS6tu-FtGv8UdHjypPt_P2faulSR8MIBA
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/users/{user_id}:
+    put:
+      tags:
+        - user
+      summary: update user by id(Admin and user themselves)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                name: Akshay Mundra
+                email: akshay.test1010@gmail.com
+                phone: '8767876734'
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            Bearer
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzEzNDM4OTgsImV4cCI6MTczMTM0NzQ5OH0.LHJxG1pw8JaNixaCom5h1a-sFJG891_KujdOnx5OGng
+        - name: user_id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 26e2e92a-bf78-41d1-8ed5-bbb957e6ea1a
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/users/{id}:
+    delete:
+      tags:
+        - user
+      summary: delete user by id(Admin or and user themselves)
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            Bearer
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzIxODQ1NDAsImV4cCI6MTczMjI3MDk0MH0.eCQeHmwqPo7nb-X0EBHDwCCaOU_gM4FinYvCv8p4ieU
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/users/{id}/bookings:
+    get:
+      tags:
+        - user
+      summary: get user bookings(Admin only)
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            Bearer
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzE2OTI5MTAsImV4cCI6MTczMTY5NjUxMH0.x8YrePgDZEwS6tu-FtGv8UdHjypPt_P2faulSR8MIBA
+        - name: page
+          in: query
+          schema:
+            type: integer
+          example: '1'
+        - name: limit
+          in: query
+          schema:
+            type: integer
+          example: '2'
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 7bb2e229-1ec1-4acd-8ee9-7d356862b847
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/users/{id}/transactions:
+    get:
+      tags:
+        - user
+      summary: get specific user all transactions
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            Bearer
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzE2OTI5MTAsImV4cCI6MTczMTY5NjUxMH0.x8YrePgDZEwS6tu-FtGv8UdHjypPt_P2faulSR8MIBA
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 23f24c8f-67d1-4ded-98dc-49aa5e4eecdf
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/users/reports:
+    get:
+      tags:
+        - user
+      summary: users report(Admin)
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            Bearer
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzE4MTk5NDksImV4cCI6MTczMTgyMzU0OX0.2uCklhj9wo-yp0H42ACUG1g71RInRr1jOcAWUL9xEx4
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/cities:
+    post:
+      tags:
+        - city
+      summary: add-city(Admin only)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example: |-
+                {
+                    "name":"hyderabad",
+                }
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            Bearer
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzIxMjQ1MTQsImV4cCI6MTczMjEyODExNH0._ptvZTOFWhiyYfuQdM-h6HAmBUbbc3jOrgUbpUMYV14
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    get:
+      tags:
+        - city
+      summary: get all cities
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            Bearer
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzE5MDYxOTUsImV4cCI6MTczMTkwOTc5NX0.apyIhcbHuJMos7XjhCdijzH7KxU-AYf86z0PWEk00KI
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/cities/{id}:
+    get:
+      tags:
+        - city
+      summary: get city by id
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            Bearer
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzE5MDYxOTUsImV4cCI6MTczMTkwOTc5NX0.apyIhcbHuJMos7XjhCdijzH7KxU-AYf86z0PWEk00KI
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 15bd49e7-ed8d-4cef-a48e-bca9d3d836b4
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    put:
+      tags:
+        - city
+      summary: update city by id (admin only)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                name: Amsterdam
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            Bearer
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzIxMjQ1MTQsImV4cCI6MTczMjEyODExNH0._ptvZTOFWhiyYfuQdM-h6HAmBUbbc3jOrgUbpUMYV14
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 7bc07ca2-4a5a-461b-ad3c-1a3d3955e732
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - city
+      summary: delete city by id (admin only)
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            Bearer
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzIwMzk5NjYsImV4cCI6MTczMjA0MzU2Nn0.P6gcpyp3x0cuzu77mR59HQZZPhm7k-2Y8SvFyRWtYDM
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: f3bcdf9d-7a15-44c2-a2de-24c0ec9b5f87
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/cities/reports:
+    get:
+      tags:
+        - city
+      summary: city report(Admin)
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            Bearer
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzE4Mjk3MDAsImV4cCI6MTczMTgzMzMwMH0.MWOtJLIlVNubw2mPRhHXLwi_aTpg8tOtMXJr7fNCeBg
+        - name: city
+          in: query
+          schema:
+            type: string
+          example: mumbai
+        - name: startDate
+          in: query
+          schema:
+            type: string
+          example: 01-01-2020
+        - name: endDate
+          in: query
+          schema:
+            type: string
+          example: 31-12-2024
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/cities/{id}/theaters:
+    get:
+      tags:
+        - city
+      summary: Get all theatres(Admin)
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            B
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzIxODQ1NDAsImV4cCI6MTczMjI3MDk0MH0.eCQeHmwqPo7nb-X0EBHDwCCaOU_gM4FinYvCv8p4ieU
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 8e91b34d-6225-4b7b-9ca9-b0f058a6f39c
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/theaters:
+    post:
+      tags:
+        - theater
+      summary: add-theater(admin only)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                city_id: f56291eb-7a89-44bc-a826-3afd1fa49485
+                name: Banti babli Theater
+                address: nbgf
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            Bearer
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzIxMzIxOTIsImV4cCI6MTczMjEzNTc5Mn0.Z5xIpot_pRTjCQ0iY0HW6n9GV5KP-lgj1a3pXw2CflQ
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    get:
+      tags:
+        - theater
+      summary: get all theaters (admin only)
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            Bearer
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzIxMzIxOTIsImV4cCI6MTczMjEzNTc5Mn0.Z5xIpot_pRTjCQ0iY0HW6n9GV5KP-lgj1a3pXw2CflQ
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/theaters/{id}:
+    get:
+      tags:
+        - theater
+      summary: get theater by id(admin and theater owner only)
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            Bearer
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzIxMzIxOTIsImV4cCI6MTczMjEzNTc5Mn0.Z5xIpot_pRTjCQ0iY0HW6n9GV5KP-lgj1a3pXw2CflQ
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 9a50b87c-2d96-4a08-9c00-e59228750389
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    put:
+      tags:
+        - theater
+      summary: update theater details (Theater Owner only)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                name: ram shyam theater
+                address: jkh hjbnklm
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            Bearer
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzIxODQ1NDAsImV4cCI6MTczMjI3MDk0MH0.eCQeHmwqPo7nb-X0EBHDwCCaOU_gM4FinYvCv8p4ieU
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: e488e76d-96d9-473f-be75-6338ec36597a
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - theater
+      summary: delete theater by id(Admin and Theater Owner)
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            Bearer
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNzg5ODljNzctYTNiMS00YmYzLWI2ODYtYTYwYjZiZDliMTcwIiwicm9sZXMiOlsiVGhlYXRlciBPd25lciJdLCJzZWxlY3RlZFJvbGUiOiJUaGVhdGVyIE93bmVyIiwiaWF0IjoxNzMyMDQzODcxLCJleHAiOjE3MzIwNDc0NzF9.WtYAITN3CtJ-H363tItww4qD7Fi63q3-r_g5adbho8Y
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: e488e76d-96d9-473f-be75-6338ec36597a
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/theaters/{id}/movies:
+    get:
+      tags:
+        - theater
+      summary: get movie of specific theater
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            Bearer
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNzg5ODljNzctYTNiMS00YmYzLWI2ODYtYTYwYjZiZDliMTcwIiwicm9sZXMiOlsiVGhlYXRlciBPd25lciJdLCJzZWxlY3RlZFJvbGUiOiJUaGVhdGVyIE93bmVyIiwiaWF0IjoxNzMyMDQzODcxLCJleHAiOjE3MzIwNDc0NzF9.WtYAITN3CtJ-H363tItww4qD7Fi63q3-r_g5adbho8Y
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 3d8cec24-fdce-4a59-bfde-625167aeca2a
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/theaters/reports:
+    get:
+      tags:
+        - theater
+      summary: theater report(Admin)
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            Bearer
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzE4MjU4MzksImV4cCI6MTczMTgyOTQzOX0.bqowHaFLNFYaBUoPJxpLY5Z5CqUFibDbM-s_H0q15NQ
+        - name: startDate
+          in: query
+          schema:
+            type: string
+          example: 15-11-2024
+        - name: endDate
+          in: query
+          schema:
+            type: string
+          example: 19-11-2024
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/movies:
+    post:
+      tags:
+        - movie
+      summary: post-movie(Theater Owner)
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                poster:
+                  type: string
+                  format: binary
+                trailer:
+                  type: string
+                  format: binary
+                name:
+                  type: string
+                  example: yftguhi
+                summary:
+                  type: string
+                  example: 'Heartful movie '
+                release_date:
+                  type: string
+                  example: 01-04-2022
+                genre:
+                  type: string
+                  example: Romance
+                language:
+                  type: string
+                  example: English
+                cast_member_list[]:
+                  type: string
+                  example: Renate Reinsve
+                theaterIds[]:
+                  type: string
+                  example: 3d8cec24-fdce-4a59-bfde-625167aeca2a
+                category:
+                  type: string
+                  example: U/A
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            Bearer
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNDczNzhhNDMtNmI3Yi00MGVjLTk3MjktN2M4MGQxZjI3OTE3Iiwicm9sZXMiOlsiVGhlYXRlciBPd25lciIsIkN1c3RvbWVyIl0sInNlbGVjdGVkUm9sZSI6IlRoZWF0ZXIgT3duZXIiLCJpYXQiOjE3MzIxMDAwMDIsImV4cCI6MTczMjEwMzYwMn0.o-rhqCi2OF_4JJfhFuk8Zw5hX9j8NxG6ZiewOAfpYeo
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    get:
+      tags:
+        - movie
+      summary: get all movies
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            Bearer
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNDczNzhhNDMtNmI3Yi00MGVjLTk3MjktN2M4MGQxZjI3OTE3Iiwicm9sZXMiOlsiVGhlYXRlciBPd25lciIsIkN1c3RvbWVyIl0sInNlbGVjdGVkUm9sZSI6IlRoZWF0ZXIgT3duZXIiLCJpYXQiOjE3MzIxMzYyMDQsImV4cCI6MTczMjEzOTgwNH0.ULDnxx7n-49NesYMJYq1WphCmxmWMDgfiWH-waDOSUc
+        - name: page
+          in: query
+          schema:
+            type: integer
+          example: '1'
+        - name: limit
+          in: query
+          schema:
+            type: integer
+          example: '5'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/movies/{id}:
+    get:
+      tags:
+        - movie
+      summary: get movie by id
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            B
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNDczNzhhNDMtNmI3Yi00MGVjLTk3MjktN2M4MGQxZjI3OTE3Iiwicm9sZXMiOlsiVGhlYXRlciBPd25lciIsIkN1c3RvbWVyIl0sInNlbGVjdGVkUm9sZSI6IlRoZWF0ZXIgT3duZXIiLCJpYXQiOjE3MzIxMzYyMDQsImV4cCI6MTczMjEzOTgwNH0.ULDnxx7n-49NesYMJYq1WphCmxmWMDgfiWH-waDOSUc
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: a16e3192-cd25-4c91-801a-ed92b40acf2f
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    put:
+      tags:
+        - movie
+      summary: update movie by id (Theater Owner only)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                category: U/A
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            Bearer
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzE4NjA2MzAsImV4cCI6MTczMTg2NDIzMH0.-2lI8vKCuH_G0eyQxPBROUTL2disqYtvyAm82HlO_54
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 7227808d-cd65-429d-8377-74c46d2038a8
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - movie
+      summary: delete movie by id(Admin and Theater Owner only)
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            Bearer
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiN2NkZGNjNWMtN2Q1Mi00YjRlLWI4YmItYWFiY2FkOWQzMWFlIiwicm9sZXMiOlsiVGhlYXRlciBPd25lciJdLCJzZWxlY3RlZFJvbGUiOiJUaGVhdGVyIE93bmVyIiwiaWF0IjoxNzMxNDczODkwLCJleHAiOjE3MzE0Nzc0OTB9.g_8h5IbBN2gM2DSaxk5xYZj2Pab_SSWAHAfDO6oRcnY
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 93fc4a48-f091-4dd6-95be-0971bcc4e25a
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/movies/{id}/theaters:
+    get:
+      tags:
+        - movie
+      summary: get theater by movie id(Admin and Theater Owner)
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            Bearer
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzE4NjA2MzAsImV4cCI6MTczMTg2NDIzMH0.-2lI8vKCuH_G0eyQxPBROUTL2disqYtvyAm82HlO_54
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 7227808d-cd65-429d-8377-74c46d2038a8
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/movies/reports:
+    get:
+      tags:
+        - movie
+      summary: movie reoprts(Admin)
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            Bearer
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzE4MjU4MzksImV4cCI6MTczMTgyOTQzOX0.bqowHaFLNFYaBUoPJxpLY5Z5CqUFibDbM-s_H0q15NQ
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/shows:
+    post:
+      tags:
+        - show
+      summary: add-show(Theater Owner)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                movie_id: 7227808d-cd65-429d-8377-74c46d2038a8
+                theater_id: e488e76d-96d9-473f-be75-6338ec36597a
+                show_time: Night
+                available_seats: 234
+                type: 4D
+                price: 987
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            Bearer
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzE4NjA2MzAsImV4cCI6MTczMTg2NDIzMH0.-2lI8vKCuH_G0eyQxPBROUTL2disqYtvyAm82HlO_54
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    get:
+      tags:
+        - show
+      summary: get all shows
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            Bearer
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzE4NjA2MzAsImV4cCI6MTczMTg2NDIzMH0.-2lI8vKCuH_G0eyQxPBROUTL2disqYtvyAm82HlO_54
+        - name: type
+          in: query
+          schema:
+            type: string
+          example: 3D
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/shows/{id}:
+    get:
+      tags:
+        - show
+      summary: get show by id
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            Bearer
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNDczNzhhNDMtNmI3Yi00MGVjLTk3MjktN2M4MGQxZjI3OTE3Iiwicm9sZXMiOlsiVGhlYXRlciBPd25lciIsIkN1c3RvbWVyIl0sInNlbGVjdGVkUm9sZSI6IlRoZWF0ZXIgT3duZXIiLCJpYXQiOjE3MzIxNjkxMjIsImV4cCI6MTczMjE3MjcyMn0.8xZHMvEQL6t8dbNsrFu6qW6yMSvsNnk0JinbUYGPzdU
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 4f22b1c8-f877-48d8-a917-e248043e937f
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    put:
+      tags:
+        - show
+      summary: update show by id(Theater Owner)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                movie_id: 69e2b454-d71a-4bcd-815e-deca6db5e151
+                theater_id: e488e76d-96d9-473f-be75-6338ec36597a
+                show_time: Night
+                available_seats: 345
+                type: 4D
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            Bearer
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiN2NkZGNjNWMtN2Q1Mi00YjRlLWI4YmItYWFiY2FkOWQzMWFlIiwicm9sZXMiOlsiVGhlYXRlciBPd25lciJdLCJzZWxlY3RlZFJvbGUiOiJUaGVhdGVyIE93bmVyIiwiaWF0IjoxNzMxNTE5OTkxLCJleHAiOjE3MzE1MjM1OTF9.FllBG1OyRiGueed8X_FXKOk5Cc2S3LhFpmb1hvG2TY8
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 1d63b226-e655-4679-be33-0586a806da5c
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - show
+      summary: delete show by id(Theater Owner and Admin)
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            Bearer
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiN2NkZGNjNWMtN2Q1Mi00YjRlLWI4YmItYWFiY2FkOWQzMWFlIiwicm9sZXMiOlsiVGhlYXRlciBPd25lciJdLCJzZWxlY3RlZFJvbGUiOiJUaGVhdGVyIE93bmVyIiwiaWF0IjoxNzMxNTIzMjI0LCJleHAiOjE3MzE1MjY4MjR9.ARoyoOvsqlZQDkllFcEu6MjH57GdvAB_NzX67gp542k
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 1d63b226-e655-4679-be33-0586a806da5c
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/bookings:
+    post:
+      tags:
+        - booking
+      summary: create-booking
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                user_id: 78989c77-a3b1-4bf3-b686-a60b6bd9b170
+                show_id: c4ee51ad-aac3-4024-a988-b0ccf3f19459
+                number_of_seat: 1
+                booking_date: '2024-11-26'
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            Bearer
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNDczNzhhNDMtNmI3Yi00MGVjLTk3MjktN2M4MGQxZjI3OTE3Iiwicm9sZXMiOlsiVGhlYXRlciBPd25lciIsIkN1c3RvbWVyIl0sInNlbGVjdGVkUm9sZSI6IlRoZWF0ZXIgT3duZXIiLCJpYXQiOjE3MzIxNjkxMjIsImV4cCI6MTczMjE3MjcyMn0.8xZHMvEQL6t8dbNsrFu6qW6yMSvsNnk0JinbUYGPzdU
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    get:
+      tags:
+        - booking
+      summary: get all bookings
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            Bearer
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzE4NjA2MzAsImV4cCI6MTczMTg2NDIzMH0.-2lI8vKCuH_G0eyQxPBROUTL2disqYtvyAm82HlO_54
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/bookings/{id}:
+    get:
+      tags:
+        - booking
+      summary: get booking by id
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            Bearer
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMjNmMjRjOGYtNjdkMS00ZGVkLTk4ZGMtNDlhYTVlNGVlY2RmIiwicm9sZXMiOlsiVGhlYXRlciBPd25lciJdLCJzZWxlY3RlZFJvbGUiOiJUaGVhdGVyIE93bmVyIiwiaWF0IjoxNzMxNjcwNzQzLCJleHAiOjE3MzE2NzQzNDN9.DLjtLumWZ-jwJNgAQjROxdngBo5Qgs2NBlM48Qeqrvs
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 826a10c0-f5b4-4271-9601-639a758cf8b1
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    put:
+      tags:
+        - booking
+      summary: update booking by id(Self only)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                number_of_seats: 34
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: f6410db9-d4b7-45e8-a7b1-665dbb9c705f
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - booking
+      summary: delete booking by id
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            Bearer
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzE2NzUwNDYsImV4cCI6MTczMTY3ODY0Nn0.MI5QnGOkdfVo2tnY-Uok1zoX8epBNIVyFhl7dkmdZn4
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 826a10c0-f5b4-4271-9601-639a758cf8b1
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/bookings/reports:
+    get:
+      tags:
+        - booking
+      summary: booking report (Admin)
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            Bearer
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzE4MTk5NDksImV4cCI6MTczMTgyMzU0OX0.2uCklhj9wo-yp0H42ACUG1g71RInRr1jOcAWUL9xEx4
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/bookings/{id}/cancel:
+    patch:
+      tags:
+        - booking
+      summary: Cancel Booking
+      requestBody:
+        content: {}
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            Bearer
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzE4Njk1NjcsImV4cCI6MTczMTg3MzE2N30.BDq20mM3w-OYl-LAKdP9mPDMLOGsnUeNnzPh7NBplHQ
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 8ec262f6-4e15-4180-8a47-a9dc56cb7f3a
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/transactions:
+    post:
+      tags:
+        - transaction
+      summary: create-transaction
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                booking_id: ad03fbd4-d6e5-4f45-902f-84a9301a27e5
+                user_id: bc1a3c49-9537-4871-8051-266a715ac035
+                transaction_amount: 229971
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            Bearer
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzE4NjA2MzAsImV4cCI6MTczMTg2NDIzMH0.-2lI8vKCuH_G0eyQxPBROUTL2disqYtvyAm82HlO_54
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    get:
+      tags:
+        - transaction
+      summary: get all transaction of user
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            Bearer
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMjNmMjRjOGYtNjdkMS00ZGVkLTk4ZGMtNDlhYTVlNGVlY2RmIiwicm9sZXMiOlsiVGhlYXRlciBPd25lciJdLCJzZWxlY3RlZFJvbGUiOiJUaGVhdGVyIE93bmVyIiwiaWF0IjoxNzMxNzcyMDc0LCJleHAiOjE3MzE3NzU2NzR9.chAKjU2gF2j5ph81cTwDsmVEUxywqPXpYP_XI5CI28I
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/transactions/{id}:
+    get:
+      tags:
+        - transaction
+      summary: get transaction by id
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            Bearer
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMjNmMjRjOGYtNjdkMS00ZGVkLTk4ZGMtNDlhYTVlNGVlY2RmIiwicm9sZXMiOlsiVGhlYXRlciBPd25lciJdLCJzZWxlY3RlZFJvbGUiOiJUaGVhdGVyIE93bmVyIiwiaWF0IjoxNzMxNzczNTM2LCJleHAiOjE3MzE3NzcxMzZ9.hNffLNoVvLVjLPPDu0QWFDNYY1MM20eKDkCBIOmo_0c
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: bff448f8-d8e3-4e44-8a22-547786228d20
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - transaction
+      summary: delete transaction by id
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: fba1fbb1-9f23-4fb0-a56a-f8531966ed35
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
