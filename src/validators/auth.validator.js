@@ -22,7 +22,7 @@ const registerValidation = (req, res, next) => {
         'any.required': 'Phone number is required',
       }),
     roles: Joi.array()
-      .items(Joi.string().valid('Admin', 'Theater Owner', 'Customer'))
+      .items(Joi.string().valid('Theater Owner', 'Customer'))
       .min(1)
       .required()
       .messages({

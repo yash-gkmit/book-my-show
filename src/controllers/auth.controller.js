@@ -8,24 +8,7 @@ const { validateRequest } = require('../helpers/validate.helper');
 
 const register = async (req, res) => {
   try {
-    const rules = {
-      name: 'string',
-      email: 'email',
-      password: 'password',
-      phone: 'phone',
-      roles: 'array',
-    };
-
-    validateRequest(req.body, rules);
-
     const payload = req.body;
-
-    if (!Array.isArray(payload.roles) || payload.roles.length === 0) {
-      throwCustomError(
-        'Roles must be an array and at least one role must be provided',
-        400,
-      );
-    }
 
     const result = await authService.register(payload);
 

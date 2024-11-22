@@ -106,7 +106,7 @@ const fetchReport = async (req, res, next) => {
     next();
   } catch (error) {
     console.error('Error generating city-based report:', error);
-    return res.status(500).json({
+    return res.status(400).json({
       message: 'Failed to generate city-based report.',
       error: error.message,
     });
