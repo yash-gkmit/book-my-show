@@ -1,0 +1,207 @@
+const { faker } = require('@faker-js/faker');
+const {
+  create,
+  getAll,
+  get,
+  remove,
+} = require('../../src/services/transactions.service');
+const { Transaction, Booking, Show, sequelize } = require('../../src/models');
+const { sendTransactionEmail } = require('../../src/helpers/mail.helper');
+
+jest.mock('../../src/models');
+jest.mock('../../src/helpers/mail.helper', () => ({
+  sendTransactionEmail: jest.fn(),
+}));
+
+describe('Transaction Service', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('create', () => {
+    it('should create a transaction successfully', async () => {
+      const mockTransaction = { commit: jest.fn(), rollback: jest.fn() };
+      sequelize.transaction.mockResolvedValue(mockTransaction);
+
+      const mockBooking = {
+        id: faker.string.uuid(),
+        user: { email: faker.internet.email() },
+        show: {
+          available_seats: 100,
+          movie: { name: faker.lorem.words() },
+          save: jest.fn(),
+        },
+        number_of_seat: 1,
+        booking_status: 'Pending',
+        save: jest.fn(),
+      };
+
+      Booking.findByPk.mockResolvedValue(mockBooking);
+      Show.findByPk.mockResolvedValue(mockBooking.show);
+      Transaction.create.mockResolvedValue({
+        id: faker.string.uuid(),
+        transaction_status: 'Success',
+        save: jest.fn(),
+      });
+
+      const data = {
+        user_id: faker.string.uuid(),
+        booking_id: mockBooking.id,
+        transaction_amount: faker.number.int({ min: 100, max: 500 }),
+      };
+
+      const transaction = await create(data);
+
+      expect(Booking.findByPk).toHaveBeenCalledWith(data.booking_id, {
+        transaction: mockTransaction,
+      });
+      expect(Transaction.create).toHaveBeenCalled();
+      expect(mockBooking.save).toHaveBeenCalled();
+      expect(mockBooking.show.save).toHaveBeenCalled();
+      expect(transaction.transaction_status).toBe('Success');
+      expect(mockTransaction.commit).toHaveBeenCalled();
+      expect(sendTransactionEmail).toHaveBeenCalled();
+    });
+
+    it('should throw an error if booking is not found', async () => {
+      const mockTransaction = { commit: jest.fn(), rollback: jest.fn() };
+      sequelize.transaction.mockResolvedValue(mockTransaction);
+
+      Booking.findByPk.mockResolvedValue(null);
+
+      const data = {
+        user_id: faker.string.uuid(),
+        booking_id: faker.string.uuid(),
+        transaction_amount: faker.number.int({ min: 100, max: 500 }),
+      };
+
+      await expect(create(data)).rejects.toThrow('Booking not found');
+      expect(mockTransaction.rollback).toHaveBeenCalled();
+    });
+
+    it('should throw an error if user is not found for the booking', async () => {
+      const mockTransaction = { commit: jest.fn(), rollback: jest.fn() };
+      sequelize.transaction.mockResolvedValue(mockTransaction);
+
+      const mockBooking = {
+        id: faker.string.uuid(),
+        user: null, // Simulating no user
+        show: {
+          available_seats: 100,
+          movie: { name: faker.lorem.words() },
+          save: jest.fn(),
+        },
+        save: jest.fn(),
+      };
+
+      Booking.findByPk.mockResolvedValue(mockBooking);
+
+      const data = {
+        user_id: faker.string.uuid(),
+        booking_id: mockBooking.id,
+        transaction_amount: faker.number.int({ min: 100, max: 500 }),
+      };
+
+      await expect(create(data)).rejects.toThrow(
+        'User not found for this booking',
+      );
+      expect(mockTransaction.rollback).toHaveBeenCalled();
+    });
+  });
+
+  describe('getAll', () => {
+    it('should return all transactions with pagination', async () => {
+      const mockTransactions = [...Array(5)].map(() => ({
+        id: faker.string.uuid(),
+        booking: {
+          show: { movie: { name: faker.lorem.words() } },
+        },
+      }));
+
+      Transaction.findAndCountAll.mockResolvedValue({
+        count: 5,
+        rows: mockTransactions,
+      });
+
+      const filters = {};
+      const page = 1;
+      const limit = 5;
+      const result = await getAll(filters, page, limit);
+
+      expect(Transaction.findAndCountAll).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.any(Object),
+          offset: 0,
+          limit,
+          order: [['created_at', 'DESC']],
+        }),
+      );
+
+      expect(result.data.length).toBe(5);
+      expect(result.pagination.totalItems).toBe(5);
+      expect(result.pagination.totalPages).toBe(1);
+    });
+  });
+
+  describe('get', () => {
+    it('should return a transaction by ID', async () => {
+      const mockTransaction = {
+        id: faker.string.uuid(),
+        booking: {
+          show: { movie: { name: faker.lorem.words() } },
+        },
+      };
+
+      Transaction.findOne.mockResolvedValue(mockTransaction);
+
+      const transaction = await get(mockTransaction.id);
+
+      expect(Transaction.findOne).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: mockTransaction.id },
+          include: expect.any(Array),
+        }),
+      );
+      expect(transaction).toEqual(mockTransaction);
+    });
+
+    it('should throw an error if transaction is not found', async () => {
+      Transaction.findOne.mockResolvedValue(null);
+
+      await expect(get(faker.string.uuid())).rejects.toThrow(
+        'Transaction not found',
+      );
+    });
+  });
+
+  describe('remove', () => {
+    it('should remove a transaction by ID', async () => {
+      const mockTransaction = { commit: jest.fn(), rollback: jest.fn() };
+      sequelize.transaction.mockResolvedValue(mockTransaction);
+
+      const mockTransactionRecord = { destroy: jest.fn() };
+      Transaction.findByPk.mockResolvedValue(mockTransactionRecord);
+
+      const id = faker.string.uuid();
+      const result = await remove(id);
+
+      expect(Transaction.findByPk).toHaveBeenCalledWith(id, {
+        transaction: mockTransaction,
+      });
+      expect(mockTransactionRecord.destroy).toHaveBeenCalled();
+      expect(mockTransaction.commit).toHaveBeenCalled();
+      expect(result).toEqual({ message: 'Transaction removed successfully' });
+    });
+
+    it('should throw an error if transaction is not found', async () => {
+      const mockTransaction = { commit: jest.fn(), rollback: jest.fn() };
+      sequelize.transaction.mockResolvedValue(mockTransaction);
+
+      Transaction.findByPk.mockResolvedValue(null);
+
+      const id = faker.string.uuid();
+      await expect(remove(id)).rejects.toThrow('Transaction not found');
+      expect(mockTransaction.rollback).toHaveBeenCalled();
+    });
+  });
+});

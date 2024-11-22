@@ -1,0 +1,244 @@
+const {
+  create,
+  getAll,
+  get,
+  update,
+  remove,
+  generateReport,
+  getTheatersByMovie,
+} = require('../../src/services/movies.service');
+const { Movie, Theater, TheaterMovie, sequelize } = require('../../src/models');
+const { faker } = require('@faker-js/faker');
+jest.mock('fs');
+jest.mock('path');
+jest.mock('json2csv', () => ({
+  parse: jest.fn(),
+}));
+
+jest.mock('../../src/models', () => ({
+  Movie: {
+    create: jest.fn(),
+    findByPk: jest.fn(),
+    update: jest.fn(),
+    destroy: jest.fn(),
+    findAndCountAll: jest.fn(),
+    findAll: jest.fn(),
+  },
+  Theater: {
+    findByPk: jest.fn(),
+  },
+  TheaterMovie: {
+    bulkCreate: jest.fn(),
+    update: jest.fn(),
+  },
+  Show: {
+    findAll: jest.fn(),
+  },
+  Booking: {
+    findAll: jest.fn(),
+  },
+  sequelize: {
+    transaction: jest.fn().mockResolvedValue({
+      commit: jest.fn(),
+      rollback: jest.fn(),
+    }),
+    models: {
+      Movie: {
+        create: jest.fn(),
+        findByPk: jest.fn(),
+        update: jest.fn(),
+      },
+      TheaterMovie: {
+        bulkCreate: jest.fn(),
+      },
+    },
+  },
+}));
+
+describe('Movie Service', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('create', () => {
+    it('should create a movie with associated theaters', async () => {
+      const movieData = {
+        name: faker.lorem.words(),
+        release_date: faker.date.future(),
+      };
+      const theaterIds = [1, 2, 3];
+      const mockTransaction = { commit: jest.fn(), rollback: jest.fn() };
+
+      sequelize.transaction.mockResolvedValue(mockTransaction);
+      Movie.create.mockResolvedValue({ id: 1, ...movieData });
+      TheaterMovie.bulkCreate.mockResolvedValue();
+      Movie.findByPk.mockResolvedValue({
+        id: 1,
+        ...movieData,
+        theaters: theaterIds,
+      });
+
+      const result = await create(movieData, theaterIds);
+
+      expect(Movie.create).toHaveBeenCalledWith(movieData, {
+        transaction: mockTransaction,
+      });
+      expect(TheaterMovie.bulkCreate).toHaveBeenCalledWith(
+        theaterIds.map(id => ({ movie_id: 1, theater_id: id })),
+        { transaction: mockTransaction },
+      );
+      expect(mockTransaction.commit).toHaveBeenCalled();
+      expect(result).toEqual({ id: 1, ...movieData, theaters: theaterIds });
+    });
+
+    it('should rollback the transaction if an error occurs', async () => {
+      const movieData = {
+        name: faker.lorem.words(),
+        release_date: faker.date.future(),
+      };
+      const mockTransaction = { commit: jest.fn(), rollback: jest.fn() };
+
+      sequelize.transaction.mockResolvedValue(mockTransaction);
+      Movie.create.mockRejectedValue(new Error('Database error'));
+
+      await expect(create(movieData)).rejects.toThrow('Database error');
+      expect(mockTransaction.rollback).toHaveBeenCalled();
+    });
+  });
+
+  describe('getAll', () => {
+    it('should return paginated movies', async () => {
+      const movies = Array.from({ length: 3 }, () => ({
+        id: faker.string.numeric(),
+        name: faker.lorem.words(),
+        cast_member_list: [faker.name.firstName(), faker.name.firstName()],
+      }));
+
+      Movie.findAndCountAll.mockResolvedValue({ count: 3, rows: movies });
+
+      const result = await getAll({ page: 1, limit: 2 });
+      expect(Movie.findAndCountAll).toHaveBeenCalledWith({
+        where: {},
+        limit: 2,
+        offset: 0,
+      });
+      expect(result).toEqual({
+        currentPage: 1,
+        totalPages: 2,
+        totalRecords: 3,
+        data: movies,
+      });
+    });
+  });
+
+  describe('get', () => {
+    it('should return a movie by ID with theaters', async () => {
+      const movie = { id: 1, name: faker.lorem.words() };
+      Movie.findByPk.mockResolvedValue(movie);
+
+      const result = await get(1);
+
+      expect(Movie.findByPk).toHaveBeenCalledWith(1, {
+        include: {
+          model: Theater,
+          as: 'theaters',
+          through: { attributes: [] },
+        },
+      });
+      expect(result).toEqual(movie);
+    });
+  });
+
+  describe('update', () => {
+    it('should update a movie', async () => {
+      const movie = { id: 1, update: jest.fn() };
+      const updatedData = { name: faker.lorem.words() };
+      const mockTransaction = { commit: jest.fn(), rollback: jest.fn() };
+
+      sequelize.transaction.mockResolvedValue(mockTransaction);
+      Movie.findByPk.mockResolvedValue(movie);
+
+      const result = await update(1, updatedData);
+
+      expect(movie.update).toHaveBeenCalledWith(updatedData, {
+        transaction: mockTransaction,
+      });
+      expect(mockTransaction.commit).toHaveBeenCalled();
+      expect(result).toEqual(movie);
+    });
+
+    it('should throw an error if the movie is not found', async () => {
+      Movie.findByPk.mockResolvedValue(null);
+
+      await expect(update(1, {})).rejects.toThrow('Movie not found');
+    });
+  });
+
+  describe('remove', () => {
+    it('should soft delete a movie', async () => {
+      const movie = { id: 1, destroy: jest.fn() };
+      const mockTransaction = { commit: jest.fn(), rollback: jest.fn() };
+
+      sequelize.transaction.mockResolvedValue(mockTransaction);
+      Movie.findByPk.mockResolvedValue(movie);
+
+      const result = await remove(1);
+
+      expect(movie.destroy).toHaveBeenCalledWith({
+        transaction: mockTransaction,
+      });
+      expect(mockTransaction.commit).toHaveBeenCalled();
+      expect(result).toEqual({ message: 'Movie soft deleted successfully' });
+    });
+
+    it('should throw an error if the movie is not found', async () => {
+      Movie.findByPk.mockResolvedValue(null);
+
+      await expect(remove(1)).rejects.toThrow('Movie not found');
+    });
+  });
+
+  describe('generateReport', () => {
+    it('should throw an error for invalid date format', async () => {
+      await expect(
+        generateReport('invalid-date', '31-12-2023'),
+      ).rejects.toThrow('Invalid date format. Please use DD-MM-YYYY.');
+    });
+
+    it('should throw an error if start date is after end date', async () => {
+      await expect(generateReport('31-12-2023', '01-01-2023')).rejects.toThrow(
+        'Start date must be before end date.',
+      );
+    });
+  });
+
+  describe('getTheatersByMovie', () => {
+    it('should return theaters for a given movie', async () => {
+      const movie = {
+        id: 1,
+        theaters: [
+          { id: 1, name: faker.lorem.words() },
+          { id: 2, name: faker.lorem.words() },
+        ],
+      };
+      Movie.findByPk.mockResolvedValue(movie);
+
+      const result = await getTheatersByMovie(1);
+
+      expect(Movie.findByPk).toHaveBeenCalledWith(1, {
+        include: {
+          model: Theater,
+          as: 'theaters',
+          through: { attributes: [] },
+        },
+      });
+      expect(result).toEqual(movie.theaters);
+    });
+
+    it('should throw an error if the movie is not found', async () => {
+      Movie.findByPk.mockResolvedValue(null);
+
+      await expect(getTheatersByMovie(1)).rejects.toThrow('Movie not found');
+    });
+  });
+});
