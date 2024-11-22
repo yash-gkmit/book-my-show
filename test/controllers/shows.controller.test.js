@@ -1,9 +1,6 @@
 const showController = require('../../src/controllers/shows.controller');
 const showService = require('../../src/services/shows.service');
-const {
-  responseHandler,
-  errorHandler,
-} = require('../../src/helpers/common.helper');
+const { errorHandler } = require('../../src/helpers/common.helper');
 const { faker } = require('@faker-js/faker');
 
 // Mock dependencies

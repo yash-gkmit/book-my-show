@@ -2,8 +2,6 @@ const movieController = require('../../src/controllers/movies.controller');
 const movieService = require('../../src/services/movies.service');
 const { uploadOnS3 } = require('../../src/helpers/s3.helper');
 const { errorHandler } = require('../../src/helpers/common.helper');
-const fs = require('fs');
-const path = require('path');
 const { faker } = require('@faker-js/faker');
 
 // Mock dependencies

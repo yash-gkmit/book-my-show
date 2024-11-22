@@ -3,7 +3,6 @@ const authService = require('../../src/services/auth.service');
 const {
   errorHandler,
   responseHandler,
-  throwCustomError,
 } = require('../../src/helpers/common.helper');
 const { faker } = require('@faker-js/faker');
 const { validateRequest } = require('../../src/helpers/validate.helper');
