@@ -32,12 +32,12 @@ paths:
             schema:
               type: object
               example:
-                name: Munnendra Gandhi
-                email: begupta7225@gmail.com
-                password: Munna@1234
-                phone: '9876543210'
+                name: jkjgy
+                email: fgh7@gmail.com
+                password: Shtybh@1234
+                phone: '9877346008'
                 roles:
-                  - Theater Owner
+                  - Customer
       responses:
         '200':
           description: Successful response
@@ -54,7 +54,7 @@ paths:
             schema:
               type: object
               example:
-                email: khannaaakriti@gmail.com
+                email: fgh7@gmail.com
       responses:
         '200':
           description: Successful response
@@ -71,16 +71,8 @@ paths:
             schema:
               type: object
               example:
-                email: fgh7@gmail.com
-                otp: '352040'
-      parameters:
-        - name: authorization
-          in: header
-          schema:
-            type: string
-          example: >-
-            bearer
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImJlZ3VwdGE3MjI1QGdtaWFsLmNvbSIsImlhdCI6MTczMTk5NTU0NSwiZXhwIjoxNzMxOTk5MTQ1fQ.mGX2iqYCp6RuJ5wz9YuZqT1llM7UPWlWcmmc6z6rn-g
+                email: adityasinghrajawat393@gmail.com
+                otp: '791302'
       responses:
         '200':
           description: Successful response
@@ -122,13 +114,31 @@ paths:
             type: string
           example: >-
             bearer
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMjZlMmU5MmEtYmY3OC00MWQxLThlZDUtYmJiOTU3ZTZlYTFhIiwicm9sZXMiOlsiQ3VzdG9tZXIiXSwic2VsZWN0ZWRSb2xlIjoiQ3VzdG9tZXIiLCJpYXQiOjE3MzEzNDE2MjYsImV4cCI6MTczMTM0NTIyNn0.N3OftcXN5TbcR2L0YHxhxcCS_1aZeSl59_MRJMNBE3U
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNTQ3YzM4YzktNDU0Yy00N2JkLWJmMGUtYWEzMmViMjBlMmMxIiwicm9sZXMiOlsiQ3VzdG9tZXIiXSwic2VsZWN0ZWRSb2xlIjoiQ3VzdG9tZXIiLCJpYXQiOjE3MzIxODM5ODEsImV4cCI6MTczMjI3MDM4MX0.d1L_5C1EzsjVt3-bcvYSMUAsTFSebY98LHf5VyzILx4
       responses:
         '200':
           description: Successful response
           content:
             application/json: {}
   /api/users:
+    get:
+      tags:
+        - user
+      summary: get all user(Admin only)
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            Bearer
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzIxODQ1NDAsImV4cCI6MTczMjI3MDk0MH0.eCQeHmwqPo7nb-X0EBHDwCCaOU_gM4FinYvCv8p4ieU
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/users/{id}:
     get:
       tags:
         - user
@@ -140,13 +150,18 @@ paths:
             type: string
           example: >-
             Bearer
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzE2OTI5MTAsImV4cCI6MTczMTY5NjUxMH0.x8YrePgDZEwS6tu-FtGv8UdHjypPt_P2faulSR8MIBA
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzIxODQ1NDAsImV4cCI6MTczMjI3MDk0MH0.eCQeHmwqPo7nb-X0EBHDwCCaOU_gM4FinYvCv8p4ieU
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 547c38c9-454c-47bd-bf0e-aa32eb20e2c1
       responses:
         '200':
           description: Successful response
           content:
             application/json: {}
-  /api/users/{user_id}:
     put:
       tags:
         - user
@@ -157,9 +172,8 @@ paths:
             schema:
               type: object
               example:
-                name: Akshay Mundra
-                email: akshay.test1010@gmail.com
-                phone: '8767876734'
+                name: Hari
+                phone: '1234567890'
       parameters:
         - name: Authorization
           in: header
@@ -167,19 +181,18 @@ paths:
             type: string
           example: >-
             Bearer
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzEzNDM4OTgsImV4cCI6MTczMTM0NzQ5OH0.LHJxG1pw8JaNixaCom5h1a-sFJG891_KujdOnx5OGng
-        - name: user_id
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzIxODQ1NDAsImV4cCI6MTczMjI3MDk0MH0.eCQeHmwqPo7nb-X0EBHDwCCaOU_gM4FinYvCv8p4ieU
+        - name: id
           in: path
           schema:
             type: string
           required: true
-          example: 26e2e92a-bf78-41d1-8ed5-bbb957e6ea1a
+          example: 547c38c9-454c-47bd-bf0e-aa32eb20e2c1
       responses:
         '200':
           description: Successful response
           content:
             application/json: {}
-  /api/users/{id}:
     delete:
       tags:
         - user
@@ -197,6 +210,7 @@ paths:
           schema:
             type: string
           required: true
+          example: 108596d8-e30b-4755-9e0a-2d0d2d96c423
       responses:
         '200':
           description: Successful response
@@ -214,23 +228,13 @@ paths:
             type: string
           example: >-
             Bearer
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzE2OTI5MTAsImV4cCI6MTczMTY5NjUxMH0.x8YrePgDZEwS6tu-FtGv8UdHjypPt_P2faulSR8MIBA
-        - name: page
-          in: query
-          schema:
-            type: integer
-          example: '1'
-        - name: limit
-          in: query
-          schema:
-            type: integer
-          example: '2'
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzIxODQ1NDAsImV4cCI6MTczMjI3MDk0MH0.eCQeHmwqPo7nb-X0EBHDwCCaOU_gM4FinYvCv8p4ieU
         - name: id
           in: path
           schema:
             type: string
           required: true
-          example: 7bb2e229-1ec1-4acd-8ee9-7d356862b847
+          example: 78989c77-a3b1-4bf3-b686-a60b6bd9b170
       responses:
         '200':
           description: Successful response
@@ -248,13 +252,13 @@ paths:
             type: string
           example: >-
             Bearer
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzE2OTI5MTAsImV4cCI6MTczMTY5NjUxMH0.x8YrePgDZEwS6tu-FtGv8UdHjypPt_P2faulSR8MIBA
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzIxODQ1NDAsImV4cCI6MTczMjI3MDk0MH0.eCQeHmwqPo7nb-X0EBHDwCCaOU_gM4FinYvCv8p4ieU
         - name: id
           in: path
           schema:
             type: string
           required: true
-          example: 23f24c8f-67d1-4ded-98dc-49aa5e4eecdf
+          example: 7bb2e229-1ec1-4acd-8ee9-7d356862b847
       responses:
         '200':
           description: Successful response
@@ -272,7 +276,7 @@ paths:
             type: string
           example: >-
             Bearer
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzE4MTk5NDksImV4cCI6MTczMTgyMzU0OX0.2uCklhj9wo-yp0H42ACUG1g71RInRr1jOcAWUL9xEx4
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzIxODQ1NDAsImV4cCI6MTczMjI3MDk0MH0.eCQeHmwqPo7nb-X0EBHDwCCaOU_gM4FinYvCv8p4ieU
       responses:
         '200':
           description: Successful response
@@ -288,10 +292,8 @@ paths:
           application/json:
             schema:
               type: object
-              example: |-
-                {
-                    "name":"hyderabad",
-                }
+              example:
+                name: Meghalya
       parameters:
         - name: Authorization
           in: header
@@ -299,7 +301,7 @@ paths:
             type: string
           example: >-
             Bearer
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzIxMjQ1MTQsImV4cCI6MTczMjEyODExNH0._ptvZTOFWhiyYfuQdM-h6HAmBUbbc3jOrgUbpUMYV14
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzIxODQ1NDAsImV4cCI6MTczMjI3MDk0MH0.eCQeHmwqPo7nb-X0EBHDwCCaOU_gM4FinYvCv8p4ieU
       responses:
         '200':
           description: Successful response
@@ -364,7 +366,7 @@ paths:
             type: string
           example: >-
             Bearer
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzIxMjQ1MTQsImV4cCI6MTczMjEyODExNH0._ptvZTOFWhiyYfuQdM-h6HAmBUbbc3jOrgUbpUMYV14
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzIxODQ1NDAsImV4cCI6MTczMjI3MDk0MH0.eCQeHmwqPo7nb-X0EBHDwCCaOU_gM4FinYvCv8p4ieU
         - name: id
           in: path
           schema:
@@ -387,7 +389,7 @@ paths:
             type: string
           example: >-
             Bearer
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzIwMzk5NjYsImV4cCI6MTczMjA0MzU2Nn0.P6gcpyp3x0cuzu77mR59HQZZPhm7k-2Y8SvFyRWtYDM
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzIxODQ1NDAsImV4cCI6MTczMjI3MDk0MH0.eCQeHmwqPo7nb-X0EBHDwCCaOU_gM4FinYvCv8p4ieU
         - name: id
           in: path
           schema:
@@ -411,22 +413,12 @@ paths:
             type: string
           example: >-
             Bearer
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzE4Mjk3MDAsImV4cCI6MTczMTgzMzMwMH0.MWOtJLIlVNubw2mPRhHXLwi_aTpg8tOtMXJr7fNCeBg
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzIxODQ1NDAsImV4cCI6MTczMjI3MDk0MH0.eCQeHmwqPo7nb-X0EBHDwCCaOU_gM4FinYvCv8p4ieU
         - name: city
           in: query
           schema:
             type: string
-          example: mumbai
-        - name: startDate
-          in: query
-          schema:
-            type: string
-          example: 01-01-2020
-        - name: endDate
-          in: query
-          schema:
-            type: string
-          example: 31-12-2024
+          example: alwar
       responses:
         '200':
           description: Successful response
@@ -477,7 +469,7 @@ paths:
             type: string
           example: >-
             Bearer
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzIxMzIxOTIsImV4cCI6MTczMjEzNTc5Mn0.Z5xIpot_pRTjCQ0iY0HW6n9GV5KP-lgj1a3pXw2CflQ
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzIxODQ1NDAsImV4cCI6MTczMjI3MDk0MH0.eCQeHmwqPo7nb-X0EBHDwCCaOU_gM4FinYvCv8p4ieU
       responses:
         '200':
           description: Successful response
@@ -494,7 +486,7 @@ paths:
             type: string
           example: >-
             Bearer
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzIxMzIxOTIsImV4cCI6MTczMjEzNTc5Mn0.Z5xIpot_pRTjCQ0iY0HW6n9GV5KP-lgj1a3pXw2CflQ
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzIxODQ1NDAsImV4cCI6MTczMjI3MDk0MH0.eCQeHmwqPo7nb-X0EBHDwCCaOU_gM4FinYvCv8p4ieU
       responses:
         '200':
           description: Successful response
@@ -512,7 +504,7 @@ paths:
             type: string
           example: >-
             Bearer
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzIxMzIxOTIsImV4cCI6MTczMjEzNTc5Mn0.Z5xIpot_pRTjCQ0iY0HW6n9GV5KP-lgj1a3pXw2CflQ
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzIxODQ1NDAsImV4cCI6MTczMjI3MDk0MH0.eCQeHmwqPo7nb-X0EBHDwCCaOU_gM4FinYvCv8p4ieU
         - name: id
           in: path
           schema:
@@ -590,7 +582,7 @@ paths:
             type: string
           example: >-
             Bearer
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNzg5ODljNzctYTNiMS00YmYzLWI2ODYtYTYwYjZiZDliMTcwIiwicm9sZXMiOlsiVGhlYXRlciBPd25lciJdLCJzZWxlY3RlZFJvbGUiOiJUaGVhdGVyIE93bmVyIiwiaWF0IjoxNzMyMDQzODcxLCJleHAiOjE3MzIwNDc0NzF9.WtYAITN3CtJ-H363tItww4qD7Fi63q3-r_g5adbho8Y
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzIxODQ1NDAsImV4cCI6MTczMjI3MDk0MH0.eCQeHmwqPo7nb-X0EBHDwCCaOU_gM4FinYvCv8p4ieU
         - name: id
           in: path
           schema:
@@ -614,17 +606,7 @@ paths:
             type: string
           example: >-
             Bearer
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzE4MjU4MzksImV4cCI6MTczMTgyOTQzOX0.bqowHaFLNFYaBUoPJxpLY5Z5CqUFibDbM-s_H0q15NQ
-        - name: startDate
-          in: query
-          schema:
-            type: string
-          example: 15-11-2024
-        - name: endDate
-          in: query
-          schema:
-            type: string
-          example: 19-11-2024
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzIxODQ1NDAsImV4cCI6MTczMjI3MDk0MH0.eCQeHmwqPo7nb-X0EBHDwCCaOU_gM4FinYvCv8p4ieU
       responses:
         '200':
           description: Successful response
@@ -649,7 +631,7 @@ paths:
                   format: binary
                 name:
                   type: string
-                  example: yftguhi
+                  example: fguygf
                 summary:
                   type: string
                   example: 'Heartful movie '
@@ -678,7 +660,7 @@ paths:
             type: string
           example: >-
             Bearer
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNDczNzhhNDMtNmI3Yi00MGVjLTk3MjktN2M4MGQxZjI3OTE3Iiwicm9sZXMiOlsiVGhlYXRlciBPd25lciIsIkN1c3RvbWVyIl0sInNlbGVjdGVkUm9sZSI6IlRoZWF0ZXIgT3duZXIiLCJpYXQiOjE3MzIxMDAwMDIsImV4cCI6MTczMjEwMzYwMn0.o-rhqCi2OF_4JJfhFuk8Zw5hX9j8NxG6ZiewOAfpYeo
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNDczNzhhNDMtNmI3Yi00MGVjLTk3MjktN2M4MGQxZjI3OTE3Iiwicm9sZXMiOlsiVGhlYXRlciBPd25lciIsIkN1c3RvbWVyIl0sInNlbGVjdGVkUm9sZSI6IlRoZWF0ZXIgT3duZXIiLCJpYXQiOjE3MzIxNjUyNTMsImV4cCI6MTczMjE2ODg1M30.oXc9UtK6ukD0c55ouW7mlTbt8Je35M2bsMAIcJKtbWc
       responses:
         '200':
           description: Successful response
@@ -695,17 +677,7 @@ paths:
             type: string
           example: >-
             Bearer
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNDczNzhhNDMtNmI3Yi00MGVjLTk3MjktN2M4MGQxZjI3OTE3Iiwicm9sZXMiOlsiVGhlYXRlciBPd25lciIsIkN1c3RvbWVyIl0sInNlbGVjdGVkUm9sZSI6IlRoZWF0ZXIgT3duZXIiLCJpYXQiOjE3MzIxMzYyMDQsImV4cCI6MTczMjEzOTgwNH0.ULDnxx7n-49NesYMJYq1WphCmxmWMDgfiWH-waDOSUc
-        - name: page
-          in: query
-          schema:
-            type: integer
-          example: '1'
-        - name: limit
-          in: query
-          schema:
-            type: integer
-          example: '5'
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNDczNzhhNDMtNmI3Yi00MGVjLTk3MjktN2M4MGQxZjI3OTE3Iiwicm9sZXMiOlsiVGhlYXRlciBPd25lciIsIkN1c3RvbWVyIl0sInNlbGVjdGVkUm9sZSI6IlRoZWF0ZXIgT3duZXIiLCJpYXQiOjE3MzIxOTMzNTMsImV4cCI6MTczMjI3OTc1M30.FeerBXuwzFntAYsNlD2bDL26NmGqjzqbXDnJ_73wrOE
       responses:
         '200':
           description: Successful response
@@ -723,7 +695,7 @@ paths:
             type: string
           example: >-
             B
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNDczNzhhNDMtNmI3Yi00MGVjLTk3MjktN2M4MGQxZjI3OTE3Iiwicm9sZXMiOlsiVGhlYXRlciBPd25lciIsIkN1c3RvbWVyIl0sInNlbGVjdGVkUm9sZSI6IlRoZWF0ZXIgT3duZXIiLCJpYXQiOjE3MzIxMzYyMDQsImV4cCI6MTczMjEzOTgwNH0.ULDnxx7n-49NesYMJYq1WphCmxmWMDgfiWH-waDOSUc
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNDczNzhhNDMtNmI3Yi00MGVjLTk3MjktN2M4MGQxZjI3OTE3Iiwicm9sZXMiOlsiVGhlYXRlciBPd25lciIsIkN1c3RvbWVyIl0sInNlbGVjdGVkUm9sZSI6IlRoZWF0ZXIgT3duZXIiLCJpYXQiOjE3MzIxOTMzNTMsImV4cCI6MTczMjI3OTc1M30.FeerBXuwzFntAYsNlD2bDL26NmGqjzqbXDnJ_73wrOE
         - name: id
           in: path
           schema:
@@ -745,7 +717,7 @@ paths:
             schema:
               type: object
               example:
-                category: U/A
+                name: minati
       parameters:
         - name: Authorization
           in: header
@@ -753,13 +725,13 @@ paths:
             type: string
           example: >-
             Bearer
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzE4NjA2MzAsImV4cCI6MTczMTg2NDIzMH0.-2lI8vKCuH_G0eyQxPBROUTL2disqYtvyAm82HlO_54
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNDczNzhhNDMtNmI3Yi00MGVjLTk3MjktN2M4MGQxZjI3OTE3Iiwicm9sZXMiOlsiVGhlYXRlciBPd25lciIsIkN1c3RvbWVyIl0sInNlbGVjdGVkUm9sZSI6IlRoZWF0ZXIgT3duZXIiLCJpYXQiOjE3MzIxOTMzNTMsImV4cCI6MTczMjI3OTc1M30.FeerBXuwzFntAYsNlD2bDL26NmGqjzqbXDnJ_73wrOE
         - name: id
           in: path
           schema:
             type: string
           required: true
-          example: 7227808d-cd65-429d-8377-74c46d2038a8
+          example: 0543d995-9099-400a-99c8-d4ac13d127da
       responses:
         '200':
           description: Successful response
@@ -776,7 +748,7 @@ paths:
             type: string
           example: >-
             Bearer
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiN2NkZGNjNWMtN2Q1Mi00YjRlLWI4YmItYWFiY2FkOWQzMWFlIiwicm9sZXMiOlsiVGhlYXRlciBPd25lciJdLCJzZWxlY3RlZFJvbGUiOiJUaGVhdGVyIE93bmVyIiwiaWF0IjoxNzMxNDczODkwLCJleHAiOjE3MzE0Nzc0OTB9.g_8h5IbBN2gM2DSaxk5xYZj2Pab_SSWAHAfDO6oRcnY
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzE5MDc5MzQsImV4cCI6MTczMTkxMTUzNH0.nF0mHAHcMjbaAFIjVuh6uLdBSo_F2pANroDDZUwBJ08
         - name: id
           in: path
           schema:
@@ -800,13 +772,13 @@ paths:
             type: string
           example: >-
             Bearer
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzE4NjA2MzAsImV4cCI6MTczMTg2NDIzMH0.-2lI8vKCuH_G0eyQxPBROUTL2disqYtvyAm82HlO_54
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzIxMDA0MjIsImV4cCI6MTczMjEwNDAyMn0.MSfd6gVU7BYmVS-S1gS4HcbpPyvJNJF5wdj-HAKmn4U
         - name: id
           in: path
           schema:
             type: string
           required: true
-          example: 7227808d-cd65-429d-8377-74c46d2038a8
+          example: e73217a1-7b68-4760-b4a5-51bb64f159e6
       responses:
         '200':
           description: Successful response
@@ -824,7 +796,17 @@ paths:
             type: string
           example: >-
             Bearer
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzE4MjU4MzksImV4cCI6MTczMTgyOTQzOX0.bqowHaFLNFYaBUoPJxpLY5Z5CqUFibDbM-s_H0q15NQ
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzIxNzQ2MzksImV4cCI6MTczMjE3ODIzOX0.DuKqm1BEPz29CFlHo99ikeDCCGR0EOy2jUiiStVzF30
+        - name: startDate
+          in: query
+          schema:
+            type: string
+          example: 01-03-2021
+        - name: endDate
+          in: query
+          schema:
+            type: string
+          example: 01-04-2021
       responses:
         '200':
           description: Successful response
@@ -841,12 +823,12 @@ paths:
             schema:
               type: object
               example:
-                movie_id: 7227808d-cd65-429d-8377-74c46d2038a8
-                theater_id: e488e76d-96d9-473f-be75-6338ec36597a
-                show_time: Night
-                available_seats: 234
-                type: 4D
-                price: 987
+                movie_id: a5fdf514-2394-45f6-9143-fe658f8d97f3
+                theater_id: 3d8cec24-fdce-4a59-bfde-625167aeca2a
+                show_time: Morning
+                available_seats: 45
+                type: 3D
+                price: 499
       parameters:
         - name: Authorization
           in: header
@@ -854,7 +836,7 @@ paths:
             type: string
           example: >-
             Bearer
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzE4NjA2MzAsImV4cCI6MTczMTg2NDIzMH0.-2lI8vKCuH_G0eyQxPBROUTL2disqYtvyAm82HlO_54
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNDczNzhhNDMtNmI3Yi00MGVjLTk3MjktN2M4MGQxZjI3OTE3Iiwicm9sZXMiOlsiVGhlYXRlciBPd25lciIsIkN1c3RvbWVyIl0sInNlbGVjdGVkUm9sZSI6IlRoZWF0ZXIgT3duZXIiLCJpYXQiOjE3MzIxNjkxMjIsImV4cCI6MTczMjE3MjcyMn0.8xZHMvEQL6t8dbNsrFu6qW6yMSvsNnk0JinbUYGPzdU
       responses:
         '200':
           description: Successful response
@@ -871,12 +853,7 @@ paths:
             type: string
           example: >-
             Bearer
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzE4NjA2MzAsImV4cCI6MTczMTg2NDIzMH0.-2lI8vKCuH_G0eyQxPBROUTL2disqYtvyAm82HlO_54
-        - name: type
-          in: query
-          schema:
-            type: string
-          example: 3D
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNDczNzhhNDMtNmI3Yi00MGVjLTk3MjktN2M4MGQxZjI3OTE3Iiwicm9sZXMiOlsiVGhlYXRlciBPd25lciIsIkN1c3RvbWVyIl0sInNlbGVjdGVkUm9sZSI6IlRoZWF0ZXIgT3duZXIiLCJpYXQiOjE3MzIxNjkxMjIsImV4cCI6MTczMjE3MjcyMn0.8xZHMvEQL6t8dbNsrFu6qW6yMSvsNnk0JinbUYGPzdU
       responses:
         '200':
           description: Successful response
@@ -916,11 +893,7 @@ paths:
             schema:
               type: object
               example:
-                movie_id: 69e2b454-d71a-4bcd-815e-deca6db5e151
-                theater_id: e488e76d-96d9-473f-be75-6338ec36597a
-                show_time: Night
-                available_seats: 345
-                type: 4D
+                show_time: Morning
       parameters:
         - name: Authorization
           in: header
@@ -928,13 +901,13 @@ paths:
             type: string
           example: >-
             Bearer
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiN2NkZGNjNWMtN2Q1Mi00YjRlLWI4YmItYWFiY2FkOWQzMWFlIiwicm9sZXMiOlsiVGhlYXRlciBPd25lciJdLCJzZWxlY3RlZFJvbGUiOiJUaGVhdGVyIE93bmVyIiwiaWF0IjoxNzMxNTE5OTkxLCJleHAiOjE3MzE1MjM1OTF9.FllBG1OyRiGueed8X_FXKOk5Cc2S3LhFpmb1hvG2TY8
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNDczNzhhNDMtNmI3Yi00MGVjLTk3MjktN2M4MGQxZjI3OTE3Iiwicm9sZXMiOlsiVGhlYXRlciBPd25lciIsIkN1c3RvbWVyIl0sInNlbGVjdGVkUm9sZSI6IlRoZWF0ZXIgT3duZXIiLCJpYXQiOjE3MzIxNjkxMjIsImV4cCI6MTczMjE3MjcyMn0.8xZHMvEQL6t8dbNsrFu6qW6yMSvsNnk0JinbUYGPzdU
         - name: id
           in: path
           schema:
             type: string
           required: true
-          example: 1d63b226-e655-4679-be33-0586a806da5c
+          example: 4f22b1c8-f877-48d8-a917-e248043e937f
       responses:
         '200':
           description: Successful response
@@ -951,13 +924,13 @@ paths:
             type: string
           example: >-
             Bearer
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiN2NkZGNjNWMtN2Q1Mi00YjRlLWI4YmItYWFiY2FkOWQzMWFlIiwicm9sZXMiOlsiVGhlYXRlciBPd25lciJdLCJzZWxlY3RlZFJvbGUiOiJUaGVhdGVyIE93bmVyIiwiaWF0IjoxNzMxNTIzMjI0LCJleHAiOjE3MzE1MjY4MjR9.ARoyoOvsqlZQDkllFcEu6MjH57GdvAB_NzX67gp542k
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNzg5ODljNzctYTNiMS00YmYzLWI2ODYtYTYwYjZiZDliMTcwIiwicm9sZXMiOlsiVGhlYXRlciBPd25lciJdLCJzZWxlY3RlZFJvbGUiOiJUaGVhdGVyIE93bmVyIiwiaWF0IjoxNzMyMDQ1MTI1LCJleHAiOjE3MzIwNDg3MjV9.Cvfk2UgBAdhE7F8hlqTNdEoMiN2Lp1aKQ4yaA_aO66w
         - name: id
           in: path
           schema:
             type: string
           required: true
-          example: 1d63b226-e655-4679-be33-0586a806da5c
+          example: 4f22b1c8-f877-48d8-a917-e248043e937f
       responses:
         '200':
           description: Successful response
@@ -974,8 +947,8 @@ paths:
             schema:
               type: object
               example:
-                user_id: 78989c77-a3b1-4bf3-b686-a60b6bd9b170
-                show_id: c4ee51ad-aac3-4024-a988-b0ccf3f19459
+                user_id: c5abcf8c-62c8-4f1b-9fda-f97f5c10aef8
+                show_id: cabff0e2-f896-4381-a207-8434186d8675
                 number_of_seat: 1
                 booking_date: '2024-11-26'
       parameters:
@@ -1002,7 +975,7 @@ paths:
             type: string
           example: >-
             Bearer
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzE4NjA2MzAsImV4cCI6MTczMTg2NDIzMH0.-2lI8vKCuH_G0eyQxPBROUTL2disqYtvyAm82HlO_54
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNDczNzhhNDMtNmI3Yi00MGVjLTk3MjktN2M4MGQxZjI3OTE3Iiwicm9sZXMiOlsiVGhlYXRlciBPd25lciIsIkN1c3RvbWVyIl0sInNlbGVjdGVkUm9sZSI6IlRoZWF0ZXIgT3duZXIiLCJpYXQiOjE3MzIxNjkxMjIsImV4cCI6MTczMjE3MjcyMn0.8xZHMvEQL6t8dbNsrFu6qW6yMSvsNnk0JinbUYGPzdU
       responses:
         '200':
           description: Successful response
@@ -1020,13 +993,13 @@ paths:
             type: string
           example: >-
             Bearer
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMjNmMjRjOGYtNjdkMS00ZGVkLTk4ZGMtNDlhYTVlNGVlY2RmIiwicm9sZXMiOlsiVGhlYXRlciBPd25lciJdLCJzZWxlY3RlZFJvbGUiOiJUaGVhdGVyIE93bmVyIiwiaWF0IjoxNzMxNjcwNzQzLCJleHAiOjE3MzE2NzQzNDN9.DLjtLumWZ-jwJNgAQjROxdngBo5Qgs2NBlM48Qeqrvs
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNDczNzhhNDMtNmI3Yi00MGVjLTk3MjktN2M4MGQxZjI3OTE3Iiwicm9sZXMiOlsiVGhlYXRlciBPd25lciIsIkN1c3RvbWVyIl0sInNlbGVjdGVkUm9sZSI6IlRoZWF0ZXIgT3duZXIiLCJpYXQiOjE3MzIxNjkxMjIsImV4cCI6MTczMjE3MjcyMn0.8xZHMvEQL6t8dbNsrFu6qW6yMSvsNnk0JinbUYGPzdU
         - name: id
           in: path
           schema:
             type: string
           required: true
-          example: 826a10c0-f5b4-4271-9601-639a758cf8b1
+          example: 1d096938-a412-4feb-a90d-98703ccbf1f2
       responses:
         '200':
           description: Successful response
@@ -1042,14 +1015,14 @@ paths:
             schema:
               type: object
               example:
-                number_of_seats: 34
+                number_of_seats: 78
       parameters:
         - name: id
           in: path
           schema:
             type: string
           required: true
-          example: f6410db9-d4b7-45e8-a7b1-665dbb9c705f
+          example: 1d096938-a412-4feb-a90d-98703ccbf1f2
       responses:
         '200':
           description: Successful response
@@ -1090,7 +1063,7 @@ paths:
             type: string
           example: >-
             Bearer
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzE4MTk5NDksImV4cCI6MTczMTgyMzU0OX0.2uCklhj9wo-yp0H42ACUG1g71RInRr1jOcAWUL9xEx4
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzIxNzQ2MzksImV4cCI6MTczMjE3ODIzOX0.DuKqm1BEPz29CFlHo99ikeDCCGR0EOy2jUiiStVzF30
       responses:
         '200':
           description: Successful response
@@ -1110,13 +1083,13 @@ paths:
             type: string
           example: >-
             Bearer
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzE4Njk1NjcsImV4cCI6MTczMTg3MzE2N30.BDq20mM3w-OYl-LAKdP9mPDMLOGsnUeNnzPh7NBplHQ
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiN2JiMmUyMjktMWVjMS00YWNkLThlZTktN2QzNTY4NjJiODQ3Iiwicm9sZXMiOlsiQ3VzdG9tZXIiXSwic2VsZWN0ZWRSb2xlIjoiQ3VzdG9tZXIiLCJpYXQiOjE3MzIxNzY3NzgsImV4cCI6MTczMjE4MDM3OH0.ylmyHOkX2KYLGjPNhrb4qddbmxwlOe_Z_FikZNxh7fE
         - name: id
           in: path
           schema:
             type: string
           required: true
-          example: 8ec262f6-4e15-4180-8a47-a9dc56cb7f3a
+          example: 7bb2e229-1ec1-4acd-8ee9-7d356862b847
       responses:
         '200':
           description: Successful response
@@ -1133,9 +1106,9 @@ paths:
             schema:
               type: object
               example:
-                booking_id: ad03fbd4-d6e5-4f45-902f-84a9301a27e5
-                user_id: bc1a3c49-9537-4871-8051-266a715ac035
-                transaction_amount: 229971
+                booking_id: 1d096938-a412-4feb-a90d-98703ccbf1f2
+                user_id: c5abcf8c-62c8-4f1b-9fda-f97f5c10aef8
+                transaction_amount: 499
       parameters:
         - name: Authorization
           in: header
@@ -1143,7 +1116,7 @@ paths:
             type: string
           example: >-
             Bearer
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzE4NjA2MzAsImV4cCI6MTczMTg2NDIzMH0.-2lI8vKCuH_G0eyQxPBROUTL2disqYtvyAm82HlO_54
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNzg5ODljNzctYTNiMS00YmYzLWI2ODYtYTYwYjZiZDliMTcwIiwicm9sZXMiOlsiVGhlYXRlciBPd25lciJdLCJzZWxlY3RlZFJvbGUiOiJUaGVhdGVyIE93bmVyIiwiaWF0IjoxNzMyMTczMjA2LCJleHAiOjE3MzIxNzY4MDZ9.vboaIr-uBvoiCsgYMj3_GZ9UGphAssFQ310xIT3G0I8
       responses:
         '200':
           description: Successful response
@@ -1160,7 +1133,7 @@ paths:
             type: string
           example: >-
             Bearer
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMjNmMjRjOGYtNjdkMS00ZGVkLTk4ZGMtNDlhYTVlNGVlY2RmIiwicm9sZXMiOlsiVGhlYXRlciBPd25lciJdLCJzZWxlY3RlZFJvbGUiOiJUaGVhdGVyIE93bmVyIiwiaWF0IjoxNzMxNzcyMDc0LCJleHAiOjE3MzE3NzU2NzR9.chAKjU2gF2j5ph81cTwDsmVEUxywqPXpYP_XI5CI28I
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNDczNzhhNDMtNmI3Yi00MGVjLTk3MjktN2M4MGQxZjI3OTE3Iiwicm9sZXMiOlsiVGhlYXRlciBPd25lciIsIkN1c3RvbWVyIl0sInNlbGVjdGVkUm9sZSI6IlRoZWF0ZXIgT3duZXIiLCJpYXQiOjE3MzIxNzI0MjEsImV4cCI6MTczMjE3NjAyMX0.7kvsjhzSHySTmyA8I-zB5DGDHVaYy9Ahun-R2eEYjGA
       responses:
         '200':
           description: Successful response
@@ -1178,7 +1151,7 @@ paths:
             type: string
           example: >-
             Bearer
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMjNmMjRjOGYtNjdkMS00ZGVkLTk4ZGMtNDlhYTVlNGVlY2RmIiwicm9sZXMiOlsiVGhlYXRlciBPd25lciJdLCJzZWxlY3RlZFJvbGUiOiJUaGVhdGVyIE93bmVyIiwiaWF0IjoxNzMxNzczNTM2LCJleHAiOjE3MzE3NzcxMzZ9.hNffLNoVvLVjLPPDu0QWFDNYY1MM20eKDkCBIOmo_0c
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNDczNzhhNDMtNmI3Yi00MGVjLTk3MjktN2M4MGQxZjI3OTE3Iiwicm9sZXMiOlsiVGhlYXRlciBPd25lciIsIkN1c3RvbWVyIl0sInNlbGVjdGVkUm9sZSI6IlRoZWF0ZXIgT3duZXIiLCJpYXQiOjE3MzIxNzI0MjEsImV4cCI6MTczMjE3NjAyMX0.7kvsjhzSHySTmyA8I-zB5DGDHVaYy9Ahun-R2eEYjGA
         - name: id
           in: path
           schema:
