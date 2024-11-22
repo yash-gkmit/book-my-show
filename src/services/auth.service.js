@@ -19,6 +19,14 @@ const register = async payload => {
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
+  const emailExist = User.findOne({
+    where: { email: email },
+  });
+
+  if (emailExist) {
+    throwCustomError('Email already exist!');
+  }
+
   const user = await User.create({
     name,
     email,
@@ -90,7 +98,7 @@ const login = async payload => {
   const userRoles = user.Roles.map(r => r.name);
 
   if (!userRoles.includes(role)) {
-    throwCustomError(`User does not have the ${role} role`, 403);
+    throwCustomError(`Role not exist for that user`, 403);
   }
 
   const jwtContent = {
