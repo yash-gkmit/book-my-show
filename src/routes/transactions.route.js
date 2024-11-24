@@ -33,7 +33,7 @@ router.get(
 router.delete(
   '/:id',
   authMiddleware,
-  rbacMiddleware(['Admin', 'Self']),
+  rbacMiddleware(['Admin'], true),
   transactionController.remove,
   commonHelper.responseHandler,
 );

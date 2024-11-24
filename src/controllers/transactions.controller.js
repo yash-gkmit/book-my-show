@@ -1,19 +1,26 @@
 const transactionService = require('../services/transactions.service');
-const { errorHandler } = require('../helpers/common.helper.js');
+const {
+  errorHandler,
+  throwCustomError,
+} = require('../helpers/common.helper.js');
 
 const generate = async (req, res, next) => {
   try {
+    if (req.body.userId !== req.user.id) {
+      throwCustomError(
+        'You are not authorize to do transaction of that specific booking!',
+        403,
+      );
+    }
     const transaction = await transactionService.create(req.body);
 
-    (res.data = transaction), (res.statusCode = 201), next();
+    res.message =
+      'Transaction genearted successfully, Please check your mail for bill.!';
+    res.data = transaction;
+    res.statusCode = 201;
+    next();
   } catch (error) {
-    console.error('Error creating transaction:', error.message);
-    errorHandler(
-      req,
-      res,
-      error.message || 'An error occurred while creating the transaction.',
-      400,
-    );
+    errorHandler(req, res, error, error.statusCode || 400);
   }
 };
 
@@ -29,11 +36,7 @@ const fetchAll = async (req, res, next) => {
   } catch (error) {
     console.error(error);
 
-    if (error.statusCode) {
-      errorHandler(req, res, error.message, error.statusCode);
-    } else {
-      errorHandler(req, res, 'Transaction not found', 404);
-    }
+    errorHandler(req, res, error, error.statusCode || 404);
   }
 };
 

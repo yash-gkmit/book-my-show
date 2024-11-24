@@ -24,7 +24,7 @@ module.exports = {
           key: 'id',
         },
       },
-      number_of_seat: {
+      number_of_seats: {
         type: Sequelize.INTEGER,
         allowNull: false,
       },
