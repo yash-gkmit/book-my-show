@@ -13,8 +13,21 @@ const path = require('path');
 const { Op } = require('sequelize');
 const moment = require('moment');
 
-const create = async (movieData, theaterIds) => {
+const create = async (movie, theaterIds) => {
   const transaction = await sequelize.transaction();
+
+  const movieData = {
+    poster: movie.poster,
+    trailer: movie.trailer,
+    name: movie.name,
+    summary: movie.summary,
+    release_date: movie.releaseDate,
+    genre: movie.genre,
+    language: movie.language,
+    cast_member_list: movie.castMemberList,
+    theaterIds: movie.theaterIds,
+    category: movie.category,
+  };
 
   try {
     const movie = await Movie.create(movieData, { transaction });
@@ -77,21 +90,24 @@ const getAll = async query => {
   });
 
   return {
-    currentPage: parseInt(page, 10),
-    totalPages: Math.ceil(movies.count / limit),
-    totalRecords: movies.count,
     data: movies.rows,
+    pagination: {
+      totalItems: movies.count,
+      currentPage: parseInt(page, 10),
+      itemsPerPage: parseInt(limit, 10),
+      totalPages: Math.ceil(movies.count / limit),
+    },
   };
 };
 
 const get = async movieId => {
-  return await Movie.findByPk(movieId, {
-    include: {
-      model: Theater,
-      as: 'theaters',
-      through: { attributes: [] },
-    },
+  const movie = await Movie.findOne({
+    where: { id: movieId },
   });
+  if (!movie) {
+    throwCustomError('Movie not exist with that id!', 404);
+  }
+  return movie;
 };
 
 const update = async (movieId, movieData) => {

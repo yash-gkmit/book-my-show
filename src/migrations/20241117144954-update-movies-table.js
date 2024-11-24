@@ -6,25 +6,10 @@ module.exports = {
       type: Sequelize.ENUM('U', 'U/A', 'A'),
       allowNull: true,
     });
-
-    await Promise.all([
-      queryInterface.changeColumn('movies', 'name', {
-        type: Sequelize.STRING(150),
-        allowNull: false,
-        unique: true,
-      }),
-    ]);
   },
 
-  async down(queryInterface, Sequelize) {
+  async down(queryInterface) {
     await queryInterface.removeColumn('movies', 'category');
-
-    await Promise.all([
-      queryInterface.changeColumn('movies', 'name', {
-        type: Sequelize.STRING(150),
-        allowNull: false,
-      }),
-    ]);
 
     await queryInterface.sequelize.query(
       'DROP TYPE IF EXISTS "enum_movies_category";',

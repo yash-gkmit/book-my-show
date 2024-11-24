@@ -20,7 +20,6 @@ router.post(
     { name: 'trailer', maxCount: 1 },
   ]),
   createValidation,
-  rbacMiddleware(['Theater Owner']),
   moviesController.generate,
   moviesSerializer.serialize,
   commonHelper.responseHandler,
@@ -51,7 +50,7 @@ router.get(
   commonHelper.responseHandler,
 );
 
-router.put(
+router.patch(
   '/:id',
   authMiddleware,
   rbacMiddleware(['Theater Owner']),
