@@ -101,7 +101,7 @@ describe('Movie Service', () => {
       sequelize.transaction.mockResolvedValue(mockTransaction);
       Movie.create.mockRejectedValue(new Error('Database error'));
 
-      await expect(create(movieData)).rejects.toThrow('Database error');
+      await expect(create(movieData)).rejects.toEqual('Database error');
       expect(mockTransaction.rollback).toHaveBeenCalled();
     });
   });
@@ -122,6 +122,7 @@ describe('Movie Service', () => {
         limit: 2,
         offset: 0,
       });
+
       expect(result).toEqual({
         currentPage: 1,
         totalPages: 2,
@@ -170,7 +171,7 @@ describe('Movie Service', () => {
     it('should throw an error if the movie is not found', async () => {
       Movie.findByPk.mockResolvedValue(null);
 
-      await expect(update(1, {})).rejects.toThrow('Movie not found');
+      await expect(update(1, {})).rejects.toEqual('Movie not found');
     });
   });
 
@@ -194,7 +195,7 @@ describe('Movie Service', () => {
     it('should throw an error if the movie is not found', async () => {
       Movie.findByPk.mockResolvedValue(null);
 
-      await expect(remove(1)).rejects.toThrow('Movie not found');
+      await expect(remove(1)).rejects.toEqual('Movie not found');
     });
   });
 
@@ -206,7 +207,7 @@ describe('Movie Service', () => {
     });
 
     it('should throw an error if start date is after end date', async () => {
-      await expect(generateReport('31-12-2023', '01-01-2023')).rejects.toThrow(
+      await expect(generateReport('31-12-2023', '01-01-2023')).rejects.toEqual(
         'Start date must be before end date.',
       );
     });
@@ -238,7 +239,7 @@ describe('Movie Service', () => {
     it('should throw an error if the movie is not found', async () => {
       Movie.findByPk.mockResolvedValue(null);
 
-      await expect(getTheatersByMovie(1)).rejects.toThrow('Movie not found');
+      await expect(getTheatersByMovie(1)).rejects.toEqual('Movie not found');
     });
   });
 });

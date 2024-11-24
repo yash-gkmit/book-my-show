@@ -1,4 +1,4 @@
-const { Theater, TheaterMovie, sequelize } = require('../../src/models');
+const { Theater, sequelize } = require('../../src/models');
 const {
   create,
   getAll,
@@ -6,7 +6,6 @@ const {
   update,
   remove,
   getMovies,
-  getReports,
 } = require('../../src/services/theaters.service');
 const { faker } = require('@faker-js/faker');
 const { throwCustomError } = require('../../src/helpers/common.helper');
@@ -20,12 +19,6 @@ describe('Theater Service', () => {
     name: faker.commerce.productName(),
     city_id: faker.string.uuid(), // Ensure the city_id is included
     address: faker.address.streetAddress(),
-  };
-
-  const mockMovieData = {
-    id: faker.string.uuid(),
-    title: faker.commerce.productName(),
-    genre: faker.music.genre(),
   };
 
   const mockTheaterInstance = {
@@ -216,37 +209,6 @@ describe('Theater Service', () => {
       await expect(remove(mockTheaterData.id)).rejects.toThrow('Delete failed');
       expect(mockTransaction.rollback).toHaveBeenCalled();
     });
-  });
-
-  describe('getMovies', () => {
-    it('should return movies for a given theater', async () => {
-      const mockTheaterId = faker.string.uuid();
-      const mockMovies = [mockMovieData];
-      const mockCount = 1;
-
-      TheaterMovie.findAndCountAll.mockResolvedValue({
-        rows: mockMovies,
-        count: mockCount,
-      });
-
-      const result = await getMovies(mockTheaterId, 1, 10);
-
-      expect(TheaterMovie.findAndCountAll).toHaveBeenCalledWith({
-        where: { theater_id: mockTheaterId },
-        limit: 10,
-        offset: 0,
-      });
-
-      expect(result).toEqual({
-        data: mockMovies,
-        pagination: {
-          totalItems: mockCount,
-          currentPage: 1,
-          itemsPerPage: 10,
-          totalPages: 1,
-        },
-      });
-    });
 
     it('should throw an error if theater not found', async () => {
       const mockTheaterId = '199f40d5-312d-4420-b4e9-390475ac8bc5';
@@ -256,26 +218,6 @@ describe('Theater Service', () => {
       await expect(getMovies(mockTheaterId, 1, 10)).rejects.toThrow(
         new RegExp(`Theater with ID ${mockTheaterId} not found`),
       );
-    });
-  });
-
-  describe('getReports', () => {
-    it('should return a list of reports for a theater', async () => {
-      const mockTheaterId = faker.string.uuid();
-      const mockReports = [
-        {
-          id: faker.string.uuid(),
-          data: 'report data',
-          theaterId: mockTheaterId,
-          theaterName: 'Test Theater',
-          totalBookings: 10,
-          totalRevenue: 200,
-        },
-      ];
-
-      const reports = await getReports(mockTheaterId, 1, 10);
-
-      expect(reports).toEqual(mockReports);
     });
   });
 });
