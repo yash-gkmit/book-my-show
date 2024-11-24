@@ -1,12 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const otpStore = new Map();
 const { User, Role } = require('../models');
-
-const {
-  setOtpInRedis,
-  getOtpFromRedis,
-  deleteOtpFromRedis,
-} = require('../helpers/redis.helper');
 
 const { sendOtpEmail } = require('../helpers/mail.helper');
 const { generateToken } = require('../helpers/jwt.helper');
@@ -15,16 +10,24 @@ const { throwCustomError } = require('../helpers/common.helper');
 const { addTokenToBlacklist } = require('../helpers/redis.helper');
 
 const register = async payload => {
-  const { name, email, password, phone, roles } = payload;
+  const { name, email, password, phone, roles = 'Customer' } = payload;
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  const emailExist = User.findOne({
+  const emailExist = await User.findOne({
     where: { email: email },
   });
 
   if (emailExist) {
-    throwCustomError('Email already exist!');
+    throwCustomError('Email already exist!', 400);
+  }
+
+  const phoneExist = await User.findOne({
+    where: { phone: phone },
+  });
+
+  if (phoneExist) {
+    throwCustomError('Phone number already exist!', 400);
   }
 
   const user = await User.create({
@@ -47,22 +50,30 @@ const register = async payload => {
   } else {
     console.error(`Roles not found for names: ${roles}`);
   }
-
-  return { userId: user.id };
 };
 
 const sendOtp = async email => {
+  const emailExist = await User.findOne({
+    where: { email: email },
+  });
+
+  if (!emailExist) {
+    throwCustomError('Email not exist.', 404);
+  }
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
   console.log(otp);
-  setOtpInRedis(email, otp);
+  otpStore.set(email, otp);
   await sendOtpEmail(email, otp);
-
-  return { message: 'OTP sent successfully' };
 };
 
 const verifyOtp = async (email, otp) => {
-  const storedOtp = await getOtpFromRedis(email);
+  const user = await User.findOne({
+    where: { email: email },
+  });
+  console.log(user);
+
+  const storedOtp = otpStore.get(email);
   console.log('Stored OTP:', storedOtp);
 
   if (!storedOtp) {
@@ -70,8 +81,8 @@ const verifyOtp = async (email, otp) => {
   }
 
   if (storedOtp === otp) {
-    const token = generateToken({ email });
-    deleteOtpFromRedis(email);
+    const token = generateToken(user.id);
+    otpStore.delete(email);
 
     return { token: token };
   } else {
@@ -80,14 +91,14 @@ const verifyOtp = async (email, otp) => {
 };
 
 const login = async payload => {
-  const { email, role, password } = payload;
+  const { email, password } = payload;
 
   const user = await User.findOne({
     where: { email },
     include: 'Roles',
   });
 
-  if (!user) throwCustomError('User not found', 404);
+  if (!user) throwCustomError('user not found', 404);
 
   const isPasswordCorrect = await bcrypt.compare(password, user.password);
 
@@ -95,23 +106,9 @@ const login = async payload => {
     throwCustomError('Password is not correct', 401);
   }
 
-  const userRoles = user.Roles.map(r => r.name);
+  const token = generateToken(user.id);
 
-  if (!userRoles.includes(role)) {
-    throwCustomError(`Role not exist for that user`, 403);
-  }
-
-  const jwtContent = {
-    user_id: user.id,
-    roles: userRoles,
-    selectedRole: role,
-  };
-
-  const token = jwt.sign(jwtContent, process.env.JWT_SECRET, {
-    expiresIn: '24h',
-  });
-
-  return { token, role: userRoles };
+  return { token };
 };
 
 const logout = async token => {
