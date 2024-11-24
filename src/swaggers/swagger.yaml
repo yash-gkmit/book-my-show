@@ -32,10 +32,10 @@ paths:
             schema:
               type: object
               example:
-                name: jkjgy
-                email: fgh7@gmail.com
-                password: Shtybh@1234
-                phone: '9877346008'
+                name: Sahil Gupta
+                email: sahil6@mailinator.com
+                password: Sahil@1234
+                phone: '9875646890'
                 roles:
                   - Customer
       responses:
@@ -54,7 +54,7 @@ paths:
             schema:
               type: object
               example:
-                email: fgh7@gmail.com
+                email: yash1@mailinator.com
       responses:
         '200':
           description: Successful response
@@ -72,7 +72,7 @@ paths:
               type: object
               example:
                 email: adityasinghrajawat393@gmail.com
-                otp: '791302'
+                otp: '947129'
       responses:
         '200':
           description: Successful response
@@ -89,14 +89,8 @@ paths:
             schema:
               type: object
               example:
-                email: adityasinghrajawat393@gmail.com
-                role: Theater Owner
-                password: Aditya@1234
-      parameters:
-        - name: Authorization
-          in: header
-          schema:
-            type: string
+                email: yashgupta@gkmit.co
+                password: Yashg@9414
       responses:
         '200':
           description: Successful response
@@ -115,6 +109,24 @@ paths:
           example: >-
             bearer
             eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNTQ3YzM4YzktNDU0Yy00N2JkLWJmMGUtYWEzMmViMjBlMmMxIiwicm9sZXMiOlsiQ3VzdG9tZXIiXSwic2VsZWN0ZWRSb2xlIjoiQ3VzdG9tZXIiLCJpYXQiOjE3MzIxODM5ODEsImV4cCI6MTczMjI3MDM4MX0.d1L_5C1EzsjVt3-bcvYSMUAsTFSebY98LHf5VyzILx4
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/users/me:
+    get:
+      tags:
+        - user
+      summary: get current user
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            Bearer
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzIxODQ1NDAsImV4cCI6MTczMjI3MDk0MH0.eCQeHmwqPo7nb-X0EBHDwCCaOU_gM4FinYvCv8p4ieU
       responses:
         '200':
           description: Successful response
@@ -631,10 +643,10 @@ paths:
                   format: binary
                 name:
                   type: string
-                  example: fguygf
+                  example: vgvgbhddf
                 summary:
                   type: string
-                  example: 'Heartful movie '
+                  example: Heartful mov
                 release_date:
                   type: string
                   example: 01-04-2022
@@ -707,17 +719,17 @@ paths:
           description: Successful response
           content:
             application/json: {}
-    put:
+    patch:
       tags:
         - movie
-      summary: update movie by id (Theater Owner only)
+      summary: update movie by id (Theater Owner  and admin)
       requestBody:
         content:
           application/json:
             schema:
               type: object
               example:
-                name: minati
+                name: njddccf
       parameters:
         - name: Authorization
           in: header
@@ -816,19 +828,19 @@ paths:
     post:
       tags:
         - show
-      summary: add-show(Theater Owner)
+      summary: add-show
       requestBody:
         content:
           application/json:
             schema:
               type: object
               example:
-                movie_id: a5fdf514-2394-45f6-9143-fe658f8d97f3
-                theater_id: 3d8cec24-fdce-4a59-bfde-625167aeca2a
-                show_time: Morning
-                available_seats: 45
-                type: 3D
-                price: 499
+                movieId: e4656986-bf1c-40de-8e34-666cc8919441
+                theaterId: 4309e1c7-dc06-47f0-b7dc-5cfa318ae74a
+                showTime: Evening
+                availableSeats: 450
+                type: 2D
+                price: 399
       parameters:
         - name: Authorization
           in: header
@@ -883,17 +895,17 @@ paths:
           description: Successful response
           content:
             application/json: {}
-    put:
+    patch:
       tags:
         - show
-      summary: update show by id(Theater Owner)
+      summary: update show by id
       requestBody:
         content:
           application/json:
             schema:
               type: object
               example:
-                show_time: Morning
+                show_time: Night
       parameters:
         - name: Authorization
           in: header
@@ -907,7 +919,7 @@ paths:
           schema:
             type: string
           required: true
-          example: 4f22b1c8-f877-48d8-a917-e248043e937f
+          example: c4ee51ad-aac3-4024-a988-b0ccf3f19459
       responses:
         '200':
           description: Successful response
@@ -916,7 +928,7 @@ paths:
     delete:
       tags:
         - show
-      summary: delete show by id(Theater Owner and Admin)
+      summary: delete show by id
       parameters:
         - name: Authorization
           in: header
@@ -1005,7 +1017,7 @@ paths:
           description: Successful response
           content:
             application/json: {}
-    put:
+    patch:
       tags:
         - booking
       summary: update booking by id(Self only)
@@ -1015,14 +1027,14 @@ paths:
             schema:
               type: object
               example:
-                number_of_seats: 78
+                bookingSatus: Canceled
       parameters:
         - name: id
           in: path
           schema:
             type: string
           required: true
-          example: 1d096938-a412-4feb-a90d-98703ccbf1f2
+          example: 442478aa-51fd-46b5-8334-85176acad72b
       responses:
         '200':
           description: Successful response
@@ -1069,32 +1081,6 @@ paths:
           description: Successful response
           content:
             application/json: {}
-  /api/bookings/{id}/cancel:
-    patch:
-      tags:
-        - booking
-      summary: Cancel Booking
-      requestBody:
-        content: {}
-      parameters:
-        - name: Authorization
-          in: header
-          schema:
-            type: string
-          example: >-
-            Bearer
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiN2JiMmUyMjktMWVjMS00YWNkLThlZTktN2QzNTY4NjJiODQ3Iiwicm9sZXMiOlsiQ3VzdG9tZXIiXSwic2VsZWN0ZWRSb2xlIjoiQ3VzdG9tZXIiLCJpYXQiOjE3MzIxNzY3NzgsImV4cCI6MTczMjE4MDM3OH0.ylmyHOkX2KYLGjPNhrb4qddbmxwlOe_Z_FikZNxh7fE
-        - name: id
-          in: path
-          schema:
-            type: string
-          required: true
-          example: 7bb2e229-1ec1-4acd-8ee9-7d356862b847
-      responses:
-        '200':
-          description: Successful response
-          content:
-            application/json: {}
   /api/transactions:
     post:
       tags:
@@ -1106,9 +1092,8 @@ paths:
             schema:
               type: object
               example:
-                booking_id: 1d096938-a412-4feb-a90d-98703ccbf1f2
-                user_id: c5abcf8c-62c8-4f1b-9fda-f97f5c10aef8
-                transaction_amount: 499
+                bookingId: 442478aa-51fd-46b5-8334-85176acad72b
+                userId: c5abcf8c-62c8-4f1b-9fda-f97f5c10aef8
       parameters:
         - name: Authorization
           in: header

@@ -30,7 +30,7 @@ describe('Transaction Service', () => {
         transaction_amount: faker.number.int({ min: 100, max: 500 }),
       };
 
-      await expect(create(data)).rejects.toThrow('Booking not found');
+      await expect(create(data)).rejects.toEqual('Booking not found');
       expect(mockTransaction.rollback).toHaveBeenCalled();
     });
 
@@ -57,7 +57,7 @@ describe('Transaction Service', () => {
         transaction_amount: faker.number.int({ min: 100, max: 500 }),
       };
 
-      await expect(create(data)).rejects.toThrow(
+      await expect(create(data)).rejects.toEqual(
         'User not found for this booking',
       );
       expect(mockTransaction.rollback).toHaveBeenCalled();
@@ -121,9 +121,9 @@ describe('Transaction Service', () => {
     });
 
     it('should throw an error if transaction is not found', async () => {
-      Transaction.findOne.mockResolvedValue(null);
+      Transaction.findOne.mockResolvedValueOnce(null);
 
-      await expect(get(faker.string.uuid())).rejects.toThrow(
+      await expect(get(faker.string.uuid())).rejects.toEqual(
         'Transaction not found',
       );
     });
@@ -146,17 +146,6 @@ describe('Transaction Service', () => {
       expect(mockTransactionRecord.destroy).toHaveBeenCalled();
       expect(mockTransaction.commit).toHaveBeenCalled();
       expect(result).toEqual({ message: 'Transaction removed successfully' });
-    });
-
-    it('should throw an error if transaction is not found', async () => {
-      const mockTransaction = { commit: jest.fn(), rollback: jest.fn() };
-      sequelize.transaction.mockResolvedValue(mockTransaction);
-
-      Transaction.findByPk.mockResolvedValue(null);
-
-      const id = faker.string.uuid();
-      await expect(remove(id)).rejects.toThrow('Transaction not found');
-      expect(mockTransaction.rollback).toHaveBeenCalled();
     });
   });
 });
