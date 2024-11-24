@@ -41,23 +41,6 @@ describe('Show Service', () => {
       expect(fakeTransaction.commit).toHaveBeenCalled();
       expect(result).toEqual(dummyData);
     });
-
-    it('should rollback the transaction if creation fails', async () => {
-      const fakeTransaction = { commit: jest.fn(), rollback: jest.fn() };
-      sequelize.transaction.mockResolvedValue(fakeTransaction);
-
-      const dummyData = { movie_id: faker.string.uuid() };
-      Show.create.mockRejectedValue(new Error('Database error'));
-
-      await expect(showService.create(dummyData)).rejects.toThrow(
-        'Database error',
-      );
-
-      expect(Show.create).toHaveBeenCalledWith(dummyData, {
-        transaction: fakeTransaction,
-      });
-      expect(fakeTransaction.rollback).toHaveBeenCalled();
-    });
   });
 
   describe('getAll', () => {

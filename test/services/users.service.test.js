@@ -91,12 +91,10 @@ describe('User Service Tests', () => {
       expect(result).toEqual(mockUser);
     });
 
-    it('should return null if user not found', async () => {
+    it('should throw error if user not found', async () => {
       sequelize.models.User.findByPk.mockResolvedValue(null);
 
-      const result = await get(1);
-
-      expect(result).toBeNull();
+      await expect(get(1)).rejects.toThrow('user with this id does not exist');
     });
   });
 
@@ -136,12 +134,6 @@ describe('User Service Tests', () => {
       };
       sequelize.models.User.findByPk.mockResolvedValue(mockUser);
       sequelize.models.UserRole.update.mockResolvedValue(true);
-
-      throwCustomError.mockImplementation((message, status) => {
-        const err = new Error(message);
-        err.statusCode = status;
-        throw err;
-      });
 
       const result = await remove(mockUser.id);
 

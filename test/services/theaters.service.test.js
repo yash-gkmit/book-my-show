@@ -6,6 +6,7 @@ const {
   update,
   remove,
   getMovies,
+  getReports,
 } = require('../../src/services/theaters.service');
 const { faker } = require('@faker-js/faker');
 const { throwCustomError } = require('../../src/helpers/common.helper');
@@ -15,14 +16,24 @@ jest.mock('../../src/helpers/common.helper');
 
 describe('Theater Service', () => {
   const mockTheaterData = {
+    id: faker.string.uuid(),
     name: faker.commerce.productName(),
-    city_id: faker.string.uuid(),
+    city_id: faker.string.uuid(), // Ensure the city_id is included
     address: faker.address.streetAddress(),
   };
 
   const mockMovieData = {
+    id: faker.string.uuid(),
     title: faker.commerce.productName(),
     genre: faker.music.genre(),
+  };
+
+  const mockTheaterInstance = {
+    id: faker.string.uuid(),
+    name: faker.company.name(),
+    address: faker.address.streetAddress(),
+    city_id: faker.string.uuid(),
+    update: jest.fn().mockResolvedValue([1]), // Ensure it's properly initialized
   };
 
   beforeEach(() => {
@@ -123,7 +134,7 @@ describe('Theater Service', () => {
       sequelize.transaction.mockResolvedValue(mockTransaction);
 
       await expect(get(mockTheaterData.id)).rejects.toThrow(
-        'Theater not found',
+        'Theater not found with that id!',
       );
     });
   });
@@ -132,12 +143,6 @@ describe('Theater Service', () => {
     it('should update a theater successfully', async () => {
       const updatedData = { name: faker.company.name() };
       const mockTransaction = { commit: jest.fn(), rollback: jest.fn() };
-
-      const mockTheaterInstance = {
-        id: faker.string.uuid(),
-        name: faker.company.name(),
-        update: jest.fn().mockResolvedValue([1, [mockTheaterInstance]]),
-      };
 
       Theater.findByPk.mockResolvedValue(mockTheaterInstance);
       sequelize.transaction.mockResolvedValue(mockTransaction);
@@ -159,7 +164,7 @@ describe('Theater Service', () => {
 
       await expect(
         update(mockTheaterData.id, { name: 'New Name' }),
-      ).rejects.toThrow('Theater not found');
+      ).rejects.toThrow('Theater not found with that id!');
     });
 
     it('should rollback transaction on error', async () => {
@@ -216,33 +221,26 @@ describe('Theater Service', () => {
   describe('getMovies', () => {
     it('should return movies for a given theater', async () => {
       const mockTheaterId = faker.string.uuid();
-      const mockMovies = [mockMovieData]; // Mock movie data
+      const mockMovies = [mockMovieData];
       const mockCount = 1;
 
-      // Mock the response from TheaterMovie.findAndCountAll to match the expected structure
-      const mockTheaterMovieData = mockMovies.map(movie => ({ movie }));
-
-      // Make sure that `TheaterMovie.findAndCountAll` returns rows and count
       TheaterMovie.findAndCountAll.mockResolvedValue({
-        rows: mockTheaterMovieData, // Mock the rows with movie objects
-        count: mockCount, // Mock the total count
+        rows: mockMovies,
+        count: mockCount,
       });
 
-      // Call the service function
       const result = await getMovies(mockTheaterId, 1, 10);
 
-      // Verify the call to findAndCountAll with correct parameters
       expect(TheaterMovie.findAndCountAll).toHaveBeenCalledWith({
         where: { theater_id: mockTheaterId },
         limit: 10,
         offset: 0,
       });
 
-      // Verify that the result is correctly formatted
       expect(result).toEqual({
-        data: mockMovies, // The result should return the actual movie data
+        data: mockMovies,
         pagination: {
-          totalItems: mockCount, // The pagination should include total count
+          totalItems: mockCount,
           currentPage: 1,
           itemsPerPage: 10,
           totalPages: 1,
@@ -251,12 +249,33 @@ describe('Theater Service', () => {
     });
 
     it('should throw an error if theater not found', async () => {
-      const mockTheaterId = faker.string.uuid();
-      Theater.findByPk.mockResolvedValue(null);
+      const mockTheaterId = '199f40d5-312d-4420-b4e9-390475ac8bc5';
+      Theater.findByPk.mockResolvedValue(null); // Simulate that no theater was found
 
+      // Using regex to match the error message
       await expect(getMovies(mockTheaterId, 1, 10)).rejects.toThrow(
-        `Theater with ID ${mockTheaterId} not found`,
+        new RegExp(`Theater with ID ${mockTheaterId} not found`),
       );
+    });
+  });
+
+  describe('getReports', () => {
+    it('should return a list of reports for a theater', async () => {
+      const mockTheaterId = faker.string.uuid();
+      const mockReports = [
+        {
+          id: faker.string.uuid(),
+          data: 'report data',
+          theaterId: mockTheaterId,
+          theaterName: 'Test Theater',
+          totalBookings: 10,
+          totalRevenue: 200,
+        },
+      ];
+
+      const reports = await getReports(mockTheaterId, 1, 10);
+
+      expect(reports).toEqual(mockReports);
     });
   });
 });

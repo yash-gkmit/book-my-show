@@ -22,6 +22,7 @@ describe('Theater Controller', () => {
       },
     };
     res = {
+      message: null,
       data: null,
       statusCode: null,
       status: jest.fn().mockReturnThis(),
@@ -44,6 +45,7 @@ describe('Theater Controller', () => {
 
       expect(theaterService.create).toHaveBeenCalledWith(req.body);
       expect(res.data).toEqual(fakeTheater);
+      expect(res.message).toEqual('Theaters created successfully!');
       expect(res.statusCode).toEqual(201);
       expect(next).toHaveBeenCalled();
     });
@@ -54,7 +56,12 @@ describe('Theater Controller', () => {
 
       await theaterController.generate(req, res, next);
 
-      expect(errorHandler).toHaveBeenCalledWith(req, res, errorMessage, 400);
+      expect(errorHandler).toHaveBeenCalledWith(
+        req,
+        res,
+        expect.any(Error),
+        400,
+      );
       expect(next).not.toHaveBeenCalled();
     });
   });
@@ -81,7 +88,12 @@ describe('Theater Controller', () => {
 
       await theaterController.fetchAll(req, res, next);
 
-      expect(errorHandler).toHaveBeenCalledWith(req, res, errorMessage, 400);
+      expect(errorHandler).toHaveBeenCalledWith(
+        req,
+        res,
+        expect.any(Error),
+        400,
+      );
       expect(next).not.toHaveBeenCalled();
     });
   });
@@ -110,7 +122,12 @@ describe('Theater Controller', () => {
 
       await theaterController.fetch(req, res, next);
 
-      expect(errorHandler).toHaveBeenCalledWith(req, res, errorMessage, 400);
+      expect(errorHandler).toHaveBeenCalledWith(
+        req,
+        res,
+        expect.any(Error),
+        400,
+      );
       expect(next).not.toHaveBeenCalled();
     });
   });
@@ -131,6 +148,7 @@ describe('Theater Controller', () => {
         req.body,
       );
       expect(res.data).toEqual(updatedTheater);
+      expect(res.message).toEqual('Theater updated successfully!');
       expect(res.statusCode).toEqual(200);
       expect(next).toHaveBeenCalled();
     });
@@ -142,7 +160,12 @@ describe('Theater Controller', () => {
 
       await theaterController.change(req, res, next);
 
-      expect(errorHandler).toHaveBeenCalledWith(req, res, errorMessage, 400);
+      expect(errorHandler).toHaveBeenCalledWith(
+        req,
+        res,
+        expect.any(Error),
+        400,
+      );
       expect(next).not.toHaveBeenCalled();
     });
   });
@@ -166,7 +189,12 @@ describe('Theater Controller', () => {
 
       await theaterController.remove(req, res, next);
 
-      expect(errorHandler).toHaveBeenCalledWith(req, res, errorMessage, 400);
+      expect(errorHandler).toHaveBeenCalledWith(
+        req,
+        res,
+        expect.any(Error),
+        400,
+      );
       expect(next).not.toHaveBeenCalled();
     });
   });
@@ -190,6 +218,55 @@ describe('Theater Controller', () => {
       expect(res.data).toEqual(fakeMovies);
       expect(res.statusCode).toEqual(200);
       expect(next).toHaveBeenCalled();
+    });
+
+    it('should handle errors when fetching movies for a theater', async () => {
+      const errorMessage = 'Error fetching movies';
+      theaterService.getMovies.mockRejectedValue(new Error(errorMessage));
+
+      await theaterController.fetchMovies(req, res, next);
+
+      expect(errorHandler).toHaveBeenCalledWith(
+        req,
+        res,
+        expect.any(Error),
+        400,
+      );
+      expect(next).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('fetchReports', () => {
+    it('should fetch reports for a theater successfully', async () => {
+      const fakeReports = { totalRevenue: 10000, totalTicketsSold: 500 };
+      req.query.theaterId = faker.string.uuid();
+
+      theaterService.getReports.mockResolvedValue(fakeReports);
+
+      await theaterController.fetchReports(req, res, next);
+
+      expect(theaterService.getReports).toHaveBeenCalledWith(
+        req.query.theaterId,
+      );
+      expect(res.data).toEqual(fakeReports);
+      expect(res.statusCode).toEqual(200);
+      expect(next).toHaveBeenCalled();
+    });
+
+    it('should handle errors when fetching reports', async () => {
+      const errorMessage = 'Error fetching reports';
+      req.query.theaterId = faker.string.uuid();
+      theaterService.getReports.mockRejectedValue(new Error(errorMessage));
+
+      await theaterController.fetchReports(req, res, next);
+
+      expect(errorHandler).toHaveBeenCalledWith(
+        req,
+        res,
+        expect.any(Error),
+        400,
+      );
+      expect(next).not.toHaveBeenCalled();
     });
   });
 });

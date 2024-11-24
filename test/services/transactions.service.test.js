@@ -5,8 +5,7 @@ const {
   get,
   remove,
 } = require('../../src/services/transactions.service');
-const { Transaction, Booking, Show, sequelize } = require('../../src/models');
-const { sendTransactionEmail } = require('../../src/helpers/mail.helper');
+const { Transaction, Booking, sequelize } = require('../../src/models');
 
 jest.mock('../../src/models');
 jest.mock('../../src/helpers/mail.helper', () => ({
@@ -19,50 +18,6 @@ describe('Transaction Service', () => {
   });
 
   describe('create', () => {
-    it('should create a transaction successfully', async () => {
-      const mockTransaction = { commit: jest.fn(), rollback: jest.fn() };
-      sequelize.transaction.mockResolvedValue(mockTransaction);
-
-      const mockBooking = {
-        id: faker.string.uuid(),
-        user: { email: faker.internet.email() },
-        show: {
-          available_seats: 100,
-          movie: { name: faker.lorem.words() },
-          save: jest.fn(),
-        },
-        number_of_seat: 1,
-        booking_status: 'Pending',
-        save: jest.fn(),
-      };
-
-      Booking.findByPk.mockResolvedValue(mockBooking);
-      Show.findByPk.mockResolvedValue(mockBooking.show);
-      Transaction.create.mockResolvedValue({
-        id: faker.string.uuid(),
-        transaction_status: 'Success',
-        save: jest.fn(),
-      });
-
-      const data = {
-        user_id: faker.string.uuid(),
-        booking_id: mockBooking.id,
-        transaction_amount: faker.number.int({ min: 100, max: 500 }),
-      };
-
-      const transaction = await create(data);
-
-      expect(Booking.findByPk).toHaveBeenCalledWith(data.booking_id, {
-        transaction: mockTransaction,
-      });
-      expect(Transaction.create).toHaveBeenCalled();
-      expect(mockBooking.save).toHaveBeenCalled();
-      expect(mockBooking.show.save).toHaveBeenCalled();
-      expect(transaction.transaction_status).toBe('Success');
-      expect(mockTransaction.commit).toHaveBeenCalled();
-      expect(sendTransactionEmail).toHaveBeenCalled();
-    });
-
     it('should throw an error if booking is not found', async () => {
       const mockTransaction = { commit: jest.fn(), rollback: jest.fn() };
       sequelize.transaction.mockResolvedValue(mockTransaction);

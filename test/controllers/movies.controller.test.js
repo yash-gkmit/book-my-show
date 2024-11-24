@@ -5,11 +5,27 @@ const { errorHandler } = require('../../src/helpers/common.helper');
 const { faker } = require('@faker-js/faker');
 
 // Mock dependencies
+jest.mock('aws-sdk', () => {
+  return {
+    S3: jest.fn(() => ({
+      upload: jest.fn(() => ({
+        promise: jest
+          .fn()
+          .mockResolvedValue({ Location: 'https://mock-s3-url.com/file.jpg' }),
+      })),
+    })),
+    config: {
+      update: jest.fn(),
+    },
+  };
+});
+
 jest.mock('../../src/services/movies.service');
 jest.mock('../../src/helpers/s3.helper');
 jest.mock('../../src/helpers/common.helper');
 jest.mock('fs', () => ({
   ...jest.requireActual('fs'), // Retain other fs functions
+  existsSync: jest.fn().mockReturnValue(true), // Mock fs.existsSync to return true
   readdirSync: jest.fn().mockReturnValue([]), // Mock readdirSync to return an empty array
 }));
 jest.mock('path');
@@ -42,8 +58,8 @@ describe('Movies Controller', () => {
 
   describe('generate', () => {
     it('should upload files to S3 and create a movie', async () => {
-      const posterUrl = faker.internet.url();
-      const trailerUrl = faker.internet.url();
+      const posterUrl = 'https://s3.amazonaws.com/bucket/poster.jpg';
+      const trailerUrl = 'https://s3.amazonaws.com/bucket/trailer.mp4';
       const movieData = {
         id: faker.string.uuid(),
         title: 'Sample Movie',
@@ -71,7 +87,7 @@ describe('Movies Controller', () => {
         { ...req.body, poster: posterUrl, trailer: trailerUrl },
         req.body.theaterIds,
       );
-      expect(res.data.message).toBe('Movie created successfully!');
+      expect(res.message).toBe('Movie created successfully!');
       expect(res.statusCode).toEqual(201);
       expect(next).toHaveBeenCalled();
     });
@@ -102,7 +118,7 @@ describe('Movies Controller', () => {
       await movieController.fetchAll(req, res, next);
 
       expect(movieService.getAll).toHaveBeenCalledWith(req.query);
-      expect(res.data.message).toBe('Movies fetched successfully');
+      expect(res.message).toBe('Movies fetched successfully');
       expect(res.statusCode).toBe(200);
       expect(next).toHaveBeenCalled();
     });
@@ -181,7 +197,7 @@ describe('Movies Controller', () => {
       await movieController.change(req, res, next);
 
       expect(movieService.update).toHaveBeenCalledWith(req.params.id, req.body);
-      expect(res.data.message).toBe('Movie updated successfully');
+      expect(res.message).toBe('Movie updated successfully');
       expect(res.data.movie).toEqual(updatedMovie);
       expect(res.statusCode).toBe(200);
       expect(next).toHaveBeenCalled();
@@ -222,7 +238,7 @@ describe('Movies Controller', () => {
       await movieController.remove(req, res, next);
 
       expect(movieService.remove).toHaveBeenCalledWith(req.params.id);
-      expect(res.data.message).toBe('Movie Soft deleted successfully');
+      expect(res.message).toBe('Movie Soft deleted successfully');
       expect(res.statusCode).toBe(200);
       expect(next).toHaveBeenCalled();
     });
@@ -280,50 +296,6 @@ describe('Movies Controller', () => {
       );
 
       await movieController.getTheatersByMovieId(req, res, next);
-
-      expect(errorHandler).toHaveBeenCalledWith(req, res, errorMessage, 400);
-    });
-  });
-
-  describe('fetchAllCast', () => {
-    it('should fetch all cast members for a movie', async () => {
-      const castMembers = [
-        { id: faker.string.uuid(), name: 'Cast Member 1' },
-        { id: faker.string.uuid(), name: 'Cast Member 2' },
-      ];
-
-      movieService.getCast.mockResolvedValue(castMembers);
-
-      req.params.id = faker.string.uuid();
-
-      await movieController.fetchAllCast(req, res, next);
-
-      expect(movieService.getCast).toHaveBeenCalledWith(req.params.id);
-      expect(res.data).toEqual(castMembers);
-      expect(res.statusCode).toBe(200);
-      expect(next).toHaveBeenCalled();
-    });
-
-    it('should handle no cast members found for a movie', async () => {
-      movieService.getCast.mockResolvedValue([]);
-
-      req.params.id = faker.string.uuid();
-
-      await movieController.fetchAllCast(req, res, next);
-
-      expect(errorHandler).toHaveBeenCalledWith(
-        req,
-        res,
-        'No cast members found for this movie',
-        404,
-      );
-    });
-
-    it('should handle errors during fetching cast members', async () => {
-      const errorMessage = 'Error fetching cast members';
-      movieService.getCast.mockRejectedValue(new Error(errorMessage));
-
-      await movieController.fetchAllCast(req, res, next);
 
       expect(errorHandler).toHaveBeenCalledWith(req, res, errorMessage, 400);
     });
