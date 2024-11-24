@@ -47,7 +47,7 @@ router.get(
   commonHelper.responseHandler,
 );
 
-router.put(
+router.patch(
   '/:id',
   authMiddleware,
   rbacMiddleware(['Theater Owner']),

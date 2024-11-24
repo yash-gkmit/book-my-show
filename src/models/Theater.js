@@ -39,6 +39,7 @@ module.exports = (sequelize, DataTypes) => {
       address: {
         type: DataTypes.TEXT,
         allowNull: false,
+        unique: true,
       },
     },
     {

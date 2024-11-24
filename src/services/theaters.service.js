@@ -8,10 +8,23 @@ const {
 } = require('../models');
 const { Sequelize } = require('sequelize');
 const { throwCustomError } = require('../helpers/common.helper.js');
+
 const create = async data => {
   const t = await sequelize.transaction();
   try {
-    const theater = await Theater.create(data, { transaction: t });
+    const isAddressExist = await Theater.findOne({
+      where: { address: data.address },
+    });
+
+    if (isAddressExist) {
+      throwCustomError('Can not add theater with same address!', 400);
+    }
+    const theaterData = {
+      city_id: data.cityId,
+      name: data.name,
+      address: data.address,
+    };
+    const theater = await Theater.create(theaterData, { transaction: t });
     await t.commit();
     return theater;
   } catch (error) {
@@ -41,7 +54,7 @@ const getAll = async (page = 1, limit = 10) => {
 
 const get = async id => {
   const theater = await Theater.findByPk(id);
-  if (!theater) throwCustomError('Theater not found', 404);
+  if (!theater) throwCustomError('Theater not found with that id!', 404);
   return theater;
 };
 
@@ -50,7 +63,7 @@ const update = async (id, data) => {
 
   try {
     const theater = await Theater.findByPk(id, { transaction: t });
-    if (!theater) throwCustomError('Theater not found', 404);
+    if (!theater) throwCustomError('Theater not found with that id!', 404);
     await theater.update(data, { transaction: t });
     await t.commit();
     return theater;
@@ -70,10 +83,11 @@ const remove = async id => {
     await theater.destroy({ transaction: t });
 
     await t.commit();
+    return { message: 'Theater deleted successfully!' };
   } catch (error) {
     await t.rollback();
 
-    throw new Error('Error removing the theater: ' + error.message);
+    throwCustomError(`Error removing the theater: ${error}`, 400);
   }
 };
 

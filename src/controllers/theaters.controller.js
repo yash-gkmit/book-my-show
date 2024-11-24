@@ -9,8 +9,7 @@ const generate = async (req, res, next) => {
     res.statusCode = 201;
     next();
   } catch (error) {
-    console.log(error);
-    errorHandler(req, res, error.message, error.statusCode || 400);
+    errorHandler(req, res, error, error.statusCode || 400);
   }
 };
 
@@ -21,8 +20,7 @@ const fetchAll = async (req, res, next) => {
     res.statusCode = 200;
     next();
   } catch (error) {
-    console.log(error);
-    errorHandler(req, res, error.message, error.statusCode || 400);
+    errorHandler(req, res, error, error.statusCode || 400);
   }
 };
 
@@ -33,8 +31,7 @@ const fetch = async (req, res, next) => {
     res.statusCode = 200;
     next();
   } catch (error) {
-    console.log(error);
-    errorHandler(req, res, error.message, error.statusCode || 400);
+    errorHandler(req, res, error, error.statusCode || 400);
   }
 };
 
@@ -42,11 +39,11 @@ const change = async (req, res, next) => {
   try {
     const theater = await theaterService.update(req.params.id, req.body);
     res.data = theater;
+    res.message = 'Theater updated successfully!';
     res.statusCode = 200;
     next();
   } catch (error) {
-    console.log(error);
-    errorHandler(req, res, error.message, error.statusCode || 400);
+    errorHandler(req, res, error, error.statusCode || 400);
   }
 };
 
@@ -56,8 +53,7 @@ const remove = async (req, res, next) => {
     res.statusCode = 204;
     next();
   } catch (error) {
-    console.log(error);
-    errorHandler(req, res, error.message, error.statusCode || 400);
+    errorHandler(req, res, error, error.statusCode || 400);
   }
 };
 
@@ -76,8 +72,7 @@ const fetchMovies = async (req, res, next) => {
     res.statusCode = 200;
     next();
   } catch (error) {
-    console.error(error);
-    errorHandler(req, res, error.message, error.statusCode || 400);
+    errorHandler(req, res, error, error.statusCode || 400);
   }
 };
 
@@ -89,7 +84,7 @@ const fetchReports = async (req, res, next) => {
     res.statusCode = 200;
     next();
   } catch (error) {
-    errorHandler(req, res, error.message, error.statusCode || 400);
+    errorHandler(req, res, error, error.statusCode || 400);
   }
 };
 
