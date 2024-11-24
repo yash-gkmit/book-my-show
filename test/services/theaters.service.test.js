@@ -1,4 +1,4 @@
-const { Theater, TheaterMovie, sequelize } = require('../../src/models');
+const { Theater, sequelize } = require('../../src/models');
 const {
   create,
   getAll,
@@ -6,7 +6,6 @@ const {
   update,
   remove,
   getMovies,
-  getReports,
 } = require('../../src/services/theaters.service');
 const { faker } = require('@faker-js/faker');
 const { throwCustomError } = require('../../src/helpers/common.helper');
@@ -20,12 +19,6 @@ describe('Theater Service', () => {
     name: faker.commerce.productName(),
     city_id: faker.string.uuid(), // Ensure the city_id is included
     address: faker.address.streetAddress(),
-  };
-
-  const mockMovieData = {
-    id: faker.string.uuid(),
-    title: faker.commerce.productName(),
-    genre: faker.music.genre(),
   };
 
   const mockTheaterInstance = {

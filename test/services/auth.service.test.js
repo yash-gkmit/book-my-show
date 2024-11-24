@@ -10,7 +10,6 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { addTokenToBlacklist } = require('../../src/helpers/redis.helper');
 const { sendOtpEmail } = require('../../src/helpers/mail.helper');
-const { throwCustomError } = require('../../src/helpers/common.helper');
 const { generateToken } = require('../../src/helpers/jwt.helper');
 const { faker } = require('@faker-js/faker');
 
