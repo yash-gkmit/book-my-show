@@ -4,18 +4,18 @@ const { validatorMiddleware } = require('../middlewares/validator.middleware');
 const createValidation = [
   (req, res, next) => {
     const schema = Joi.object({
-      user_id: Joi.string().uuid().messages({
+      userId: Joi.string().uuid().messages({
         'string.guid': 'User ID must be a valid UUID',
       }),
-      show_id: Joi.string().uuid().required().messages({
+      showId: Joi.string().uuid().required().messages({
         'string.empty': 'Show ID is required',
         'string.guid': 'Show ID must be a valid UUID',
       }),
-      number_of_seat: Joi.number().integer().required().messages({
+      numberOfSeats: Joi.number().integer().required().messages({
         'number.base': 'Number of seats must be a number',
         'number.integer': 'Number of seats must be an integer',
       }),
-      booking_date: Joi.date().required().messages({
+      bookingDate: Joi.date().required().messages({
         'date.base': 'Booking date must be a valid date',
       }),
       booking_status: Joi.string()
@@ -46,20 +46,20 @@ const createValidation = [
 const updateValidation = [
   (req, res, next) => {
     const schema = Joi.object({
-      user_id: Joi.string().uuid().optional().messages({
+      userId: Joi.string().uuid().optional().messages({
         'string.guid': 'User ID must be a valid UUID',
       }),
-      show_id: Joi.string().uuid().optional().messages({
+      showId: Joi.string().uuid().optional().messages({
         'string.guid': 'Show ID must be a valid UUID',
       }),
-      number_of_seat: Joi.number().integer().optional().messages({
+      numberOfSeats: Joi.number().integer().optional().messages({
         'number.base': 'Number of seats must be a number',
         'number.integer': 'Number of seats must be an integer',
       }),
-      booking_date: Joi.date().optional().messages({
+      bookingDate: Joi.date().optional().messages({
         'date.base': 'Booking date must be a valid date',
       }),
-      booking_status: Joi.string()
+      bookingStatus: Joi.string()
         .valid('Confirmed', 'Pending', 'Canceled')
         .optional()
         .messages({

@@ -34,7 +34,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.UUID,
         allowNull: false,
       },
-      number_of_seat: {
+      number_of_seats: {
         type: DataTypes.INTEGER,
         allowNull: false,
       },

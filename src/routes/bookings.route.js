@@ -44,10 +44,9 @@ router.get(
   commonHandler.responseHandler,
 );
 
-router.put(
+router.patch(
   '/:id',
   authMiddleware,
-  rbacMiddleware(['Self']),
   updateValidation,
   bookingController.change,
   bookingsSerializer.serialize,
@@ -57,15 +56,8 @@ router.put(
 router.delete(
   '/:id',
   authMiddleware,
-  rbacMiddleware(['Admin', 'Self']),
+  rbacMiddleware(['Admin'], true),
   bookingController.remove,
-  commonHandler.responseHandler,
-);
-
-router.patch(
-  '/:id/cancel',
-  authMiddleware,
-  bookingController.cancel,
   commonHandler.responseHandler,
 );
 

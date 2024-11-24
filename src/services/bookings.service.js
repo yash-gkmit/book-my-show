@@ -1,11 +1,11 @@
-const { Booking, Show, Movie, sequelize, User } = require('../models');
+const { Booking, Show, Movie, sequelize } = require('../models');
 const { throwCustomError } = require('../helpers/common.helper');
 
-const create = async data => {
+const create = async (userId, data) => {
   const t = await sequelize.transaction();
 
   try {
-    const show = await Show.findByPk(data.show_id, { transaction: t });
+    const show = await Show.findByPk(data.showId, { transaction: t });
     if (!show) {
       throwCustomError('Show not found', 404);
     }
@@ -15,12 +15,12 @@ const create = async data => {
     }
 
     const bookingData = {
-      user_id: data.user_id,
-      show_id: data.show_id,
-      number_of_seat: data.number_of_seat,
-      total_amount: data.number_of_seat * show.price,
+      user_id: userId,
+      show_id: data.showId,
+      number_of_seats: data.numberOfSeats,
+      total_amount: data.numberOfSeats * show.price,
       booking_status: 'Pending',
-      booking_date: data.booking_date,
+      booking_date: data.bookingDate,
     };
 
     const booking = await Booking.create(bookingData, { transaction: t });
@@ -30,9 +30,10 @@ const create = async data => {
       await show.save({ transaction: t });
     }
     await t.commit();
-
+    console.log(booking);
     return booking;
   } catch (error) {
+    console.log(error);
     await t.rollback();
     throwCustomError(error);
   }
@@ -81,19 +82,44 @@ const get = async id => {
   return booking;
 };
 
-const update = async (id, data) => {
+const update = async (id, payload) => {
   const t = await sequelize.transaction();
 
   try {
+    const snakeCasePayload = {};
+    for (const key in payload) {
+      const snakeKey = key.replace(
+        /[A-Z]/g,
+        letter => `_${letter.toLowerCase()}`,
+      );
+      snakeCasePayload[snakeKey] = payload[key];
+    }
+
     const booking = await Booking.findByPk(id, { transaction: t });
+    console.log(booking);
     if (!booking) {
       throwCustomError('Booking not found', 404);
     }
+    const show = await Show.findOne({
+      where: { id: booking.show_id },
+    });
 
-    await booking.update(data, { transaction: t });
+    if (!show) {
+      throwCustomError('Show not found', 404);
+    }
+    if (snakeCasePayload.number_of_seats) {
+      newTotalAmount = snakeCasePayload.number_of_seats * show.price;
+      booking.total_amount = newTotalAmount;
+      booking.save({ transaction: t });
+      await booking.update(snakeCasePayload, { transaction: t });
+      await t.commit();
+      return booking;
+    } else {
+      await booking.update(snakeCasePayload, { transaction: t });
 
-    await t.commit();
-    return booking;
+      await t.commit();
+      return booking;
+    }
   } catch (error) {
     await t.rollback();
     throwCustomError(error);
@@ -151,34 +177,13 @@ const getReports = async () => {
   return {
     totalBookings,
     revenueGenerated,
-    mostBookedMovies: mostBookedMovies.map(movie => ({
+    BookedMovies: mostBookedMovies.map(movie => ({
       showId: movie.get('show_id'),
       movieId: movie.get('movie_id'),
       movieName: movie.get('movie_name'),
       bookingCount: movie.get('booking_count'),
     })),
   };
-};
-
-const cancel = async (bookingId, userId) => {
-  const booking = await Booking.findByPk(bookingId, {
-    include: [{ model: User, as: 'user', attributes: ['name', 'email'] }],
-  });
-  console.log(booking);
-  if (!booking) {
-    throwCustomError(
-      "Booking not found or you're not authorized to cancel this booking.",
-    );
-  }
-  if (booking.user_id !== userId) {
-    throwCustomError('User not authorized for cancelling this booking');
-  }
-  if (booking.status === 'Canceled') {
-    throwCustomError('This booking has already been cancelled.');
-  }
-  booking.status = 'Canceled';
-  await booking.save();
-  return booking;
 };
 
 module.exports = {
@@ -188,5 +193,4 @@ module.exports = {
   update,
   remove,
   getReports,
-  cancel,
 };
