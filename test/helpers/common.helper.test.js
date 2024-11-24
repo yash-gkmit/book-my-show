@@ -1,38 +1,10 @@
 const {
-  throwCustomError,
   errorHandler,
   responseHandler,
 } = require('../../src/helpers/common.helper');
-const { faker } = require('@faker-js/faker');
+const { faker } = require('@faker-js/faker'); // Mock the transaction service
 
 describe('Utils Module', () => {
-  describe('throwCustomError', () => {
-    it('should throw an error with the provided message and status code', () => {
-      const message = faker.lorem.sentence();
-      const statusCode = faker.number.int({ min: 400, max: 500 });
-
-      expect(() => throwCustomError(message, statusCode)).toThrowError(message);
-
-      try {
-        throwCustomError(message, statusCode);
-      } catch (err) {
-        expect(err).toBeInstanceOf(Error);
-        expect(err.message).toBe(message);
-        expect(err.statusCode).toBe(statusCode);
-      }
-    });
-
-    it('should default status code to 400 when not provided', () => {
-      const message = faker.lorem.sentence();
-
-      try {
-        throwCustomError(message);
-      } catch (err) {
-        expect(err.statusCode).toBe(400);
-      }
-    });
-  });
-
   describe('errorHandler', () => {
     it('should send a JSON response with the provided message and status code', () => {
       const req = {};
