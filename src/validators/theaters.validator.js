@@ -9,7 +9,7 @@ const createValidation = (req, res, next) => {
     address: Joi.string().required().messages({
       'any.required': 'Address is required',
     }),
-    city_id: Joi.string().uuid().required().messages({
+    cityId: Joi.string().uuid().required().messages({
       'string.guid': 'City ID must be a valid UUID',
       'any.required': 'City ID is required',
     }),

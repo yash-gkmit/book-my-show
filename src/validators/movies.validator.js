@@ -6,10 +6,10 @@ const createValidation = (req, res, next) => {
       'any.required': 'Movie name is required',
     }),
     summary: Joi.string().optional(),
-    release_date: Joi.string().required().messages({
+    releaseDate: Joi.string().required().messages({
       'any.required': 'Release date is required',
     }),
-    cast_member_list: Joi.array().items(Joi.string()).required().messages({
+    castMemberList: Joi.array().items(Joi.string()).required().messages({
       'any.required': 'Cast members must be provided',
       'array.base': 'Cast members must be an array',
     }),

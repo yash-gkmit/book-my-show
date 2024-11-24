@@ -24,7 +24,7 @@ const generate = async (req, res, next) => {
     res.statusCode = 201;
     next();
   } catch (error) {
-    errorHandler(req, res, error.message, error.statusCode || 400);
+    errorHandler(req, res, error, error.statusCode || 400);
   }
 };
 
@@ -36,18 +36,16 @@ const fetchAll = async (req, res, next) => {
     if (!movies.data.length) {
       return errorHandler(req, res, 'No movies found', 404);
     }
-
+    res.message = 'Movies fetched successfully';
     res.data = {
-      message: 'Movies fetched successfully',
-      currentPage: movies.currentPage,
-      totalPages: movies.totalPages,
-      totalRecords: movies.totalRecords,
+      pagination: movies.pagination,
       movies: movies.data,
     };
+
     res.statusCode = 200;
     next();
   } catch (error) {
-    errorHandler(req, res, error.message, error.statusCode || 400);
+    errorHandler(req, res, error, error.statusCode || 400);
   }
 };
 
@@ -59,34 +57,35 @@ const fetch = async (req, res, next) => {
     }
 
     res.data = movie;
+    res.message = 'Movie fetched successfully!';
     res.statusCode = 200;
     next();
   } catch (error) {
-    errorHandler(req, res, error.message, error.statusCode || 400);
+    errorHandler(req, res, error, error.statusCode || 400);
   }
 };
 
 const change = async (req, res, next) => {
   try {
     const updatedMovie = await movieService.update(req.params.id, req.body);
+    res.message = 'Movie updated successfully';
     res.data = {
-      message: 'Movie updated successfully',
       movie: updatedMovie,
     };
     res.statusCode = 200;
     next();
   } catch (error) {
-    errorHandler(req, res, error.message, error.statusCode || 400);
+    errorHandler(req, res, error, error.statusCode || 400);
   }
 };
 const remove = async (req, res, next) => {
   try {
     await movieService.remove(req.params.id);
-    res.data = { message: 'Movie Soft deleted successfully' };
+    res.message = 'Movie Soft deleted successfully';
     res.statusCode = 200;
     next();
   } catch (error) {
-    errorHandler(req, res, error.message, error.statusCode || 400);
+    errorHandler(req, res, error, error.statusCode || 400);
   }
 };
 
@@ -97,11 +96,12 @@ const getTheatersByMovieId = async (req, res, next) => {
       return errorHandler(req, res, 'No theaters found for this movie', 404);
     }
 
+    res.message = 'Movie fetched by theater successfully!';
     res.data = theaters;
     res.statusCode = 200;
     next();
   } catch (error) {
-    errorHandler(req, res, error.message, error.statusCode || 400);
+    errorHandler(req, res, error, error.statusCode || 400);
   }
 };
 
@@ -127,7 +127,7 @@ const fetchReport = async (req, res) => {
     });
   } catch (error) {
     console.error('Error in fetchReport:', error.stack);
-    errorHandler(req, res, error.message, error.statusCode || 400);
+    errorHandler(req, res, error, error.statusCode || 400);
   }
 };
 module.exports = {

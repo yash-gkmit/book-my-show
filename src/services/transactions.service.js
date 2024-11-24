@@ -11,11 +11,14 @@ const { sendTransactionEmail } = require('../helpers/mail.helper');
 const { throwCustomError } = require('../helpers/common.helper');
 
 const create = async data => {
-  const { user_id, booking_id, transaction_amount } = data;
-
   const t = await sequelize.transaction();
   try {
-    const booking = await Booking.findByPk(booking_id, {
+    const transactionData = {
+      user_id: data.userId,
+      booking_id: data.bookingId,
+    };
+
+    const booking = await Booking.findByPk(data.bookingId, {
       include: [
         { model: Show, as: 'show', include: [{ model: Movie, as: 'movie' }] },
         { model: User, as: 'user' },
@@ -24,14 +27,18 @@ const create = async data => {
     });
 
     if (!booking) {
-      throw new Error('Booking not found');
+      throwCustomError('Booking not found', 404);
     }
-
     if (!booking.user) {
-      throw new Error('User not found for this booking');
+      throwCustomError('User not found for this booking', 404);
     }
 
     const show = booking.show;
+
+    if (!show) {
+      throwCustomError('Show not found', 404);
+    }
+    const transaction_amount = booking.total_amount;
 
     const GST = transaction_amount * 0.18;
     const CGST = transaction_amount * 0.18;
@@ -42,13 +49,12 @@ const create = async data => {
 
     const transaction = await Transaction.create(
       {
-        user_id,
-        booking_id,
         transaction_amount,
         GST,
         CGST,
         IGST,
         SGST,
+        ...transactionData,
       },
       { transaction: t },
     );
@@ -60,7 +66,7 @@ const create = async data => {
       booking.booking_status = 'Confirmed';
       await booking.save({ transaction: t });
 
-      show.available_seats -= booking.number_of_seat;
+      show.available_seats -= booking.number_of_seats;
       await show.save({ transaction: t });
 
       await sendTransactionEmail({

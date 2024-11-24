@@ -7,6 +7,9 @@ const serialize = (req, res, next) => {
     pagination: {},
   };
 
+  console.log(res.data);
+  console.log(res.pagination);
+
   if (!res.data.data && !movie) {
     movie = res.data;
   }

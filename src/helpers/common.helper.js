@@ -1,5 +1,5 @@
 function throwCustomError(message, statusCode = 400) {
-  const err = new Error(message);
+  const err = message;
   err.statusCode = statusCode;
   throw err;
 }
