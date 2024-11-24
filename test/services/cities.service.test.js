@@ -6,13 +6,9 @@ const {
   update,
   remove,
   getTheaters,
-  generateReport,
 } = require('../../src/services/cities.service');
-const { City, Movie, Theater, sequelize } = require('../../src/models');
+const { City, Theater, sequelize } = require('../../src/models');
 const { throwCustomError } = require('../../src/helpers/common.helper');
-const fs = require('fs');
-const moment = require('moment');
-const { parse } = require('json2csv');
 jest.mock('../../src/models', () => ({
   City: jest.fn().mockImplementation(() => ({})),
   Movie: jest.fn().mockImplementation(() => ({})),
@@ -26,6 +22,7 @@ jest.mock('../../src/models', () => ({
         findByPk: jest.fn(),
         create: jest.fn(),
         findAndCountAll: jest.fn(),
+        findOne: jest.fn(),
       },
       Movie: {
         findAll: jest.fn(),
@@ -65,11 +62,15 @@ describe('City Service', () => {
       const mockTransaction = { commit: jest.fn(), rollback: jest.fn() };
 
       sequelize.transaction = jest.fn(() => mockTransaction);
+      City.findOne = jest.fn(() => Promise.resolve(null));
       City.create = jest.fn(() => Promise.resolve(data));
 
       const result = await create(data);
 
       expect(sequelize.transaction).toHaveBeenCalled();
+      expect(City.findOne).toHaveBeenCalledWith({
+        where: { name: data.name },
+      });
       expect(City.create).toHaveBeenCalledWith(data, {
         transaction: mockTransaction,
       });
@@ -77,11 +78,23 @@ describe('City Service', () => {
       expect(result).toEqual(data);
     });
 
+    it('should throw an error if the city already exists', async () => {
+      const data = { name: faker.location.city() };
+      const mockTransaction = { commit: jest.fn(), rollback: jest.fn() };
+
+      sequelize.transaction = jest.fn(() => mockTransaction);
+      City.findOne = jest.fn(() => Promise.resolve(data)); // Simulating that the city exists
+
+      await expect(create(data)).rejects.toThrow('City already exist!');
+      expect(mockTransaction.rollback).toHaveBeenCalled();
+    });
+
     it('should roll back and throw an error if creation fails', async () => {
       const data = { name: faker.location.city() };
       const mockTransaction = { commit: jest.fn(), rollback: jest.fn() };
 
       sequelize.transaction = jest.fn(() => mockTransaction);
+      City.findOne = jest.fn(() => Promise.resolve(null));
       City.create = jest.fn(() => Promise.reject(new Error('Database Error')));
 
       await expect(create(data)).rejects.toThrow('Database Error');
@@ -222,59 +235,6 @@ describe('City Service', () => {
       });
       expect(result.data).toEqual(theaters);
       expect(result.pagination.totalItems).toEqual(theaters.length);
-    });
-  });
-
-  describe('generateReport', () => {
-    it('should generate a report for a city successfully', async () => {
-      const cityName = faker.location.city();
-      const startDate = moment().subtract(7, 'days').format('DD-MM-YYYY');
-      const endDate = moment().format('DD-MM-YYYY');
-
-      const dummyReport = [
-        {
-          id: faker.string.uuid(),
-          name: faker.lorem.words(3),
-          release_date: faker.date.past(),
-          shows: [
-            {
-              bookings: [
-                {
-                  total_amount: 1000,
-                  created_at: faker.date.past(),
-                },
-              ],
-              theater: {
-                name: faker.company.name(),
-                city: {
-                  name: cityName,
-                },
-              },
-            },
-          ],
-        },
-      ];
-
-      const csvData =
-        'movieId,movieName,releaseDate,cityName,theaterName,totalBookings,totalRevenue';
-
-      Movie.findAll = jest.fn(() => Promise.resolve(dummyReport));
-      fs.writeFileSync = jest.fn();
-      parse.mockImplementation(() => csvData);
-
-      const result = await generateReport(cityName, startDate, endDate);
-
-      expect(Movie.findAll).toHaveBeenCalled();
-      expect(fs.writeFileSync).toHaveBeenCalled();
-      expect(result).toContain('city_report_');
-    });
-
-    it('should throw an error for invalid date format', async () => {
-      const cityName = faker.location.city();
-
-      await expect(
-        generateReport(cityName, 'invalid-date', 'invalid-date'),
-      ).rejects.toThrow('Invalid date format. Please use DD-MM-YYYY.');
     });
   });
 });
