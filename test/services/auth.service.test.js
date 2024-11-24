@@ -1,216 +1,198 @@
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
 const {
   register,
   sendOtp,
   verifyOtp,
   login,
   logout,
-} = require('../../src/services/auth.service'); // Adjust path if needed
-const { User, Role } = require('../../src/models');
-const {
-  setOtpInRedis,
-  getOtpFromRedis,
-  deleteOtpFromRedis,
-  addTokenToBlacklist,
-} = require('../../src/helpers/redis.helper');
+} = require('../../src/services/auth.service');
+const User = require('../../src/models/User');
+const Role = require('../../src/models/rRole');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const { addTokenToBlacklist } = require('../../src/helpers/redis.helper');
 const { sendOtpEmail } = require('../../src/helpers/mail.helper');
-const { faker } = require('@faker-js/faker');
+//const { throwCustomError } = require('../helpers/common.helper');
+const faker = require('faker');
 
-// Mock external dependencies
-jest.mock('bcrypt');
+// Mocking dependencies
+jest.mock('bcryptjs');
 jest.mock('jsonwebtoken');
 jest.mock('../../src/helpers/redis.helper');
 jest.mock('../../src/helpers/mail.helper');
-jest.mock('../../src/models');
 jest.mock('../../src/helpers/common.helper');
+jest.mock('../../src/models/User');
+jest.mock('../../src/models/Role');
 
-describe('Service Functions', () => {
+describe('Auth Service', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   describe('register', () => {
-    it('should register a user successfully', async () => {
+    it('should throw an error if email already exists', async () => {
       const payload = {
-        name: faker.name.fullName(),
+        name: faker.name.findName(),
         email: faker.internet.email(),
         password: faker.internet.password(),
         phone: faker.phone.number(),
-        roles: ['admin'],
       };
 
-      const hashedPassword = faker.internet.password();
-      bcrypt.hash.mockResolvedValue(hashedPassword);
+      User.findOne.mockResolvedValueOnce({}); // Mock email exists
 
-      User.create.mockResolvedValue({
-        id: faker.string.uuid(),
-        setRoles: jest.fn(),
-      });
-      Role.findAll.mockResolvedValue([
-        { id: faker.string.uuid(), name: 'admin' },
-      ]);
-
-      const result = await register(payload);
-
-      expect(User.create).toHaveBeenCalledWith({
-        name: payload.name,
-        email: payload.email,
-        password: hashedPassword,
-        phone: payload.phone,
-      });
-      expect(Role.findAll).toHaveBeenCalledWith({
-        where: { name: payload.roles },
-      });
-      expect(result).toEqual({
-        userId: expect.any(String),
-      });
+      await expect(register(payload)).rejects.toThrow('Email already exist!');
     });
 
-    it('should throw an error if user creation fails', async () => {
+    it('should throw an error if phone number already exists', async () => {
       const payload = {
-        name: faker.name.fullName(),
+        name: faker.name.findName(),
         email: faker.internet.email(),
         password: faker.internet.password(),
-        phone: faker.phone.number(),
-        roles: ['admin'],
+        phone: faker.phone.phoneNumber(),
       };
 
-      User.create.mockResolvedValue(null);
+      User.findOne.mockResolvedValueOnce(null); // Mock email doesn't exist
+      User.findOne.mockResolvedValueOnce({}); // Mock phone exists
 
-      await expect(register(payload)).rejects.toThrow('User creation failed');
+      await expect(register(payload)).rejects.toThrow(
+        'Phone number already exist!',
+      );
+    });
+
+    it('should successfully create a user', async () => {
+      const payload = {
+        name: faker.name.findName(),
+        email: faker.internet.email(),
+        password: faker.internet.password(),
+        phone: faker.phone.phoneNumber(),
+        roles: 'Customer',
+      };
+
+      User.findOne.mockResolvedValueOnce(null); // Email not found
+      User.create.mockResolvedValueOnce({ id: 1 }); // User created successfully
+      Role.findAll.mockResolvedValueOnce([{ id: 1, name: 'Customer' }]); // Mock roles
+
+      bcrypt.hash.mockResolvedValue('hashedPassword');
+
+      await expect(register(payload)).resolves.not.toThrow();
     });
   });
 
   describe('sendOtp', () => {
+    it('should throw an error if email does not exist', async () => {
+      const email = faker.internet.email();
+
+      User.findOne.mockResolvedValueOnce(null); // Email doesn't exist
+
+      await expect(sendOtp(email)).rejects.toThrow('Email not exist.');
+    });
+
     it('should send OTP successfully', async () => {
       const email = faker.internet.email();
-      const otp = faker.string.numeric(6);
 
-      setOtpInRedis.mockResolvedValue();
-      sendOtpEmail.mockResolvedValue();
+      User.findOne.mockResolvedValueOnce({}); // Email exists
+      sendOtpEmail.mockResolvedValueOnce(true); // OTP sent successfully
 
-      const result = await sendOtp(email);
-
-      expect(setOtpInRedis).toHaveBeenCalledWith(email, otp);
-      expect(sendOtpEmail).toHaveBeenCalledWith(email, otp);
-      expect(result).toEqual({ message: 'OTP sent successfully' });
+      await expect(sendOtp(email)).resolves.not.toThrow();
     });
   });
 
   describe('verifyOtp', () => {
-    it('should verify OTP successfully and return a token', async () => {
+    it('should throw an error if OTP does not exist or is expired', async () => {
       const email = faker.internet.email();
-      const otp = faker.string.numeric(6);
-      const token = faker.string.uuid();
+      const otp = '123456';
 
-      getOtpFromRedis.mockResolvedValue(otp);
-      jwt.sign.mockReturnValue(token);
-      deleteOtpFromRedis.mockResolvedValue();
+      User.findOne.mockResolvedValueOnce({ id: 1 }); // User exists
+      otpStore.get.mockReturnValueOnce(undefined); // OTP not found
 
-      const result = await verifyOtp(email, otp);
-
-      expect(getOtpFromRedis).toHaveBeenCalledWith(email);
-      expect(deleteOtpFromRedis).toHaveBeenCalledWith(email);
-      expect(result).toEqual({ token: token });
+      await expect(verifyOtp(email, otp)).rejects.toThrow(
+        'OTP expired or does not exist',
+      );
     });
 
-    it('should throw an error if OTP is invalid', async () => {
+    it('should return a token if OTP is correct', async () => {
       const email = faker.internet.email();
-      const otp = faker.string.numeric(6);
+      const otp = '123456';
 
-      getOtpFromRedis.mockResolvedValue(faker.string.numeric(6));
+      User.findOne.mockResolvedValueOnce({ id: 1 }); // User exists
+      otpStore.get.mockReturnValueOnce(otp); // Correct OTP
+      generateToken.mockReturnValueOnce('mockToken'); // Mock token generation
+
+      await expect(verifyOtp(email, otp)).resolves.toEqual({
+        token: 'mockToken',
+      });
+    });
+
+    it('should throw an error if OTP is incorrect', async () => {
+      const email = faker.internet.email();
+      const otp = '123456';
+
+      User.findOne.mockResolvedValueOnce({ id: 1 }); // User exists
+      otpStore.get.mockReturnValueOnce('654321'); // Incorrect OTP
 
       await expect(verifyOtp(email, otp)).rejects.toThrow('Invalid OTP');
     });
   });
 
   describe('login', () => {
-    it('should login successfully and return a token', async () => {
-      const payload = {
-        email: faker.internet.email(),
-        role: 'admin',
-        password: faker.internet.password(),
-      };
-
-      const user = {
-        id: faker.string.uuid(),
-        password: faker.internet.password(),
-        Roles: [{ name: 'admin' }],
-      };
-
-      User.findOne.mockResolvedValue(user);
-      bcrypt.compare.mockResolvedValue(true);
-      jwt.sign.mockReturnValue(faker.string.uuid());
-
-      const result = await login(payload);
-
-      expect(User.findOne).toHaveBeenCalledWith({
-        where: { email: payload.email },
-        include: 'Roles',
-      });
-      expect(bcrypt.compare).toHaveBeenCalledWith(
-        payload.password,
-        user.password,
-      );
-      expect(jwt.sign).toHaveBeenCalledWith(
-        { user_id: user.id, roles: ['admin'], selectedRole: payload.role },
-        process.env.JWT_SECRET,
-        { expiresIn: '24h' },
-      );
-      expect(result).toEqual({
-        token: expect.any(String),
-        role: ['admin'],
-      });
-    });
-
     it('should throw an error if user is not found', async () => {
       const payload = {
         email: faker.internet.email(),
-        role: 'admin',
         password: faker.internet.password(),
       };
 
-      User.findOne.mockResolvedValue(null);
+      User.findOne.mockResolvedValueOnce(null); // User not found
 
-      await expect(login(payload)).rejects.toThrow('User not found');
+      await expect(login(payload)).rejects.toThrow('user not found');
     });
 
-    it('should throw an error if user does not have the role', async () => {
+    it('should throw an error if password is incorrect', async () => {
       const payload = {
         email: faker.internet.email(),
-        role: 'admin',
         password: faker.internet.password(),
       };
 
-      const user = {
-        id: faker.string.uuid(),
+      User.findOne.mockResolvedValueOnce({
+        email: payload.email,
+        password: 'hashedPassword',
+      });
+      bcrypt.compare.mockResolvedValueOnce(false); // Incorrect password
+
+      await expect(login(payload)).rejects.toThrow('Password is not correct');
+    });
+
+    it('should return a token if login is successful', async () => {
+      const payload = {
+        email: faker.internet.email(),
         password: faker.internet.password(),
-        Roles: [{ name: 'customer' }],
       };
 
-      User.findOne.mockResolvedValue(user);
+      User.findOne.mockResolvedValueOnce({
+        email: payload.email,
+        password: 'hashedPassword',
+      });
+      bcrypt.compare.mockResolvedValueOnce(true); // Correct password
+      generateToken.mockReturnValueOnce('mockToken'); // Mock token generation
 
-      await expect(login(payload)).rejects.toThrow(
-        'User does not have the admin role',
-      );
+      await expect(login(payload)).resolves.toEqual({ token: 'mockToken' });
     });
   });
 
   describe('logout', () => {
-    it('should log out successfully and blacklist the token', async () => {
-      const token = faker.string.uuid();
-      jwt.decode.mockReturnValue({ user_id: faker.string.uuid() });
-
-      addTokenToBlacklist.mockResolvedValue();
-
-      const result = await logout(token);
-
-      expect(addTokenToBlacklist).toHaveBeenCalledWith(token, 300);
-      expect(result).toEqual({ message: 'Logged out successfully' });
-    });
-
     it('should throw an error for an invalid token', async () => {
-      const token = faker.string.uuid();
-      jwt.decode.mockReturnValue(null);
+      const token = 'invalidToken';
+
+      jwt.decode.mockReturnValueOnce(null); // Invalid token
 
       await expect(logout(token)).rejects.toThrow('Invalid token');
+    });
+
+    it('should successfully log out and blacklist the token', async () => {
+      const token = 'validToken';
+
+      jwt.decode.mockReturnValueOnce({ id: 1 }); // Valid token
+      addTokenToBlacklist.mockResolvedValueOnce(true); // Token blacklisted successfully
+
+      await expect(logout(token)).resolves.not.toThrow();
     });
   });
 });

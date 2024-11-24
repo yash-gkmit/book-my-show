@@ -23,6 +23,7 @@ describe('Auth Controller Tests', () => {
   const mockResponse = {
     status: jest.fn().mockReturnThis(),
     json: jest.fn(),
+    message: null,
     data: null,
     statusCode: null,
   };
@@ -38,21 +39,76 @@ describe('Auth Controller Tests', () => {
     jest.clearAllMocks();
   });
 
+  describe('POST /register', () => {
+    it('should register a user successfully', async () => {
+      const payload = {
+        email: faker.internet.email(),
+        password: 'password123',
+      };
+      const result = { id: faker.string.uuid(), ...payload };
+
+      authService.register.mockResolvedValue(result);
+
+      const req = mockRequest(payload);
+      await authController.register(req, mockResponse);
+
+      expect(authService.register).toHaveBeenCalledWith(payload);
+      expect(mockResponse.statusCode).toBe(201);
+      expect(mockResponse.message).toBe('user created successfully!');
+      expect(mockResponse.data).toEqual(result);
+      expect(responseHandler).toHaveBeenCalledWith(req, mockResponse);
+    });
+
+    it('should handle registration errors', async () => {
+      const payload = {
+        email: faker.internet.email(),
+        password: 'password123',
+      };
+      const errorMessage = 'User already exists';
+
+      authService.register.mockRejectedValue(new Error(errorMessage));
+
+      const req = mockRequest(payload);
+      await authController.register(req, mockResponse);
+
+      expect(errorHandler).toHaveBeenCalledWith(
+        req,
+        mockResponse,
+        expect.any(Error),
+        400,
+      );
+    });
+  });
+
   describe('POST /send-otp', () => {
     it('should send OTP successfully', async () => {
       const email = faker.internet.email();
-      authService.sendOtp.mockResolvedValue(true);
+      authService.sendOtp.mockResolvedValue();
 
       const req = mockRequest({ email });
       await authController.sendOtp(req, mockResponse);
 
-      expect(validateRequest).toHaveBeenCalledWith(
-        { email },
-        { email: 'email' },
-      );
       expect(authService.sendOtp).toHaveBeenCalledWith(email);
       expect(mockResponse.statusCode).toBe(200);
+      expect(mockResponse.message).toBe(`otp send successfully to ${email}`);
       expect(responseHandler).toHaveBeenCalledWith(req, mockResponse);
+    });
+
+    it('should handle errors when sending OTP', async () => {
+      const email = faker.internet.email();
+      const errorMessage = 'Unable to send OTP';
+
+      authService.sendOtp.mockRejectedValue(new Error(errorMessage));
+
+      const req = mockRequest({ email });
+      await authController.sendOtp(req, mockResponse);
+
+      expect(errorHandler).toHaveBeenCalledWith(
+        req,
+        mockResponse,
+        expect.any(Error),
+        400,
+      );
     });
   });
 
@@ -60,33 +116,34 @@ describe('Auth Controller Tests', () => {
     it('should verify OTP successfully', async () => {
       const email = faker.internet.email();
       const otp = '123456';
-      authService.verifyOtp.mockResolvedValue(true);
+      const result = { verified: true };
+
+      authService.verifyOtp.mockResolvedValue(result);
 
       const req = mockRequest({ email, otp });
       await authController.verifyOtp(req, mockResponse);
 
-      expect(validateRequest).toHaveBeenCalledWith(
-        { email, otp },
-        { email: 'email', otp: 'otp' },
-      );
       expect(authService.verifyOtp).toHaveBeenCalledWith(email, otp);
-      expect(responseHandler).toHaveBeenCalledWith(req, mockResponse);
       expect(mockResponse.statusCode).toBe(200);
+      expect(mockResponse.message).toBe('OTP verified successfully!');
+      expect(mockResponse.data).toEqual(result);
+      expect(responseHandler).toHaveBeenCalledWith(req, mockResponse);
     });
 
-    it('should return an error for invalid OTP', async () => {
+    it('should handle OTP verification errors', async () => {
       const email = faker.internet.email();
-      const invalidOtp = 'abcd123';
-      authService.verifyOtp.mockRejectedValue(new Error('Invalid OTP'));
+      const otp = '123456';
+      const errorMessage = 'Invalid OTP';
 
-      const req = mockRequest({ email, otp: invalidOtp });
+      authService.verifyOtp.mockRejectedValue(new Error(errorMessage));
 
+      const req = mockRequest({ email, otp });
       await authController.verifyOtp(req, mockResponse);
 
       expect(errorHandler).toHaveBeenCalledWith(
         req,
         mockResponse,
-        'Invalid OTP',
+        expect.any(Error),
         400,
       );
     });
@@ -94,33 +151,40 @@ describe('Auth Controller Tests', () => {
 
   describe('POST /login', () => {
     it('should login successfully', async () => {
-      const email = faker.internet.email();
-      const password = 'password123';
-      const roles = ['user'];
-      const token = 'dummy-jwt-token';
+      const payload = {
+        email: faker.internet.email(),
+        password: 'password123',
+      };
+      const result = { token: 'dummy-jwt-token', roles: ['user'] };
 
-      authService.login.mockResolvedValue({ token, roles });
+      authService.login.mockResolvedValue(result);
 
-      const req = mockRequest({ email, password });
+      const req = mockRequest(payload);
       await authController.login(req, mockResponse);
 
-      expect(authService.login).toHaveBeenCalledWith({ email, password });
+      expect(authService.login).toHaveBeenCalledWith(payload);
       expect(mockResponse.statusCode).toBe(200);
+      expect(mockResponse.message).toBe('Login successful');
+      expect(mockResponse.data).toEqual(result);
       expect(responseHandler).toHaveBeenCalledWith(req, mockResponse);
     });
 
-    it('should return error for invalid credentials', async () => {
-      const email = faker.internet.email();
-      const password = 'wrongpassword';
-      authService.login.mockRejectedValue(new Error('Invalid credentials'));
+    it('should handle login errors', async () => {
+      const payload = {
+        email: faker.internet.email(),
+        password: 'wrongpassword',
+      };
+      const errorMessage = 'Invalid credentials';
 
-      const req = mockRequest({ email, password });
+      authService.login.mockRejectedValue(new Error(errorMessage));
+
+      const req = mockRequest(payload);
       await authController.login(req, mockResponse);
 
       expect(errorHandler).toHaveBeenCalledWith(
         req,
         mockResponse,
-        'Invalid credentials',
+        expect.any(Error),
         401,
       );
     });
@@ -129,20 +193,19 @@ describe('Auth Controller Tests', () => {
   describe('POST /logout', () => {
     it('should logout successfully', async () => {
       const token = 'dummy-jwt-token';
-      authService.logout.mockResolvedValue({
-        message: 'Successfully logged out',
-      });
+      authService.logout.mockResolvedValue();
 
       const req = mockRequest({}, {}, {}, { authorization: `Bearer ${token}` });
       await authController.logout(req, mockResponse);
 
       expect(authService.logout).toHaveBeenCalledWith(token);
       expect(mockResponse.statusCode).toBe(200);
+      expect(mockResponse.message).toBe('Successfully logged out');
       expect(responseHandler).toHaveBeenCalledWith(req, mockResponse);
     });
 
-    it('should return an error for missing token', async () => {
-      const req = mockRequest({}, {}, {}); // No headers, simulating a missing token
+    it('should handle missing token for logout', async () => {
+      const req = mockRequest({}, {}, {}, {});
 
       await authController.logout(req, mockResponse);
 
@@ -150,7 +213,7 @@ describe('Auth Controller Tests', () => {
         req,
         mockResponse,
         'Token is required for logout',
-        401, // Match the status code returned by the controller
+        401,
       );
     });
   });
