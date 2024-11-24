@@ -1,9 +1,6 @@
 const nodemailer = require('nodemailer');
 const { throwCustomError } = require('./common.helper');
 
-console.log('SMTP_USER:', process.env.SMTP_USER);
-console.log('SMTP_PASSWORD:', process.env.SMTP_PASSWORD);
-
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {

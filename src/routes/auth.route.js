@@ -18,7 +18,7 @@ router.post(
   authController.verifyOtp,
 );
 
-router.post('/login', authController.login);
+router.post('/login', authValidator.loginValidation, authController.login);
 
 router.delete('/logout', authMiddleware, authController.logout);
 module.exports = router;

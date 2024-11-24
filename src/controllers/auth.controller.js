@@ -4,7 +4,6 @@ const {
   throwCustomError,
   responseHandler,
 } = require('../helpers/common.helper');
-const { validateRequest } = require('../helpers/validate.helper');
 
 const register = async (req, res) => {
   try {
@@ -18,31 +17,23 @@ const register = async (req, res) => {
     responseHandler(req, res);
   } catch (error) {
     console.log(error);
-    errorHandler(req, res, error.message, error.statusCode || 400);
+    errorHandler(req, res, error, error.statusCode || 400);
   }
 };
 
 const sendOtp = async (req, res) => {
   try {
-    validateRequest(req.body, { email: 'email' });
-
     await authService.sendOtp(req.body.email);
     res.message = `otp send successfully to ${req.body.email}`;
     res.statusCode = 200;
     return responseHandler(req, res);
   } catch (error) {
-    return errorHandler(req, res, error.message, error.statusCode || 400);
+    return errorHandler(req, res, error, error.statusCode || 400);
   }
 };
 
 const verifyOtp = async (req, res) => {
   try {
-    const rules = {
-      email: 'email',
-      otp: 'otp',
-    };
-    validateRequest(req.body, rules);
-
     const result = await authService.verifyOtp(req.body.email, req.body.otp);
 
     res.message = 'OTP verified successfully!';
@@ -51,15 +42,13 @@ const verifyOtp = async (req, res) => {
     return responseHandler(req, res);
   } catch (error) {
     console.log(error);
-    return errorHandler(req, res, error.message, error.statusCode || 400);
+    return errorHandler(req, res, error, error.statusCode || 400);
   }
 };
 
 const login = async (req, res) => {
   try {
-    const { body: payload } = req;
-
-    const result = await authService.login(payload);
+    const result = await authService.login(req.body);
 
     res.message = 'Login successful';
     res.data = result;
@@ -67,7 +56,7 @@ const login = async (req, res) => {
     return responseHandler(req, res);
   } catch (error) {
     console.error('Login error:', error);
-    errorHandler(req, res, error.message, error.statusCode || 401);
+    errorHandler(req, res, error, error.statusCode || 401);
   }
 };
 const logout = async (req, res) => {

@@ -3,7 +3,9 @@ const { throwCustomError } = require('./common.helper');
 
 const generateToken = payload => {
   try {
-    return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+    return jwt.sign({ id: payload }, process.env.JWT_SECRET, {
+      expiresIn: '1h',
+    });
   } catch {
     throwCustomError('Token generation failed', 401);
   }
