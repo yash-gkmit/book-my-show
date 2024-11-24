@@ -1,15 +1,16 @@
 const bookingService = require('../services/bookings.service');
-const { errorHandler } = require('../helpers/common.helper');
+const { Booking } = require('../models');
+const { errorHandler, throwCustomError } = require('../helpers/common.helper');
 
 const generate = async (req, res, next) => {
   try {
-    const booking = await bookingService.create(req.body);
+    const booking = await bookingService.create(req.user.id, req.body);
+    res.message = 'Booking Created successfully!';
     res.data = booking;
     res.statusCode = 201;
     next();
   } catch (error) {
-    console.error(error);
-    errorHandler(req, res, error.message, error.statusCode || 400);
+    errorHandler(req, res, error, error.statusCode || 400);
   }
 };
 
@@ -20,13 +21,12 @@ const fetchAll = async (req, res, next) => {
     const result = await bookingService.getAll(filters, page, limit);
 
     res.data = result;
+    res.message = 'Bookings fetched successfully!';
     res.statusCode = 200;
     next();
   } catch (error) {
-    console.error(error);
-
     if (error.statusCode) {
-      errorHandler(req, res, error.message, error.statusCode);
+      errorHandler(req, res, error, error.statusCode);
     } else {
       errorHandler(req, res, 'Booking not found', 404);
     }
@@ -36,39 +36,43 @@ const fetchAll = async (req, res, next) => {
 const fetch = async (req, res, next) => {
   try {
     const booking = await bookingService.get(req.params.id);
-    res.data = { message: 'Fetched Booking By Id', booking };
-    (res.statusCode = 200), next();
+    res.message = 'Booking fetched by id successfully!';
+    res.data = { booking };
+    res.statusCode = 200;
+    next();
   } catch (error) {
-    console.log(error);
-    errorHandler(req, res, error.message, 404);
+    errorHandler(req, res, error, 404);
   }
 };
 
 const change = async (req, res, next) => {
   try {
-    const booking = await bookingService.update(req.body);
-    res.data = {
-      message: 'Booking Updated Successfully',
-      booking,
-    };
-    (res.statusCode = 200), next();
+    const bookingData = await Booking.findOne({
+      where: { id: req.params.id },
+    });
+
+    if (req.user.id !== bookingData.user_id) {
+      throwCustomError('you are not authorized to update this booking!');
+    }
+    const booking = await bookingService.update(req.params.id, req.body);
+    res.message = 'Booking Updated Successfully';
+    res.data = booking;
+    res.statusCode = 200;
+    next();
   } catch (error) {
     console.log(error);
-    errorHandler(req, res, error.message, 404);
+    errorHandler(req, res, error, 404);
   }
 };
 
 const remove = async (req, res, next) => {
   try {
     await bookingService.remove(req.params.id);
-    res.data = {
-      message: 'Booking deleted successfully!',
-    };
+    res.message = 'Booking deleted successfully!';
     res.statusCode = 204;
     next();
   } catch (error) {
-    console.log(error);
-    errorHandler(req, res, error.message, 404);
+    errorHandler(req, res, error, 404);
   }
 };
 
@@ -76,27 +80,12 @@ const fetchReports = async (req, res, next) => {
   try {
     const { startDate, endDate } = req.query;
     const data = await bookingService.getReports(startDate, endDate);
+    res.message = 'Report fetched successfully!';
     res.data = data;
     res.statusCode = 200;
     next();
   } catch (error) {
-    errorHandler(req, res, error.message, error.statusCode);
-  }
-};
-
-const cancel = async (req, res, next) => {
-  const { id } = req.params;
-  const userId = req.user.id;
-  try {
-    const booking = await bookingService.cancel(id, userId);
-    res.data = {
-      message: 'booking cancelled successfully',
-      booking,
-    };
-    res.status = 200;
-    next();
-  } catch (error) {
-    errorHandler(req, res, error.message, 400);
+    errorHandler(req, res, error, error.statusCode);
   }
 };
 
@@ -107,5 +96,4 @@ module.exports = {
   change,
   remove,
   fetchReports,
-  cancel,
 };

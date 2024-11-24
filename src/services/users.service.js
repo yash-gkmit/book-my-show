@@ -36,7 +36,11 @@ const getAll = async (page = 1, limit = 10) => {
   }
 };
 const get = async userId => {
-  return await User.findByPk(userId);
+  const user = await User.findByPk(userId);
+  if (!user) {
+    throwCustomError('user with this id does not exist', 404);
+  }
+  return user;
 };
 
 const update = async (userId, data) => {

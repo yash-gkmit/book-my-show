@@ -8,8 +8,16 @@ const fs = require('fs');
 
 const create = async data => {
   const transaction = await sequelize.transaction();
+  const { name } = data;
 
   try {
+    const isCityExist = await City.findOne({
+      where: { name: name },
+    });
+
+    if (isCityExist) {
+      throwCustomError('City already exist!', 400);
+    }
     const city = await City.create(data, { transaction });
 
     await transaction.commit();
@@ -49,21 +57,18 @@ const get = async id => {
 
 const update = async (id, data) => {
   const transaction = await sequelize.transaction();
-
   try {
     const city = await City.findByPk(id, { transaction });
     if (!city) {
-      await transaction.rollback();
       throwCustomError('City not found', 404);
     }
 
     await city.update(data, { transaction });
-
     await transaction.commit();
     return city;
   } catch (error) {
     await transaction.rollback();
-    throw error;
+    throwCustomError(error);
   }
 };
 
@@ -89,29 +94,22 @@ const remove = async id => {
 
 const getTheaters = async (id, page = 1, limit = 10) => {
   const offset = (page - 1) * limit;
+  const theaters = await Theater.findAndCountAll({
+    where: { city_id: id },
+    order: [['created_at', 'DESC']],
+    limit,
+    offset,
+  });
 
-  try {
-    const theaters = await Theater.findAndCountAll({
-      where: { city_id: id },
-      order: [['created_at', 'DESC']],
-      limit,
-      offset,
-    });
-
-    return {
-      data: theaters.rows,
-      pagination: {
-        totalItems: theaters.count,
-        currentPage: parseInt(page, 10),
-        itemsPerPage: parseInt(limit, 10),
-        totalPages: Math.ceil(theaters.count / limit),
-      },
-    };
-  } catch (error) {
-    throw new Error(
-      `Error retrieving theaters for city ${cityId}: ${error.message}`,
-    );
-  }
+  return {
+    data: theaters.rows,
+    pagination: {
+      totalItems: theaters.count,
+      currentPage: parseInt(page, 10),
+      itemsPerPage: parseInt(limit, 10),
+      totalPages: Math.ceil(theaters.count / limit),
+    },
+  };
 };
 
 const generateReport = async (city, startDate, endDate) => {

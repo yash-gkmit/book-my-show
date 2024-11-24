@@ -11,6 +11,7 @@ module.exports = {
       name: {
         type: Sequelize.STRING(51),
         allowNull: false,
+        unique: true,
       },
       created_at: {
         allowNull: false,

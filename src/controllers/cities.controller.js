@@ -9,7 +9,7 @@ const generate = async (req, res, next) => {
     res.statusCode = 201;
     next();
   } catch (error) {
-    errorHandler(req, res, error.message, error.statusCode || 400);
+    errorHandler(req, res, error, error.statusCode || 400);
   }
 };
 
@@ -28,7 +28,7 @@ const fetchAll = async (req, res, next) => {
     res.statusCode = 200;
     next();
   } catch (error) {
-    errorHandler(req, res, error.message, error.statusCode || 400);
+    errorHandler(req, res, error, error.statusCode || 400);
   }
 };
 
@@ -40,7 +40,7 @@ const fetch = async (req, res, next) => {
     res.statusCode = 200;
     next();
   } catch (error) {
-    errorHandler(req, res, error.message, error.statusCode || 404);
+    errorHandler(req, res, error, error.statusCode || 404);
   }
 };
 
@@ -52,7 +52,7 @@ const change = async (req, res, next) => {
     res.statusCode = 200;
     next();
   } catch (error) {
-    errorHandler(req, res, error.message, error.statusCode || 400);
+    errorHandler(req, res, error, error.statusCode || 400);
   }
 };
 
@@ -62,7 +62,7 @@ const remove = async (req, res, next) => {
     res.statusCode = 200;
     next();
   } catch (error) {
-    errorHandler(req, res, error.message, error.statusCode || 400);
+    errorHandler(req, res, error, error.statusCode || 400);
   }
 };
 
@@ -78,13 +78,13 @@ const fetchTheaters = async (req, res, next) => {
     }
 
     res.data = {
-      message: 'Theater fetched by city successfully!',
       theaters,
     };
+    res.message = 'Theater by city fetched successfully';
     res.statusCode = 200;
     next();
   } catch (error) {
-    errorHandler(req, res, error.message, error.statusCode || 404);
+    errorHandler(req, res, error, error.statusCode || 404);
   }
 };
 
@@ -99,9 +99,9 @@ const fetchReport = async (req, res, next) => {
     const filePath = await cityService.generateReport(city, startDate, endDate);
 
     res.data = {
-      message: 'Report generated successfully.',
       filePath: filePath,
     };
+    res.message = 'Report generated successfully';
     res.statusCode = 200;
     next();
   } catch (error) {

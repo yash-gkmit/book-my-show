@@ -8,6 +8,14 @@ const usersSerializer = require('../serializers/users.serializer');
 const router = express.Router();
 
 router.get(
+  '/me',
+  authMiddleware,
+  usersController.fetchCurrent,
+  usersSerializer.serialize,
+  commonHelper.responseHandler,
+);
+
+router.get(
   '/',
   authMiddleware,
   rbacMiddleware(['Admin']),
@@ -27,7 +35,7 @@ router.get(
 router.get(
   '/:id',
   authMiddleware,
-  rbacMiddleware(['Admin', 'self']),
+  rbacMiddleware(['Admin']),
   usersController.fetch,
   usersSerializer.serialize,
   commonHelper.responseHandler,
@@ -36,7 +44,7 @@ router.get(
 router.put(
   '/:id',
   authMiddleware,
-  rbacMiddleware(['Admin', 'self']),
+  rbacMiddleware(['Admin'], true),
   usersController.change,
   usersSerializer.serialize,
   commonHelper.responseHandler,
@@ -45,7 +53,7 @@ router.put(
 router.delete(
   '/:id',
   authMiddleware,
-  rbacMiddleware(['Admin']),
+  rbacMiddleware(['Admin'], true),
   usersController.remove,
 );
 
