@@ -6,7 +6,15 @@ const create = async data => {
   const t = await sequelize.transaction();
 
   try {
-    const show = await Show.create(data, { transaction: t });
+    const showData = {
+      movie_id: data.movieId,
+      theater_id: data.theaterId,
+      show_time: data.showTime,
+      available_seats: data.availableSeats,
+      type: data.type,
+      price: data.price,
+    };
+    const show = await Show.create(showData, { transaction: t });
     await t.commit();
     return show;
   } catch (error) {
