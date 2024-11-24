@@ -1,17 +1,12 @@
-const { throwCustomError } = require('../helpers/common.helper');
+const { errorHandler } = require('../helpers/common.helper');
 
-exports.rbacMiddleware = allowedRoles => {
+exports.rbacMiddleware = (allowedRoles, allowSelf) => {
   return (req, res, next) => {
     const { user } = req;
     const userRoles = user.roles || [];
-    const userIdFromParams = req.params.user_id;
+    const userIdFromParams = req.params.id;
 
-    if (userRoles.includes('Admin')) {
-      console.log('Admin access granted.');
-      return next();
-    }
-
-    if (allowedRoles.includes('self') && user.user_id === userIdFromParams) {
+    if (allowSelf && user.id === userIdFromParams) {
       console.log('Self access granted.');
       return next();
     }
@@ -27,8 +22,10 @@ exports.rbacMiddleware = allowedRoles => {
       return next();
     }
 
-    throwCustomError(
-      'Forbidden: You do not have permission to access this resource',
+    errorHandler(
+      req,
+      res,
+      'You are not authorized to access this resource!',
       403,
     );
   };
