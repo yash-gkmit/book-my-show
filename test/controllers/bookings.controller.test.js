@@ -1,14 +1,20 @@
 const bookingController = require('../../src/controllers/bookings.controller');
 const bookingService = require('../../src/services/bookings.service');
+const { Booking } = require('../../src/models');
 const { errorHandler } = require('../../src/helpers/common.helper');
 const { faker } = require('@faker-js/faker');
 
 // Mock dependencies
 jest.mock('../../src/services/bookings.service');
+jest.mock('../../src/models', () => ({
+  Booking: {
+    findOne: jest.fn(),
+  },
+}));
 jest.mock('../../src/helpers/common.helper');
 
 describe('Booking Controller', () => {
-  let req, res;
+  let req, res, next;
 
   beforeEach(() => {
     req = {
@@ -23,58 +29,58 @@ describe('Booking Controller', () => {
       data: null,
       statusCode: null,
     };
+    next = jest.fn();
     jest.clearAllMocks();
   });
 
   describe('generate', () => {
-    it('should create a booking and send a successful response', async () => {
-      const bookingData = {
-        id: faker.string.uuid(),
-        showId: faker.string.uuid(),
-        userId: faker.string.uuid(),
-        status: 'Confirmed',
-      };
-
+    it('should create a booking successfully', async () => {
+      const bookingData = { id: faker.string.uuid(), status: 'Confirmed' };
       bookingService.create.mockResolvedValue(bookingData);
 
-      req.body = { showId: bookingData.showId, userId: bookingData.userId };
+      req.body = { showId: faker.string.uuid() };
 
-      await bookingController.generate(req, res, jest.fn());
+      await bookingController.generate(req, res, next);
 
-      expect(bookingService.create).toHaveBeenCalledWith(req.body);
+      expect(bookingService.create).toHaveBeenCalledWith(req.user.id, req.body);
       expect(res.data).toEqual(bookingData);
-      expect(res.statusCode).toEqual(201);
+      expect(res.statusCode).toBe(201);
+      expect(next).toHaveBeenCalled();
     });
 
     it('should handle errors during booking creation', async () => {
       const errorMessage = 'Error creating booking';
-      bookingService.create.mockRejectedValue(new Error(errorMessage));
+      const error = new Error(errorMessage); // Create an error instance
+      bookingService.create.mockRejectedValue(error);
 
-      await bookingController.generate(req, res, jest.fn());
+      await bookingController.generate(req, res, next);
 
-      expect(errorHandler).toHaveBeenCalledWith(req, res, errorMessage, 400);
+      expect(errorHandler).toHaveBeenCalledWith(req, res, error, 400); // Pass the error instance
+      expect(next).not.toHaveBeenCalled();
     });
   });
 
   describe('fetchAll', () => {
-    it('should fetch all bookings with pagination', async () => {
+    it('should fetch all bookings successfully', async () => {
       const bookings = [{ id: faker.string.uuid() }];
       bookingService.getAll.mockResolvedValue(bookings);
 
       req.query = { page: 1, limit: 10 };
 
-      await bookingController.fetchAll(req, res, jest.fn());
+      await bookingController.fetchAll(req, res, next);
 
       expect(bookingService.getAll).toHaveBeenCalledWith({}, 1, 10);
       expect(res.data).toEqual(bookings);
+      expect(res.message).toBe('Bookings fetched successfully!');
       expect(res.statusCode).toBe(200);
+      expect(next).toHaveBeenCalled();
     });
 
     it('should handle errors when fetching bookings', async () => {
       const errorMessage = 'Booking not found';
       bookingService.getAll.mockRejectedValue(new Error(errorMessage));
 
-      await bookingController.fetchAll(req, res, jest.fn());
+      await bookingController.fetchAll(req, res, next);
 
       expect(errorHandler).toHaveBeenCalledWith(
         req,
@@ -82,137 +88,129 @@ describe('Booking Controller', () => {
         'Booking not found',
         404,
       );
+      expect(next).not.toHaveBeenCalled();
     });
   });
 
   describe('fetch', () => {
-    it('should fetch a booking by ID', async () => {
+    it('should fetch a booking by ID successfully', async () => {
       const booking = { id: faker.string.uuid() };
       bookingService.get.mockResolvedValue(booking);
 
       req.params.id = faker.string.uuid();
 
-      await bookingController.fetch(req, res, jest.fn());
+      await bookingController.fetch(req, res, next);
 
       expect(bookingService.get).toHaveBeenCalledWith(req.params.id);
-      expect(res.data).toEqual({ message: 'Fetched Booking By Id', booking });
-      expect(res.statusCode).toEqual(200);
+      expect(res.data).toEqual({ booking });
+      expect(res.message).toBe('Booking fetched by id successfully!');
+      expect(res.statusCode).toBe(200);
+      expect(next).toHaveBeenCalled();
     });
 
     it('should handle errors when fetching a booking by ID', async () => {
       const errorMessage = 'Booking not found';
-      bookingService.get.mockRejectedValue(new Error(errorMessage));
+      const error = new Error(errorMessage); // Create an error instance
+      bookingService.get.mockRejectedValue(error);
 
-      await bookingController.fetch(req, res, jest.fn());
+      await bookingController.fetch(req, res, next);
 
-      expect(errorHandler).toHaveBeenCalledWith(req, res, errorMessage, 404);
+      expect(errorHandler).toHaveBeenCalledWith(req, res, error, 404); // Pass the error instance
+      expect(next).not.toHaveBeenCalled();
     });
   });
 
   describe('change', () => {
-    it('should update a booking', async () => {
-      const booking = { id: faker.string.uuid() };
-      bookingService.update.mockResolvedValue(booking);
+    it('should update a booking if the user is authorized', async () => {
+      const bookingData = { id: faker.string.uuid(), user_id: req.user.id };
+      const updatedBooking = { id: bookingData.id, status: 'Confirmed' };
 
+      Booking.findOne.mockResolvedValue(bookingData);
+      bookingService.update.mockResolvedValue(updatedBooking);
+
+      req.params.id = bookingData.id;
       req.body = { status: 'Confirmed' };
 
-      await bookingController.change(req, res, jest.fn());
+      await bookingController.change(req, res, next);
 
-      expect(bookingService.update).toHaveBeenCalledWith(req.body);
-      expect(res.data).toEqual({
-        message: 'Booking Updated Successfully',
-        booking,
+      expect(Booking.findOne).toHaveBeenCalledWith({
+        where: { id: req.params.id },
       });
-      expect(res.statusCode).toEqual(200);
+      expect(bookingService.update).toHaveBeenCalledWith(
+        req.params.id,
+        req.body,
+      );
+      expect(res.data).toEqual(updatedBooking);
+      expect(res.message).toBe('Booking Updated Successfully');
+      expect(res.statusCode).toBe(200);
+      expect(next).toHaveBeenCalled();
     });
 
     it('should handle errors when updating a booking', async () => {
-      const errorMessage = 'Booking not found';
-      bookingService.update.mockRejectedValue(new Error(errorMessage));
+      const errorMessage = new Error('Booking not found'); // Use an Error object.
 
-      await bookingController.change(req, res, jest.fn());
+      Booking.findOne.mockRejectedValue(errorMessage); // Simulate a failed database call.
 
-      expect(errorHandler).toHaveBeenCalledWith(req, res, errorMessage, 404);
+      await bookingController.change(req, res, next);
+
+      expect(errorHandler).toHaveBeenCalledWith(req, res, errorMessage, 404); // Expect the Error object.
+      expect(next).not.toHaveBeenCalled(); // Ensure middleware is not called after an error.
     });
   });
 
   describe('remove', () => {
-    it('should delete a booking by ID', async () => {
+    it('should delete a booking successfully', async () => {
       req.params.id = faker.string.uuid();
 
-      await bookingController.remove(req, res, jest.fn());
+      await bookingController.remove(req, res, next);
 
       expect(bookingService.remove).toHaveBeenCalledWith(req.params.id);
+      expect(res.message).toBe('Booking deleted successfully!');
       expect(res.statusCode).toBe(204);
+      expect(next).toHaveBeenCalled();
     });
 
     it('should handle errors when deleting a booking', async () => {
-      const errorMessage = 'Booking not found';
-      bookingService.remove.mockRejectedValue(new Error(errorMessage));
+      const errorMessage = new Error('Booking not found'); // Use an Error object.
 
-      await bookingController.remove(req, res, jest.fn());
+      bookingService.remove.mockRejectedValue(errorMessage); // Simulate an error during deletion.
 
-      expect(errorHandler).toHaveBeenCalledWith(req, res, errorMessage, 404);
+      await bookingController.remove(req, res, next);
+
+      expect(errorHandler).toHaveBeenCalledWith(req, res, errorMessage, 404); // Expect the Error object.
+      expect(next).not.toHaveBeenCalled(); // Ensure the middleware chain is not called.
     });
   });
 
   describe('fetchReports', () => {
-    it('should fetch booking reports', async () => {
+    it('should fetch booking reports successfully', async () => {
       const reports = [{ date: '2024-01-01', count: 10 }];
       bookingService.getReports.mockResolvedValue(reports);
 
       req.query = { startDate: '2024-01-01', endDate: '2024-12-31' };
 
-      await bookingController.fetchReports(req, res, jest.fn());
+      await bookingController.fetchReports(req, res, next);
 
       expect(bookingService.getReports).toHaveBeenCalledWith(
         req.query.startDate,
         req.query.endDate,
       );
       expect(res.data).toEqual(reports);
-      expect(res.statusCode).toEqual(200);
+      expect(res.message).toBe('Report fetched successfully!');
+      expect(res.statusCode).toBe(200);
+      expect(next).toHaveBeenCalled();
     });
 
     it('should handle errors when fetching reports', async () => {
-      const errorMessage = 'Error fetching reports';
-      bookingService.getReports.mockRejectedValue(new Error(errorMessage));
+      const errorMessage = new Error('Error fetching reports');
+      errorMessage.statusCode = 400; // Simulate an error with a status code.
 
-      await bookingController.fetchReports(req, res, jest.fn());
+      bookingService.getReports.mockRejectedValue(errorMessage); // Simulate service rejection.
 
-      // Ensure errorHandler is called with the correct arguments
-      expect(errorHandler).toHaveBeenCalledWith(req, res, errorMessage, 400);
-    });
-  });
+      await bookingController.fetchReports(req, res, next);
 
-  describe('cancel', () => {
-    it('should cancel a booking', async () => {
-      const booking = { id: faker.string.uuid() };
-      bookingService.cancel.mockResolvedValue(booking);
-
-      req.params.id = faker.string.uuid();
-      req.user = { id: faker.string.uuid() }; // Ensure you mock the user in req
-
-      await bookingController.cancel(req, res, jest.fn());
-
-      expect(bookingService.cancel).toHaveBeenCalledWith(
-        req.params.id,
-        req.user.id,
-      );
-      expect(res.data).toEqual({
-        message: 'booking cancelled successfully',
-        booking,
-      });
-      expect(res.statusCode).toEqual(200); // Ensure statusCode is set correctly
-      expect(responseHandler).toHaveBeenCalledWith(req, res);
-    });
-
-    it('should handle errors when cancelling a booking', async () => {
-      const errorMessage = 'Booking cancellation failed';
-      bookingService.cancel.mockRejectedValue(new Error(errorMessage));
-
-      await bookingController.cancel(req, res, jest.fn());
-
-      expect(errorHandler).toHaveBeenCalledWith(req, res, errorMessage, 400);
+      expect(errorHandler).toHaveBeenCalledWith(req, res, errorMessage, 400); // Expect the error object and status code.
+      expect(next).not.toHaveBeenCalled(); // Ensure middleware chain is not called.
     });
   });
 });

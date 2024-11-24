@@ -5,7 +5,6 @@ const {
   responseHandler,
 } = require('../../src/helpers/common.helper');
 const { faker } = require('@faker-js/faker');
-const { validateRequest } = require('../../src/helpers/validate.helper');
 
 jest.mock('../../src/services/auth.service');
 jest.mock('../../src/helpers/validate.helper');

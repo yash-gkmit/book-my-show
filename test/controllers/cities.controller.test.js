@@ -14,12 +14,14 @@ describe('Cities Controller', () => {
 
   beforeEach(() => {
     mockReq = { params: {}, body: {}, query: {} };
-    mockRes = {};
+    mockRes = {
+      status: jest.fn().mockReturnThis(), // Mock `status` to allow chaining
+      json: jest.fn(), // Mock `json` method
+      message: null,
+      data: null,
+      statusCode: null,
+    };
     mockNext = jest.fn();
-
-    mockRes.statusCode = null;
-    mockRes.message = null;
-    mockRes.data = null;
 
     jest.clearAllMocks();
   });
@@ -49,7 +51,7 @@ describe('Cities Controller', () => {
       expect(errorHandler).toHaveBeenCalledWith(
         mockReq,
         mockRes,
-        errorMessage,
+        new Error(errorMessage),
         400,
       );
     });
@@ -82,7 +84,7 @@ describe('Cities Controller', () => {
 
       await citiesController.fetchAll(mockReq, mockRes, mockNext);
 
-      expect(cityService.getAll).toHaveBeenCalled();
+      expect(cityService.getAll).toHaveBeenCalledWith(1, 10);
       expect(throwCustomError).toHaveBeenCalledWith('No cities found', 404);
     });
   });
@@ -111,11 +113,11 @@ describe('Cities Controller', () => {
 
       await citiesController.fetch(mockReq, mockRes, mockNext);
 
-      expect(cityService.get).toHaveBeenCalled();
+      expect(cityService.get).toHaveBeenCalledWith(mockReq.params.id);
       expect(errorHandler).toHaveBeenCalledWith(
         mockReq,
         mockRes,
-        errorMessage,
+        new Error(errorMessage),
         404,
       );
     });
@@ -147,11 +149,14 @@ describe('Cities Controller', () => {
 
       await citiesController.change(mockReq, mockRes, mockNext);
 
-      expect(cityService.update).toHaveBeenCalled();
+      expect(cityService.update).toHaveBeenCalledWith(
+        mockReq.params.id,
+        mockReq.body,
+      );
       expect(errorHandler).toHaveBeenCalledWith(
         mockReq,
         mockRes,
-        errorMessage,
+        new Error(errorMessage),
         400,
       );
     });
@@ -176,11 +181,11 @@ describe('Cities Controller', () => {
 
       await citiesController.remove(mockReq, mockRes, mockNext);
 
-      expect(cityService.remove).toHaveBeenCalled();
+      expect(cityService.remove).toHaveBeenCalledWith(mockReq.params.id);
       expect(errorHandler).toHaveBeenCalledWith(
         mockReq,
         mockRes,
-        errorMessage,
+        new Error(errorMessage),
         400,
       );
     });
@@ -205,11 +210,35 @@ describe('Cities Controller', () => {
         '2024-01-31',
       );
       expect(mockRes.data).toEqual({
-        message: 'Report generated successfully.',
-        filePath: filePath,
+        filePath,
       });
+      expect(mockRes.message).toBe('Report generated successfully');
       expect(mockRes.statusCode).toBe(200);
       expect(mockNext).toHaveBeenCalled();
+    });
+
+    it('should handle errors when generating a report', async () => {
+      const errorMessage = 'Report generation failed';
+      cityService.generateReport.mockRejectedValue(new Error(errorMessage));
+
+      mockReq.query = {
+        city: 'Test City',
+        startDate: '2024-01-01',
+        endDate: '2024-01-31',
+      };
+
+      await citiesController.fetchReport(mockReq, mockRes, mockNext);
+
+      expect(cityService.generateReport).toHaveBeenCalledWith(
+        'Test City',
+        '2024-01-01',
+        '2024-01-31',
+      );
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        message: 'Failed to generate city-based report.',
+        error: errorMessage,
+      });
     });
   });
 });

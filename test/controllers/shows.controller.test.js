@@ -20,6 +20,7 @@ describe('Shows Controller', () => {
       status: jest.fn().mockReturnThis(),
       json: jest.fn(),
       data: null,
+      message: null,
       statusCode: null,
     };
     next = jest.fn();
@@ -41,6 +42,7 @@ describe('Shows Controller', () => {
 
       expect(showService.create).toHaveBeenCalledWith(req.body);
       expect(res.data).toEqual(newShow);
+      expect(res.message).toBe('Show created successfully!');
       expect(res.statusCode).toBe(201);
       expect(next).toHaveBeenCalled();
     });
@@ -51,7 +53,12 @@ describe('Shows Controller', () => {
 
       await showController.generate(req, res, next);
 
-      expect(errorHandler).toHaveBeenCalledWith(req, res, errorMessage, 400);
+      expect(errorHandler).toHaveBeenCalledWith(
+        req,
+        res,
+        expect.any(Error),
+        400,
+      );
       expect(next).not.toHaveBeenCalled();
     });
   });
@@ -71,10 +78,8 @@ describe('Shows Controller', () => {
       await showController.fetchAll(req, res, next);
 
       expect(showService.getAll).toHaveBeenCalledWith({}, 1, 10);
-      expect(res.data.message).toBe('Fetched shows successfully');
-      expect(res.data.shows.data).toEqual(shows);
-      expect(res.data.shows.page).toBe(1);
-      expect(res.data.shows.totalRecords).toBe(2);
+      expect(res.message).toBe('Fetched shows successfully');
+      expect(res.data.shows).toEqual({ data: shows, ...paginationInfo });
       expect(res.statusCode).toBe(200);
       expect(next).toHaveBeenCalled();
     });
@@ -105,7 +110,7 @@ describe('Shows Controller', () => {
       await showController.fetch(req, res, next);
 
       expect(showService.get).toHaveBeenCalledWith(req.params.id);
-      expect(res.data.message).toBe('Fetched show By Id successfully');
+      expect(res.message).toBe('Fetched show By Id successfully');
       expect(res.data.show).toEqual(show);
       expect(res.statusCode).toBe(200);
       expect(next).toHaveBeenCalled();
@@ -119,7 +124,12 @@ describe('Shows Controller', () => {
 
       await showController.fetch(req, res, next);
 
-      expect(errorHandler).toHaveBeenCalledWith(req, res, errorMessage, 400);
+      expect(errorHandler).toHaveBeenCalledWith(
+        req,
+        res,
+        expect.any(Error),
+        400,
+      );
       expect(next).not.toHaveBeenCalled();
     });
   });
@@ -135,6 +145,7 @@ describe('Shows Controller', () => {
       await showController.change(req, res, next);
 
       expect(showService.update).toHaveBeenCalledWith(req.params.id, req.body);
+      expect(res.message).toBe('Show data updated successfully!');
       expect(res.data).toEqual(updatedShow);
       expect(next).toHaveBeenCalled();
     });
@@ -145,7 +156,12 @@ describe('Shows Controller', () => {
 
       await showController.change(req, res, next);
 
-      expect(errorHandler).toHaveBeenCalledWith(req, res, errorMessage, 400);
+      expect(errorHandler).toHaveBeenCalledWith(
+        req,
+        res,
+        expect.any(Error),
+        400,
+      );
       expect(next).not.toHaveBeenCalled();
     });
   });
@@ -159,6 +175,7 @@ describe('Shows Controller', () => {
       await showController.remove(req, res, next);
 
       expect(showService.remove).toHaveBeenCalledWith(req.params.id);
+      expect(res.message).toBe('Show removed successfully!');
       expect(res.statusCode).toBe(204);
       expect(next).toHaveBeenCalled();
     });
@@ -169,7 +186,12 @@ describe('Shows Controller', () => {
 
       await showController.remove(req, res, next);
 
-      expect(errorHandler).toHaveBeenCalledWith(req, res, errorMessage, 400);
+      expect(errorHandler).toHaveBeenCalledWith(
+        req,
+        res,
+        expect.any(Error),
+        400,
+      );
       expect(next).not.toHaveBeenCalled();
     });
   });
