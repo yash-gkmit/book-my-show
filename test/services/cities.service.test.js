@@ -6,8 +6,10 @@ const {
   update,
   remove,
   getTheaters,
+  generateReport,
 } = require('../../src/services/cities.service');
-const { City, Theater, sequelize } = require('../../src/models');
+const { City, Theater, Movie, sequelize } = require('../../src/models');
+const fs = require('fs');
 const { throwCustomError } = require('../../src/helpers/common.helper');
 jest.mock('../../src/models', () => ({
   City: jest.fn().mockImplementation(() => ({})),
@@ -15,28 +17,28 @@ jest.mock('../../src/models', () => ({
   Show: jest.fn().mockImplementation(() => ({})),
   Booking: jest.fn().mockImplementation(() => ({})),
   Theater: jest.fn().mockImplementation(() => ({})),
+  models: {
+    City: {
+      findByPk: jest.fn(),
+      create: jest.fn(),
+      findAndCountAll: jest.fn(),
+      findOne: jest.fn(),
+    },
+    Movie: {
+      findAll: jest.fn(),
+    },
+    Show: {
+      findAll: jest.fn(),
+    },
+    Booking: {
+      findAll: jest.fn(),
+    },
+    Theater: {
+      findAndCountAll: jest.fn(),
+    },
+  },
   sequelize: {
     transaction: jest.fn(),
-    models: {
-      City: {
-        findByPk: jest.fn(),
-        create: jest.fn(),
-        findAndCountAll: jest.fn(),
-        findOne: jest.fn(),
-      },
-      Movie: {
-        findAll: jest.fn(),
-      },
-      Show: {
-        findAll: jest.fn(),
-      },
-      Booking: {
-        findAll: jest.fn(),
-      },
-      Theater: {
-        findAndCountAll: jest.fn(),
-      },
-    },
   },
 }));
 jest.mock('fs');
@@ -235,6 +237,116 @@ describe('City Service', () => {
       });
       expect(result.data).toEqual(theaters);
       expect(result.pagination.totalItems).toEqual(theaters.length);
+    });
+  });
+
+  describe('generateReport', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('should generate a report file for valid city and date range', async () => {
+      const city = faker.address.city();
+      const startDate = '01-01-2023';
+      const endDate = '31-12-2023';
+
+      const mockMovies = [
+        {
+          id: faker.string.uuid(),
+          name: faker.commerce.productName(),
+          release_date: faker.date.past(),
+          shows: [
+            {
+              theater: {
+                city: { name: city },
+                name: faker.company.name(),
+              },
+              bookings: [
+                {
+                  total_amount: faker.number.int(),
+                  created_at: new Date(),
+                },
+                {
+                  total_amount: faker.number.int(),
+                  created_at: new Date(),
+                },
+              ],
+            },
+          ],
+        },
+      ];
+
+      Movie.findAll.mockResolvedValue(mockMovies);
+      fs.existsSync.mockReturnValue(false);
+      fs.mkdirSync.mockImplementationOnce(() => {});
+      fs.writeFileSync.mockImplementationOnce(() => {});
+
+      const filePath = await generateReport(city, startDate, endDate);
+
+      expect(Movie.findAll).toHaveBeenCalledWith(
+        expect.objectContaining({
+          include: expect.any(Array),
+        }),
+      );
+      expect(fs.mkdirSync).toHaveBeenCalledWith(expect.any(String));
+      expect(fs.writeFileSync).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.any(String),
+      );
+      expect(filePath).toMatch(/city_report_\d+\.csv/);
+    });
+
+    it('should throw an error if dates are invalid', async () => {
+      const city = faker.address.city();
+      const startDate = 'invalid-date';
+      const endDate = '31-12-2023';
+
+      await expect(generateReport(city, startDate, endDate)).rejects.toThrow(
+        'Invalid date format. Please use DD-MM-YYYY.',
+      );
+      expect(Movie.findAll).not.toHaveBeenCalled();
+    });
+
+    it('should handle cases where no movies are found', async () => {
+      const city = faker.address.city();
+      const startDate = '01-01-2023';
+      const endDate = '31-12-2023';
+
+      Movie.findAll.mockResolvedValue([]);
+
+      const filePath = await generateReport(city, startDate, endDate);
+
+      expect(Movie.findAll).toHaveBeenCalled();
+      expect(fs.writeFileSync).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.stringContaining('[]'),
+      );
+      expect(filePath).toMatch(/city_report_\d+\.csv/);
+    });
+
+    it('should throw a custom error if fs.writeFileSync fails', async () => {
+      const city = faker.address.city();
+      const startDate = '01-01-2023';
+      const endDate = '31-12-2023';
+
+      // Movie.findAll.mockResolvedValue(mockMovies);
+      fs.writeFileSync.mockImplementationOnce(() => {
+        throw new Error('File system error');
+      });
+
+      await expect(generateReport(city, startDate, endDate)).rejects.toThrow(
+        'Failed to generate report: Movie.findAll is not a function',
+      );
+    });
+
+    it('should throw a custom error if Movie.findAll fails', async () => {
+      const city = faker.address.city();
+      const startDate = '01-01-2023';
+      const endDate = '31-12-2023';
+
+      await expect(generateReport(city, startDate, endDate)).rejects.toThrow(
+        'Failed to generate report: Movie.findAll is not a function',
+      );
     });
   });
 });

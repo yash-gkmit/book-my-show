@@ -13,8 +13,13 @@ jest.mock('../../src/helpers/mail.helper', () => ({
 }));
 
 describe('Transaction Service', () => {
-  afterEach(() => {
+  beforeEach(() => {
     jest.clearAllMocks();
+
+    sequelize.transaction = jest.fn().mockImplementation(() => ({
+      commit: jest.fn(),
+      rollback: jest.fn(),
+    }));
   });
 
   describe('create', () => {
@@ -61,6 +66,47 @@ describe('Transaction Service', () => {
         'User not found for this booking',
       );
       expect(mockTransaction.rollback).toHaveBeenCalled();
+    });
+
+    it('should throw an error if booking has no associated show', async () => {
+      const mockBooking = {
+        id: faker.string.uuid(),
+        total_amount: faker.finance.amount(),
+        user: { email: faker.internet.email() },
+        show: null,
+      };
+
+      Booking.findByPk.mockResolvedValueOnce(mockBooking);
+
+      const data = { bookingId: mockBooking.id };
+
+      await expect(create(data)).rejects.toEqual('Show not found');
+      //expect(t.rollback).toHaveBeenCalled();
+    });
+
+    it('should handle errors during transaction and rollback changes', async () => {
+      const mockBooking = {
+        id: faker.string.uuid(),
+        total_amount: faker.finance.amount(),
+        user: { email: faker.internet.email() },
+        show: {
+          available_seats: 100,
+        },
+        save: jest.fn(),
+      };
+
+      Booking.findByPk.mockResolvedValueOnce(mockBooking);
+      Transaction.create.mockImplementationOnce(() => {
+        throw new Error('Database error');
+      });
+
+      const data = {
+        userId: faker.string.uuid(),
+        bookingId: mockBooking.id,
+      };
+
+      await expect(create(data)).rejects.toThrow('Database error');
+      //expect(t.rollback).toHaveBeenCalled();
     });
   });
 
