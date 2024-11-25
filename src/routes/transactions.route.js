@@ -17,6 +17,7 @@ router.post(
 router.get(
   '/',
   authMiddleware,
+  rbacMiddleware(['Admin']),
   transactionController.fetchAll,
   transactionsSerialize.serialize,
   commonHelper.responseHandler,
@@ -25,6 +26,7 @@ router.get(
 router.get(
   '/:id',
   authMiddleware,
+  rbacMiddleware(['Customer'], true),
   transactionController.fetch,
   transactionsSerialize.serialize,
   commonHelper.responseHandler,

@@ -4,6 +4,7 @@ const { authMiddleware } = require('../middlewares/auth.middleware');
 const { rbacMiddleware } = require('../middlewares/rbac.middleware');
 const commonHelper = require('../helpers/common.helper');
 const usersSerializer = require('../serializers/users.serializer');
+const usersValidator = require('../validators/users.validator');
 
 const router = express.Router();
 
@@ -41,10 +42,11 @@ router.get(
   commonHelper.responseHandler,
 );
 
-router.put(
+router.patch(
   '/:id',
   authMiddleware,
   rbacMiddleware(['Admin'], true),
+  usersValidator.updateValidation,
   usersController.change,
   usersSerializer.serialize,
   commonHelper.responseHandler,
