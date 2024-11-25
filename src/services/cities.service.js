@@ -6,9 +6,9 @@ const { parse } = require('json2csv');
 const path = require('path');
 const fs = require('fs');
 
-const create = async data => {
+const create = async payload => {
   const transaction = await sequelize.transaction();
-  const { name } = data;
+  const { name } = payload;
 
   try {
     const isCityExist = await City.findOne({
@@ -16,9 +16,9 @@ const create = async data => {
     });
 
     if (isCityExist) {
-      throwCustomError('City already exist!', 400);
+      throwCustomError('city already exist!', 400);
     }
-    const city = await City.create(data, { transaction });
+    const city = await City.create(payload, { transaction });
 
     await transaction.commit();
 
@@ -29,7 +29,8 @@ const create = async data => {
   }
 };
 
-const getAll = async (page = 1, limit = 10) => {
+const getAll = async payload => {
+  const { page = 1, limit = 10 } = payload;
   const offset = (page - 1) * limit;
 
   const cities = await City.findAndCountAll({
@@ -49,18 +50,22 @@ const getAll = async (page = 1, limit = 10) => {
   };
 };
 
-const get = async id => {
+const get = async payload => {
+  const { id } = payload;
   const city = await City.findByPk(id);
-  if (!city) throwCustomError('City not found', 404);
+  if (!city) throwCustomError('city not found', 404);
   return city;
 };
 
-const update = async (id, data) => {
+const update = async payload => {
   const transaction = await sequelize.transaction();
+
+  const { id } = payload.id;
+  const data = payload.data;
   try {
     const city = await City.findByPk(id, { transaction });
     if (!city) {
-      throwCustomError('City not found', 404);
+      throwCustomError('city not found', 404);
     }
 
     await city.update(data, { transaction });
@@ -72,8 +77,9 @@ const update = async (id, data) => {
   }
 };
 
-const remove = async id => {
+const remove = async payload => {
   const transaction = await sequelize.transaction();
+  const id = payload;
 
   try {
     const city = await City.findByPk(id, { transaction });
@@ -85,7 +91,7 @@ const remove = async id => {
     await city.destroy({ transaction });
 
     await transaction.commit();
-    return { message: 'City deleted successfully' };
+    return { message: 'city deleted successfully' };
   } catch (error) {
     await transaction.rollback();
     throw error;
@@ -208,8 +214,8 @@ const generateReport = async (city, startDate, endDate) => {
 
     return filePath;
   } catch (error) {
-    console.error('Error in generateCityReport:', error);
-    throwCustomError(`Failed to generate report: ${error.message}`);
+    console.error('error in generateCityReport:', error);
+    throwCustomError(`failed to generate report: ${error.message}`);
   }
 };
 

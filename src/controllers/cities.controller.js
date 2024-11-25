@@ -2,8 +2,9 @@ const cityService = require('../services/cities.service');
 const { errorHandler, throwCustomError } = require('../helpers/common.helper');
 
 const generate = async (req, res, next) => {
+  const payload = req.body;
   try {
-    const city = await cityService.create(req.body);
+    const city = await cityService.create(payload);
     res.message = 'City created successfully';
     res.data = city;
     res.statusCode = 201;
@@ -14,10 +15,10 @@ const generate = async (req, res, next) => {
 };
 
 const fetchAll = async (req, res, next) => {
-  const { page = 1, limit = 10 } = req.query;
+  const filters = req.query;
 
   try {
-    const cities = await cityService.getAll(page, limit);
+    const cities = await cityService.getAll(filters);
 
     if (!cities.data || cities.data.length === 0) {
       throwCustomError('No cities found', 404);
@@ -33,8 +34,10 @@ const fetchAll = async (req, res, next) => {
 };
 
 const fetch = async (req, res, next) => {
+  const id = req.params;
+
   try {
-    const city = await cityService.get(req.params.id);
+    const city = await cityService.get(id);
     res.message = 'Fetching specific city details';
     res.data = city;
     res.statusCode = 200;
@@ -45,8 +48,12 @@ const fetch = async (req, res, next) => {
 };
 
 const change = async (req, res, next) => {
+  const payload = {
+    id: req.params,
+    data: req.body,
+  };
   try {
-    const city = await cityService.update(req.params.id, req.body);
+    const city = await cityService.update(payload);
     res.message = 'City updated successfully';
     res.data = city;
     res.statusCode = 200;
@@ -57,8 +64,9 @@ const change = async (req, res, next) => {
 };
 
 const remove = async (req, res, next) => {
+  const { id } = req.params;
   try {
-    await cityService.remove(req.params.id);
+    await cityService.remove(id);
     res.statusCode = 200;
     next();
   } catch (error) {
@@ -77,9 +85,7 @@ const fetchTheaters = async (req, res, next) => {
       throwCustomError('No theaters found for the specified city.', 404);
     }
 
-    res.data = {
-      theaters,
-    };
+    res.data = theaters;
     res.message = 'Theater by city fetched successfully';
     res.statusCode = 200;
     next();
