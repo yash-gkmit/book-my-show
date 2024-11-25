@@ -5,7 +5,7 @@ const { errorHandler, throwCustomError } = require('../helpers/common.helper');
 const generate = async (req, res, next) => {
   try {
     const booking = await bookingService.create(req.user.id, req.body);
-    res.message = 'Booking Created successfully!';
+    res.message = 'Booking created successfully!';
     res.data = booking;
     res.statusCode = 201;
     next();
@@ -37,7 +37,7 @@ const fetch = async (req, res, next) => {
   try {
     const booking = await bookingService.get(req.params.id);
     res.message = 'Booking fetched by id successfully!';
-    res.data = { booking };
+    res.data = booking;
     res.statusCode = 200;
     next();
   } catch (error) {

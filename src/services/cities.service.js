@@ -167,15 +167,15 @@ const generateReport = async (city, startDate, endDate) => {
 
     const reportData = movies.flatMap(movie =>
       movie.shows.map(show => {
-        const cityName = show.theater?.city?.name || 'N/A';
-        const theaterName = show.theater?.name || 'N/A';
+        // const cityName = show.theater?.city?.name || 'N/A';
+        // const theaterName = show.theater?.name || 'N/A';
 
         return {
           movieId: movie.id,
           movieName: movie.name,
           releaseDate: movie.release_date,
-          cityName: cityName,
-          theaterName: theaterName,
+          // cityName: cityName,
+          // theaterName: theaterName,
           totalBookings: show.bookings.length,
           totalRevenue: show.bookings.reduce(
             (sum, booking) => sum + booking.total_amount,
@@ -189,8 +189,8 @@ const generateReport = async (city, startDate, endDate) => {
       'movieId',
       'movieName',
       'releaseDate',
-      'cityName',
-      'theaterName',
+      // 'cityName',
+      // 'theaterName',
       'totalBookings',
       'totalRevenue',
     ];
