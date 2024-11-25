@@ -15,10 +15,10 @@ const registerValidation = (req, res, next) => {
       'any.required': 'Password is required',
     }),
     phone: Joi.string()
-      .pattern(/^\d{10,15}$/)
+      .pattern(/^\d{10}$/)
       .required()
       .messages({
-        'string.pattern.base': 'Phone number must be between 10 and 15 digits',
+        'string.pattern.base': 'Phone number must be between 10 digit',
         'any.required': 'Phone number is required',
       }),
     roles: Joi.array()
