@@ -7,6 +7,7 @@ const {
   sequelize,
   Theater,
 } = require('../models');
+const { Op } = require('sequelize');
 const { sendTransactionEmail } = require('../helpers/mail.helper');
 const { throwCustomError } = require('../helpers/common.helper');
 
