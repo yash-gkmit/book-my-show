@@ -30,7 +30,7 @@ router.get(
   commonHelper.responseHandler,
 );
 
-router.get(
+router.post(
   '/reports',
   authMiddleware,
   rbacMiddleware(['Admin']),
