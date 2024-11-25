@@ -1,28 +1,47 @@
+version: '3.9'
+
 services:
   nodeapp:
     build:
       context: .
     container_name: book_my_show
     ports:
-      - '5000:3000'
+      - '3000:3000'
     depends_on:
       - postgres
       - redis
+    environment:
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_USER: pgsql
+      DATABASE_PASSWORD: 12345678
+      DATABASE_NAME: book_my_show
 
   postgres:
     image: postgres
     container_name: bms_postgres
     environment:
-      - POSTGRES_USER=${DB_USERNAME}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      POSTGRES_USER: pgsql
+      POSTGRES_PASSWORD: 12345678
+      POSTGRES_DB: book_my_show
     volumes:
       - './data:/var/lib/postgresql/data'
       - './dumps:/dumps'
     ports:
       - '5432:5432'
+    # healthcheck:
+    #   test: ['CMD-SHELL', 'pg_isready -U pgsql -d book_my_show']
+    #   interval: 10s
+    #   timeout: 5s
+    #   retries: 5
 
   redis:
     image: redis:alpine
     container_name: bms_redis
     ports:
-      - 6379:6379
+      - '6379:6379'
+    # healthcheck:
+    #   test: ['CMD', 'redis-cli', 'ping']
+    #   interval: 10s
+    #   timeout: 5s
+    #   retries: 5
