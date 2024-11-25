@@ -2,9 +2,10 @@ const theaterService = require('../services/theaters.service');
 const { errorHandler, throwCustomError } = require('../helpers/common.helper');
 
 const generate = async (req, res, next) => {
+  const data = req.body;
   try {
-    const theater = await theaterService.create(req.body);
-    res.message = 'Theaters created successfully!';
+    const theater = await theaterService.create(data);
+    res.message = 'theaters created successfully!';
     res.data = theater;
     res.statusCode = 201;
     next();
@@ -14,8 +15,9 @@ const generate = async (req, res, next) => {
 };
 
 const fetchAll = async (req, res, next) => {
+  const filters = req.query;
   try {
-    const theaters = await theaterService.getAll();
+    const theaters = await theaterService.getAll(filters);
     res.data = theaters;
     res.statusCode = 200;
     next();
@@ -25,8 +27,10 @@ const fetchAll = async (req, res, next) => {
 };
 
 const fetch = async (req, res, next) => {
+  const id = req.params;
+
   try {
-    const theater = await theaterService.get(req.params.id);
+    const theater = await theaterService.get(id);
     res.data = theater;
     res.statusCode = 200;
     next();
@@ -36,10 +40,15 @@ const fetch = async (req, res, next) => {
 };
 
 const change = async (req, res, next) => {
+  const payload = {
+    id: req.params,
+    data: req.body,
+  };
+
   try {
-    const theater = await theaterService.update(req.params.id, req.body);
+    const theater = await theaterService.update(payload);
     res.data = theater;
-    res.message = 'Theater updated successfully!';
+    res.message = 'theater updated successfully!';
     res.statusCode = 200;
     next();
   } catch (error) {
@@ -48,8 +57,10 @@ const change = async (req, res, next) => {
 };
 
 const remove = async (req, res, next) => {
+  const id = req.params;
+
   try {
-    await theaterService.remove(req.params.id);
+    await theaterService.remove(id);
     res.statusCode = 204;
     next();
   } catch (error) {
@@ -65,7 +76,7 @@ const fetchMovies = async (req, res, next) => {
     const movies = await theaterService.getMovies(id, page, limit);
 
     if (!movies || movies.data.length === 0) {
-      throwCustomError('No movies found for the specified theater.', 404);
+      throwCustomError('no movies found for the specified theater.', 404);
     }
 
     res.data = movies;
