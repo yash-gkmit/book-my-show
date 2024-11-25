@@ -7,5 +7,8 @@ COPY package*.json ./
 RUN npm install
 
 COPY . .
+RUN chmod +x entrypoint.sh
 
-ENTRYPOINT ["node", "index.js"] 
+EXPOSE 3000
+
+ENTRYPOINT ["sh","-c","./entrypoint.sh"]
