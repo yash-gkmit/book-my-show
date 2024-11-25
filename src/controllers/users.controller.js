@@ -4,33 +4,36 @@ const { errorHandler, responseHandler } = require('../helpers/common.helper');
 const fetchCurrent = async (req, res, next) => {
   try {
     res.data = req.user;
-    res.message = 'Current user details';
+    res.message = 'current user details';
     res.statusCode = 200;
     next();
   } catch (error) {
     errorHandler(req, res, error, err.statusCode || 400);
   }
 };
+
 const fetchAll = async (req, res, next) => {
-  const { page = 1, limit = 10 } = req.query;
+  const query = req.query;
 
   try {
-    const users = await userService.getAll(page, limit);
+    const users = await userService.getAll(query);
 
-    res.message = 'Users details fetched Successfully!';
+    res.message = 'users details fetched Successfully!';
     res.data = users;
     res.statusCode = 200;
     next();
   } catch (error) {
-    console.error('Error fetching users:', error);
+    console.error('error fetching users:', error);
     errorHandler(req, res, error, 404);
   }
 };
+
 const fetch = async (req, res, next) => {
+  const { id } = req.params;
   try {
-    const user = await userService.get(req.params.id);
+    const user = await userService.get({ id });
     if (!user) {
-      return errorHandler(req, res, 'User not found', 404);
+      return errorHandler(req, res, 'user not found', 404);
     }
     res.data = user;
     res.statusCode = 200;
@@ -41,100 +44,96 @@ const fetch = async (req, res, next) => {
 };
 
 const change = async (req, res, next) => {
-  const userId = req.params.id;
-  const userData = req.body;
+  const payload = {
+    id: req.params.id,
+    data: req.body,
+  };
 
   try {
-    const updatedUser = await userService.update(userId, userData);
-    res.message = 'User updated successfully!';
+    const updatedUser = await userService.update(payload);
+    res.message = 'user updated successfully!';
     res.data = updatedUser;
     res.statusCode = 200;
     next();
   } catch (error) {
-    if (error.message === 'User not found') {
-      return errorHandler(req, res, 'User not found', 404);
+    if (error.message === 'user not found') {
+      return errorHandler(req, res, 'user not found', 404);
     }
     errorHandler(req, res, error, 400);
   }
 };
 
 const remove = async (req, res) => {
+  const { id } = req.params;
   try {
-    await userService.remove(req.params.id);
-    res.message = 'User soft deleted successfully';
+    await userService.remove({ id });
+    res.message = 'user deleted successfully';
     res.statusCode = 200;
     responseHandler(req, res);
   } catch (error) {
     console.log(error);
-    if (error.message === 'User not found') {
-      return errorHandler(req, res, 'User not found', 404);
+    if (error.message === 'user not found') {
+      return errorHandler(req, res, 'user not found', 404);
     }
     errorHandler(req, res, error, 400);
   }
 };
 
 const getBookings = async (req, res, next) => {
-  const { id } = req.params;
-  const { page = 1, limit = 10, filters = {} } = req.query;
+  const payload = {
+    id: req.params,
+    filters: req.query,
+  };
+
   try {
-    const result = await userService.getBookings(
-      id,
-      filters,
-      parseInt(page),
-      parseInt(limit),
-    );
-    res.message = 'Fetch users booking details successfully!';
+    const result = await userService.getBookings(payload);
+    res.message = 'fetch users booking details successfully!';
     res.data = result;
     res.statusCode = 200;
     next();
   } catch (error) {
-    console.error('Error fetching bookings:', error);
-    errorHandler(req, res, 'An error occurred while fetching bookings.', 400);
+    console.error('error fetching bookings:', error);
+    errorHandler(req, res, 'an error occurred while fetching bookings.', 400);
   }
 };
 
 const getTransactions = async (req, res, next) => {
-  const { id } = req.params;
-  const { page = 1, limit = 10, filters = {} } = req.query;
-  try {
-    const result = await userService.getTransactions(
-      id,
-      filters,
-      parseInt(page),
-      parseInt(limit),
-    );
+  const payload = {
+    id: req.params,
+    filters: req.query,
+  };
 
-    res.message = 'Transaction of specific user fetched successfully!';
+  try {
+    const result = await userService.getTransactions(payload);
+
+    res.message = 'transaction of specific user fetched successfully!';
     res.data = result;
     res.statusCode = 200;
     next();
   } catch (error) {
-    console.error('Error fetching bookings:', error);
+    console.error('error fetching bookings:', error);
     return res.status(400).json({
-      message: 'An error occurred while fetching bookings.',
+      message: 'an error occurred while fetching bookings.',
       error: error,
     });
   }
 };
 
 const fetchReports = async (req, res, next) => {
-  const { page = 1, limit = 10 } = req.query;
+  const filters = req.query;
 
   try {
-    const parsedPage = parseInt(page, 10);
-    const parsedLimit = parseInt(limit, 10);
-
-    const data = await userService.getReports(parsedPage, parsedLimit);
+    const data = await userService.getReports(filters);
 
     res.data = {
       ...data,
-      page: parsedPage,
-      limit: parsedLimit,
+      page: parseInt(filters.page, 10),
+      limit: parseInt(filters.page, 10),
     };
 
     next();
   } catch (error) {
-    console.error('Error fetching reports:', error);
+    console.error('error fetching reports:', error);
     errorHandler(req, res, error, error.statusCode || 400);
   }
 };
