@@ -22,8 +22,9 @@ const register = async (req, res) => {
 };
 
 const sendOtp = async (req, res) => {
+  const email = req.body;
   try {
-    await authService.sendOtp(req.body.email);
+    await authService.sendOtp(email);
     res.message = `otp send successfully to ${req.body.email}`;
     res.statusCode = 200;
     return responseHandler(req, res);
@@ -33,8 +34,12 @@ const sendOtp = async (req, res) => {
 };
 
 const verifyOtp = async (req, res) => {
+  const payload = {
+    email: req.body.email,
+    otp: req.body.otp,
+  };
   try {
-    const result = await authService.verifyOtp(req.body.email, req.body.otp);
+    const result = await authService.verifyOtp(payload);
 
     res.message = 'OTP verified successfully!';
     res.data = result;
@@ -67,7 +72,7 @@ const logout = async (req, res) => {
       throwCustomError('Token is required for logout', 401);
     }
 
-    await authService.logout(token);
+    await authService.logout({ token });
 
     res.message = 'Successfully logged out';
     res.statusCode = 200;

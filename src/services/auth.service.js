@@ -52,7 +52,9 @@ const register = async payload => {
   }
 };
 
-const sendOtp = async email => {
+const sendOtp = async payload => {
+  const { email } = payload;
+
   const emailExist = await User.findOne({
     where: { email: email },
   });
@@ -67,7 +69,9 @@ const sendOtp = async email => {
   await sendOtpEmail(email, otp);
 };
 
-const verifyOtp = async (email, otp) => {
+const verifyOtp = async payload => {
+  const { email, otp } = payload;
+
   const user = await User.findOne({
     where: { email: email },
   });
@@ -111,7 +115,8 @@ const login = async payload => {
   return { token };
 };
 
-const logout = async token => {
+const logout = async payload => {
+  const { token } = payload;
   const decodedToken = jwt.decode(token);
   if (!decodedToken) {
     throwCustomError('Invalid token', 401);
