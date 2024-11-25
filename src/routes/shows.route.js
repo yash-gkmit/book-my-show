@@ -9,11 +9,12 @@ const {
 const { rbacMiddleware } = require('../middlewares/rbac.middleware');
 const commonHelper = require('../helpers/common.helper');
 const showsSerializer = require('../serializers/shows.serializer');
+const { THEATER_OWNER } = require('../constants/roles.constant.js').roles;
 
 router.post(
   '/',
   authMiddleware,
-  rbacMiddleware(['Theater Owner']),
+  rbacMiddleware([THEATER_OWNER]),
   createValidation,
   showController.generate,
   showsSerializer.serialize,
@@ -39,7 +40,7 @@ router.get(
 router.patch(
   '/:id',
   authMiddleware,
-  rbacMiddleware(['Theater Owner']),
+  rbacMiddleware([THEATER_OWNER]),
   updateValidation,
   showController.change,
   showsSerializer.serialize,
@@ -49,7 +50,7 @@ router.patch(
 router.delete(
   '/:id',
   authMiddleware,
-  rbacMiddleware(['Theater Owner', 'Admin']),
+  rbacMiddleware([THEATER_OWNER]),
   showController.remove,
   commonHelper.responseHandler,
 );

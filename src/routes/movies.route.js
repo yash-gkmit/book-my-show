@@ -10,11 +10,13 @@ const {
 } = require('../validators/movies.validator');
 const commonHelper = require('../helpers/common.helper.js');
 const moviesSerializer = require('../serializers/movies.serializer');
+const { THEATER_OWNER, ADMIN } =
+  require('../constants/roles.constant.js').roles;
 
 router.post(
   '/',
   authMiddleware,
-  rbacMiddleware(['Theater Owner']),
+  rbacMiddleware([THEATER_OWNER]),
   upload.fields([
     { name: 'poster', maxCount: 1 },
     { name: 'trailer', maxCount: 1 },
@@ -36,7 +38,7 @@ router.get(
 router.post(
   '/reports',
   authMiddleware,
-  rbacMiddleware(['Admin']),
+  rbacMiddleware([ADMIN]),
   moviesController.fetchReport,
   moviesSerializer.serialize,
   commonHelper.responseHandler,
@@ -53,7 +55,7 @@ router.get(
 router.patch(
   '/:id',
   authMiddleware,
-  rbacMiddleware(['Theater Owner']),
+  rbacMiddleware([THEATER_OWNER]),
   updateValidation,
   moviesController.change,
   moviesSerializer.serialize,
@@ -63,7 +65,7 @@ router.patch(
 router.delete(
   '/:id',
   authMiddleware,
-  rbacMiddleware(['Admin', 'Theater Owner']),
+  rbacMiddleware([ADMIN, THEATER_OWNER]),
   moviesController.remove,
   commonHelper.responseHandler,
 );
@@ -71,7 +73,7 @@ router.delete(
 router.get(
   '/:id/theaters',
   authMiddleware,
-  rbacMiddleware(['Admin', 'Theater Owner']),
+  rbacMiddleware([ADMIN, THEATER_OWNER]),
   moviesController.getTheatersByMovieId,
   moviesSerializer.theaterSerialize,
   commonHelper.responseHandler,

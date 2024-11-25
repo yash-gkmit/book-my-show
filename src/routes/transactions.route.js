@@ -5,6 +5,7 @@ const { authMiddleware } = require('../middlewares/auth.middleware');
 const { rbacMiddleware } = require('../middlewares/rbac.middleware');
 const commonHelper = require('../helpers/common.helper');
 const transactionsSerialize = require('../serializers/transactions.serializer');
+const { CUSTOMER, ADMIN } = require('../constants/roles.constant.js').roles;
 
 router.post(
   '/',
@@ -17,7 +18,7 @@ router.post(
 router.get(
   '/',
   authMiddleware,
-  rbacMiddleware(['Admin']),
+  rbacMiddleware([ADMIN]),
   transactionController.fetchAll,
   transactionsSerialize.serialize,
   commonHelper.responseHandler,
@@ -26,7 +27,7 @@ router.get(
 router.get(
   '/:id',
   authMiddleware,
-  rbacMiddleware(['Customer'], true),
+  rbacMiddleware([CUSTOMER], true),
   transactionController.fetch,
   transactionsSerialize.serialize,
   commonHelper.responseHandler,
@@ -35,7 +36,7 @@ router.get(
 router.delete(
   '/:id',
   authMiddleware,
-  rbacMiddleware(['Admin'], true),
+  rbacMiddleware([ADMIN], true),
   transactionController.remove,
   commonHelper.responseHandler,
 );

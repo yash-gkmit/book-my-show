@@ -10,11 +10,13 @@ const {
 
 const commonHelper = require('../helpers/common.helper');
 const theatersSerializer = require('../serializers/theaters.serializer');
+const { THEATER_OWNER, ADMIN } =
+  require('../constants/roles.constant.js').roles;
 
 router.post(
   '/',
   authMiddleware,
-  rbacMiddleware(['Admin']),
+  rbacMiddleware([ADMIN]),
   createValidation,
   theaterController.generate,
   theatersSerializer.serialize,
@@ -24,7 +26,7 @@ router.post(
 router.get(
   '/',
   authMiddleware,
-  rbacMiddleware(['Admin']),
+  rbacMiddleware([ADMIN]),
   theaterController.fetchAll,
   theatersSerializer.serialize,
   commonHelper.responseHandler,
@@ -33,7 +35,7 @@ router.get(
 router.post(
   '/reports',
   authMiddleware,
-  rbacMiddleware(['Admin']),
+  rbacMiddleware([ADMIN]),
   theaterController.fetchReports,
   commonHelper.responseHandler,
 );
@@ -41,7 +43,7 @@ router.post(
 router.get(
   '/:id',
   authMiddleware,
-  rbacMiddleware(['Admin', 'Theater Owner']),
+  rbacMiddleware([ADMIN, THEATER_OWNER]),
   theaterController.fetch,
   theatersSerializer.serialize,
   commonHelper.responseHandler,
@@ -50,7 +52,7 @@ router.get(
 router.patch(
   '/:id',
   authMiddleware,
-  rbacMiddleware(['Theater Owner']),
+  rbacMiddleware([ADMIN, THEATER_OWNER]),
   updateValidation,
   theaterController.change,
   theatersSerializer.serialize,
@@ -60,7 +62,7 @@ router.patch(
 router.delete(
   '/:id',
   authMiddleware,
-  rbacMiddleware(['Admin', 'Theater Owner']),
+  rbacMiddleware([ADMIN, THEATER_OWNER]),
   theaterController.remove,
   commonHelper.responseHandler,
 );
