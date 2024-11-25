@@ -5,6 +5,7 @@ const { rbacMiddleware } = require('../middlewares/rbac.middleware');
 const commonHelper = require('../helpers/common.helper');
 const usersSerializer = require('../serializers/users.serializer');
 const usersValidator = require('../validators/users.validator');
+const { ADMIN } = require('../constants/roles.constant.js').roles;
 
 const router = express.Router();
 
@@ -19,7 +20,7 @@ router.get(
 router.get(
   '/',
   authMiddleware,
-  rbacMiddleware(['Admin']),
+  rbacMiddleware([ADMIN]),
   usersController.fetchAll,
   usersSerializer.serialize,
   commonHelper.responseHandler,
@@ -28,7 +29,7 @@ router.get(
 router.post(
   '/reports',
   authMiddleware,
-  rbacMiddleware(['Admin']),
+  rbacMiddleware([ADMIN]),
   usersController.fetchReports,
   commonHelper.responseHandler,
 );
@@ -36,7 +37,7 @@ router.post(
 router.get(
   '/:id',
   authMiddleware,
-  rbacMiddleware(['Admin']),
+  rbacMiddleware([ADMIN]),
   usersController.fetch,
   usersSerializer.serialize,
   commonHelper.responseHandler,
@@ -45,7 +46,7 @@ router.get(
 router.patch(
   '/:id',
   authMiddleware,
-  rbacMiddleware(['Admin'], true),
+  rbacMiddleware([ADMIN], true),
   usersValidator.updateValidation,
   usersController.change,
   usersSerializer.serialize,
@@ -55,14 +56,14 @@ router.patch(
 router.delete(
   '/:id',
   authMiddleware,
-  rbacMiddleware(['Admin'], true),
+  rbacMiddleware([ADMIN], true),
   usersController.remove,
 );
 
 router.get(
   '/:id/bookings',
   authMiddleware,
-  rbacMiddleware(['Admin']),
+  rbacMiddleware([ADMIN]),
   usersController.getBookings,
   usersSerializer.bookingSerialize,
   commonHelper.responseHandler,
@@ -71,7 +72,7 @@ router.get(
 router.get(
   '/:id/transactions',
   authMiddleware,
-  rbacMiddleware(['Admin']),
+  rbacMiddleware([ADMIN]),
   usersController.getTransactions,
   usersSerializer.bookingSerialize,
   commonHelper.responseHandler,

@@ -10,6 +10,8 @@ const { authMiddleware } = require('../middlewares/auth.middleware');
 const { rbacMiddleware } = require('../middlewares/rbac.middleware');
 const commonHandler = require('../helpers/common.helper');
 const bookingsSerializer = require('../serializers/bookings.serializer');
+const { ADMIN, THEATER_OWNER } =
+  require('../constants/roles.constant.js').roles;
 
 router.post(
   '/',
@@ -30,7 +32,7 @@ router.get(
 router.post(
   '/reports',
   authMiddleware,
-  rbacMiddleware(['Admin']),
+  rbacMiddleware([ADMIN]),
   bookingController.fetchReports,
   commonHandler.responseHandler,
 );
@@ -38,7 +40,7 @@ router.post(
 router.get(
   '/:id',
   authMiddleware,
-  rbacMiddleware(['Admin', 'Theater Owner']),
+  rbacMiddleware([ADMIN, THEATER_OWNER]),
   bookingController.fetch,
   bookingsSerializer.serialize,
   commonHandler.responseHandler,
@@ -56,7 +58,7 @@ router.patch(
 router.delete(
   '/:id',
   authMiddleware,
-  rbacMiddleware(['Admin'], true),
+  rbacMiddleware([ADMIN], true),
   bookingController.remove,
   commonHandler.responseHandler,
 );
