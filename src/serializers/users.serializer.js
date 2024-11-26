@@ -3,22 +3,22 @@ const serialize = (req, res, next) => {
   let response = [];
 
   if (!users) {
-    users = [res.data];
+    users = [res?.data];
   }
 
   for (const user of users) {
     const data = {};
-    data.id = user.id;
-    data.name = user.name;
-    data.email = user.email;
-    data.phone = user.phone;
-    data.createdAt = user.created_at;
-    data.updatedAt = user.updated_at;
+    data.id = user?.id;
+    data.name = user?.name;
+    data.email = user?.email;
+    data.phone = user?.phone;
+    data.createdAt = user?.created_at;
+    data.updatedAt = user?.updated_at;
 
     response.push(data);
   }
 
-  if (!res.data.users) {
+  if (!res?.data?.users) {
     res.data = response[0];
   } else {
     res.data.users = response;

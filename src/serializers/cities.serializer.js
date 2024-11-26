@@ -96,7 +96,7 @@ const theaterSerialize = (req, res, next) => {
         updatedAt: theater?.updated_at,
       }));
     }
-    res.pagination = theaters.pagination;
+    res.pagination = pagination;
   }
   res.data = response;
 
