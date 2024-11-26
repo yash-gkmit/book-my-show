@@ -1,7 +1,7 @@
 const cityService = require('../services/cities.service');
 const { errorHandler, throwCustomError } = require('../helpers/common.helper');
 
-const generate = async (req, res, next) => {
+const create = async (req, res, next) => {
   const payload = req.body;
   try {
     const city = await cityService.create(payload);
@@ -14,7 +14,7 @@ const generate = async (req, res, next) => {
   }
 };
 
-const fetchAll = async (req, res, next) => {
+const getAll = async (req, res, next) => {
   const filters = req.query;
 
   try {
@@ -33,7 +33,7 @@ const fetchAll = async (req, res, next) => {
   }
 };
 
-const fetch = async (req, res, next) => {
+const get = async (req, res, next) => {
   const id = req.params;
 
   try {
@@ -47,7 +47,7 @@ const fetch = async (req, res, next) => {
   }
 };
 
-const change = async (req, res, next) => {
+const update = async (req, res, next) => {
   const payload = {
     id: req.params,
     data: req.body,
@@ -74,13 +74,13 @@ const remove = async (req, res, next) => {
   }
 };
 
-const fetchTheaters = async (req, res, next) => {
+const getTheaters = async (req, res, next) => {
   const { id } = req.params;
   const { page = 1, limit = 10 } = req.query;
 
   try {
     const theaters = await cityService.getTheaters(id, page, limit);
-
+    console.log(theaters);
     if (!theaters.data.length) {
       throwCustomError('No theaters found for the specified city.', 404);
     }
@@ -94,7 +94,7 @@ const fetchTheaters = async (req, res, next) => {
   }
 };
 
-const fetchReport = async (req, res, next) => {
+const getReport = async (req, res, next) => {
   try {
     const { city, startDate, endDate } = req.query;
 
@@ -102,7 +102,7 @@ const fetchReport = async (req, res, next) => {
       throwCustomError('City Not found');
     }
 
-    const filePath = await cityService.generateReport(city, startDate, endDate);
+    const filePath = await cityService.getReport(city, startDate, endDate);
 
     res.data = {
       filePath: filePath,
@@ -120,11 +120,11 @@ const fetchReport = async (req, res, next) => {
 };
 
 module.exports = {
-  generate,
-  fetchAll,
-  fetch,
-  change,
+  create,
+  getAll,
+  get,
+  update,
   remove,
-  fetchTheaters,
-  fetchReport,
+  getTheaters,
+  getReport,
 };

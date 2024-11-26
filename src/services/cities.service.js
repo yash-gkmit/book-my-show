@@ -1,4 +1,4 @@
-const { City, Movie, Show, Booking, Theater, sequelize } = require('../models');
+const { City, Movie, Show, Booking, Theater } = require('../models');
 const { throwCustomError } = require('../helpers/common.helper');
 const moment = require('moment');
 const { Op } = require('sequelize');
@@ -7,26 +7,18 @@ const path = require('path');
 const fs = require('fs');
 
 const create = async payload => {
-  const transaction = await sequelize.transaction();
   const { name } = payload;
 
-  try {
-    const isCityExist = await City.findOne({
-      where: { name: name },
-    });
+  const isCityExist = await City.findOne({
+    where: { name: name },
+  });
 
-    if (isCityExist) {
-      throwCustomError('city already exist!', 400);
-    }
-    const city = await City.create(payload, { transaction });
-
-    await transaction.commit();
-
-    return city;
-  } catch (error) {
-    await transaction.rollback();
-    throwCustomError(error);
+  if (isCityExist) {
+    throwCustomError('City already exist!', 400);
   }
+  const city = await City.create(payload);
+
+  return city;
 };
 
 const getAll = async payload => {
@@ -53,49 +45,33 @@ const getAll = async payload => {
 const get = async payload => {
   const { id } = payload;
   const city = await City.findByPk(id);
-  if (!city) throwCustomError('city not found', 404);
+  if (!city) throwCustomError('City not found', 404);
   return city;
 };
 
 const update = async payload => {
-  const transaction = await sequelize.transaction();
-
   const { id } = payload.id;
   const data = payload.data;
-  try {
-    const city = await City.findByPk(id, { transaction });
-    if (!city) {
-      throwCustomError('city not found', 404);
-    }
-
-    await city.update(data, { transaction });
-    await transaction.commit();
-    return city;
-  } catch (error) {
-    await transaction.rollback();
-    throwCustomError(error);
+  const city = await City.findByPk(id, { transaction });
+  if (!city) {
+    throwCustomError('City not found', 404);
   }
+
+  await city.update(data, { transaction });
+  await transaction.commit();
+  return city;
 };
 
 const remove = async payload => {
-  const transaction = await sequelize.transaction();
   const id = payload;
 
-  try {
-    const city = await City.findByPk(id, { transaction });
-    if (!city) {
-      await transaction.rollback();
-      throwCustomError('City not found', 404);
-    }
-
-    await city.destroy({ transaction });
-
-    await transaction.commit();
-    return { message: 'city deleted successfully' };
-  } catch (error) {
+  const city = await City.findByPk(id, { transaction });
+  if (!city) {
     await transaction.rollback();
-    throw error;
+    throwCustomError('City not found', 404);
   }
+
+  await city.destroy();
 };
 
 const getTheaters = async (id, page = 1, limit = 10) => {
@@ -107,6 +83,7 @@ const getTheaters = async (id, page = 1, limit = 10) => {
     offset,
   });
 
+  console.log(theaters);
   return {
     data: theaters.rows,
     pagination: {
@@ -173,15 +150,10 @@ const generateReport = async (city, startDate, endDate) => {
 
     const reportData = movies.flatMap(movie =>
       movie.shows.map(show => {
-        // const cityName = show.theater?.city?.name || 'N/A';
-        // const theaterName = show.theater?.name || 'N/A';
-
         return {
           movieId: movie.id,
           movieName: movie.name,
           releaseDate: movie.release_date,
-          // cityName: cityName,
-          // theaterName: theaterName,
           totalBookings: show.bookings.length,
           totalRevenue: show.bookings.reduce(
             (sum, booking) => sum + booking.total_amount,
@@ -195,8 +167,6 @@ const generateReport = async (city, startDate, endDate) => {
       'movieId',
       'movieName',
       'releaseDate',
-      // 'cityName',
-      // 'theaterName',
       'totalBookings',
       'totalRevenue',
     ];
