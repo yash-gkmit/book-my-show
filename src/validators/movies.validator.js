@@ -1,4 +1,5 @@
 const Joi = require('joi');
+const commonHelper = require('../helpers/common.helper');
 
 const createValidation = (req, res, next) => {
   const schema = Joi.object({
@@ -47,9 +48,12 @@ const createValidation = (req, res, next) => {
   const { error } = schema.validate(req.body);
 
   if (error) {
-    return res.status(400).json({
-      message: error.details[0].message,
-    });
+    commonHelper.errorHandler(
+      req,
+      res,
+      `Validation failed: ${error.details[0].message}`,
+      400,
+    );
   }
 
   next();
@@ -80,9 +84,12 @@ const updateValidation = (req, res, next) => {
   const { error } = schema.validate(req.body);
 
   if (error) {
-    return res.status(400).json({
-      message: error.details[0].message,
-    });
+    commonHelper.errorHandler(
+      req,
+      res,
+      `Validation failed: ${error.details[0].message}`,
+      400,
+    );
   }
 
   next();
