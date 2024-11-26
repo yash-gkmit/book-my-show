@@ -7,7 +7,14 @@ const {
   generateReport,
   getTheatersByMovie,
 } = require('../../src/services/movies.service');
-const { Movie, Theater, TheaterMovie, sequelize } = require('../../src/models');
+const {
+  Movie,
+  Theater,
+  TheaterMovie,
+  Show,
+  Booking,
+  sequelize,
+} = require('../../src/models');
 const { faker } = require('@faker-js/faker');
 jest.mock('fs');
 jest.mock('path');
@@ -64,7 +71,14 @@ describe('Movie Service', () => {
     it('should create a movie with associated theaters', async () => {
       const movieData = {
         name: faker.lorem.words(),
-        release_date: faker.date.future(),
+        releaseDate: faker.date.future(),
+        poster: faker.image.image(),
+        trailer: faker.internet.url(),
+        summary: faker.lorem.paragraph(),
+        genre: faker.lorem.word(),
+        language: faker.lorem.word(),
+        castMemberList: [faker.name.firstName(), faker.name.firstName()],
+        category: faker.lorem.word(),
       };
       const theaterIds = [1, 2, 3];
       const mockTransaction = { commit: jest.fn(), rollback: jest.fn() };
@@ -94,7 +108,7 @@ describe('Movie Service', () => {
     it('should rollback the transaction if an error occurs', async () => {
       const movieData = {
         name: faker.lorem.words(),
-        release_date: faker.date.future(),
+        releaseDate: faker.date.future(),
       };
       const mockTransaction = { commit: jest.fn(), rollback: jest.fn() };
 
@@ -107,7 +121,7 @@ describe('Movie Service', () => {
   });
 
   describe('getAll', () => {
-    it('should return paginated movies', async () => {
+    it('should return paginated movies with filters', async () => {
       const movies = Array.from({ length: 3 }, () => ({
         id: faker.string.numeric(),
         name: faker.lorem.words(),
@@ -124,10 +138,13 @@ describe('Movie Service', () => {
       });
 
       expect(result).toEqual({
-        currentPage: 1,
-        totalPages: 2,
-        totalRecords: 3,
         data: movies,
+        pagination: {
+          totalItems: 3,
+          currentPage: 1,
+          itemsPerPage: 2,
+          totalPages: 2,
+        },
       });
     });
   });
@@ -135,18 +152,20 @@ describe('Movie Service', () => {
   describe('get', () => {
     it('should return a movie by ID with theaters', async () => {
       const movie = { id: 1, name: faker.lorem.words() };
+
+      // Mock Movie.findByPk instead of Movie.findOne
       Movie.findByPk.mockResolvedValue(movie);
 
       const result = await get(1);
 
-      expect(Movie.findByPk).toHaveBeenCalledWith(1, {
-        include: {
-          model: Theater,
-          as: 'theaters',
-          through: { attributes: [] },
-        },
-      });
+      expect(Movie.findByPk).toHaveBeenCalledWith(1); // Check that findByPk is called with the correct id
       expect(result).toEqual(movie);
+    });
+
+    it('should throw an error if movie not found', async () => {
+      Movie.findByPk.mockResolvedValue(null); // Simulate movie not found
+
+      await expect(get(1)).rejects.toEqual('movie not exist with that id!');
     });
   });
 
@@ -189,27 +208,13 @@ describe('Movie Service', () => {
         transaction: mockTransaction,
       });
       expect(mockTransaction.commit).toHaveBeenCalled();
-      expect(result).toEqual({ message: 'Movie soft deleted successfully' });
+      expect(result).toEqual({ message: 'movie soft deleted successfully' });
     });
 
     it('should throw an error if the movie is not found', async () => {
       Movie.findByPk.mockResolvedValue(null);
 
-      await expect(remove(1)).rejects.toEqual('Movie not found');
-    });
-  });
-
-  describe('generateReport', () => {
-    it('should throw an error for invalid date format', async () => {
-      await expect(
-        generateReport('invalid-date', '31-12-2023'),
-      ).rejects.toThrow('Invalid date format. Please use DD-MM-YYYY.');
-    });
-
-    it('should throw an error if start date is after end date', async () => {
-      await expect(generateReport('31-12-2023', '01-01-2023')).rejects.toEqual(
-        'Start date must be before end date.',
-      );
+      await expect(remove(1)).rejects.toEqual('movie not found');
     });
   });
 
@@ -239,7 +244,44 @@ describe('Movie Service', () => {
     it('should throw an error if the movie is not found', async () => {
       Movie.findByPk.mockResolvedValue(null);
 
-      await expect(getTheatersByMovie(1)).rejects.toEqual('Movie not found');
+      await expect(getTheatersByMovie(1)).rejects.toEqual('movie not found');
+    });
+  });
+
+  describe('generateReport', () => {
+    it('should throw an error for invalid date format', async () => {
+      await expect(
+        generateReport('invalid-date', '31-12-2023'),
+      ).rejects.toThrow('Invalid date format. Please use DD-MM-YYYY.');
+    });
+
+    it('should throw an error if start date is after end date', async () => {
+      await expect(generateReport('31-12-2023', '01-01-2023')).rejects.toEqual(
+        'start date must be before end date.',
+      );
+    });
+
+    it('should generate a report and return file path', async () => {
+      const movieData = {
+        id: 1,
+        name: 'Test Movie',
+        release_date: '2023-12-01',
+        shows: [
+          {
+            bookings: [
+              { total_amount: 100, created_at: '2023-12-01' },
+              { total_amount: 200, created_at: '2023-12-01' },
+            ],
+          },
+        ],
+      };
+      Movie.findAll.mockResolvedValue([movieData]);
+      Show.findAll.mockResolvedValue(movieData.shows);
+      Booking.findAll.mockResolvedValue(movieData.shows[0].bookings);
+
+      const filePath = await generateReport('01-12-2023', '31-12-2023');
+
+      expect(filePath).toMatch(/reports\/report_\d+\.csv/);
     });
   });
 });

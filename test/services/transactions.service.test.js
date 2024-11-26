@@ -6,10 +6,15 @@ const {
   remove,
 } = require('../../src/services/transactions.service');
 const { Transaction, Booking, sequelize } = require('../../src/models');
+const { sendTransactionEmail } = require('../../src/helpers/mail.helper');
 
 jest.mock('../../src/models');
 jest.mock('../../src/helpers/mail.helper', () => ({
   sendTransactionEmail: jest.fn(),
+}));
+
+jest.mock('../../src/helpers/common.helper', () => ({
+  throwCustomError: jest.fn(),
 }));
 
 describe('Transaction Service', () => {
@@ -30,9 +35,8 @@ describe('Transaction Service', () => {
       Booking.findByPk.mockResolvedValue(null);
 
       const data = {
-        user_id: faker.string.uuid(),
-        booking_id: faker.string.uuid(),
-        transaction_amount: faker.number.int({ min: 100, max: 500 }),
+        userId: faker.string.uuid(),
+        bookingId: faker.string.uuid(),
       };
 
       await expect(create(data)).rejects.toEqual('Booking not found');
@@ -57,9 +61,8 @@ describe('Transaction Service', () => {
       Booking.findByPk.mockResolvedValue(mockBooking);
 
       const data = {
-        user_id: faker.string.uuid(),
-        booking_id: mockBooking.id,
-        transaction_amount: faker.number.int({ min: 100, max: 500 }),
+        userId: faker.string.uuid(),
+        bookingId: mockBooking.id,
       };
 
       await expect(create(data)).rejects.toEqual(
@@ -81,7 +84,7 @@ describe('Transaction Service', () => {
       const data = { bookingId: mockBooking.id };
 
       await expect(create(data)).rejects.toEqual('Show not found');
-      //expect(t.rollback).toHaveBeenCalled();
+      //expect(mockTransaction.rollback).toHaveBeenCalled();
     });
 
     it('should handle errors during transaction and rollback changes', async () => {
@@ -106,7 +109,56 @@ describe('Transaction Service', () => {
       };
 
       await expect(create(data)).rejects.toThrow('Database error');
-      //expect(t.rollback).toHaveBeenCalled();
+      //expect(mockTransaction.rollback).toHaveBeenCalled();
+    });
+
+    it('should send transaction email after successful transaction', async () => {
+      const mockTransaction = { commit: jest.fn(), rollback: jest.fn() };
+      sequelize.transaction.mockResolvedValue(mockTransaction);
+
+      const mockBooking = {
+        id: faker.string.uuid(),
+        total_amount: faker.finance.amount(),
+        number_of_seats: 2,
+        user: { email: faker.internet.email() },
+        show: {
+          available_seats: 100,
+          movie: { name: faker.lorem.words() },
+          show_time: '10:00 AM',
+          show_date: '2024-11-30',
+          save: jest.fn(),
+        },
+        save: jest.fn(),
+      };
+
+      Booking.findByPk.mockResolvedValueOnce(mockBooking);
+      Transaction.create.mockResolvedValue({
+        id: faker.string.uuid(),
+        transaction_status: 'Success',
+        transaction_amount: mockBooking.total_amount,
+        GST: 0,
+        CGST: 0,
+        IGST: 0,
+        SGST: 0,
+      });
+
+      sendTransactionEmail.mockResolvedValue(true);
+
+      const data = {
+        userId: faker.string.uuid(),
+        bookingId: mockBooking.id,
+      };
+
+      await create(data);
+
+      expect(sendTransactionEmail).toHaveBeenCalledWith(
+        expect.objectContaining({
+          to: mockBooking.user.email,
+          subject: 'Transaction Completed',
+          description: 'Your booking transaction was successful.',
+        }),
+      );
+      expect(mockTransaction.commit).toHaveBeenCalled();
     });
   });
 

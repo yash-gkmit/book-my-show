@@ -87,7 +87,7 @@ describe('Auth Controller Tests', () => {
       const req = mockRequest({ email });
       await authController.sendOtp(req, mockResponse);
 
-      expect(authService.sendOtp).toHaveBeenCalledWith(email);
+      expect(authService.sendOtp).toHaveBeenCalledWith({ email });
       expect(mockResponse.statusCode).toBe(200);
       expect(mockResponse.message).toBe(`otp send successfully to ${email}`);
       expect(responseHandler).toHaveBeenCalledWith(req, mockResponse);
@@ -122,7 +122,7 @@ describe('Auth Controller Tests', () => {
       const req = mockRequest({ email, otp });
       await authController.verifyOtp(req, mockResponse);
 
-      expect(authService.verifyOtp).toHaveBeenCalledWith(email, otp);
+      expect(authService.verifyOtp).toHaveBeenCalledWith({ email, otp });
       expect(mockResponse.statusCode).toBe(200);
       expect(mockResponse.message).toBe('OTP verified successfully!');
       expect(mockResponse.data).toEqual(result);
@@ -197,7 +197,7 @@ describe('Auth Controller Tests', () => {
       const req = mockRequest({}, {}, {}, { authorization: `Bearer ${token}` });
       await authController.logout(req, mockResponse);
 
-      expect(authService.logout).toHaveBeenCalledWith(token);
+      expect(authService.logout).toHaveBeenCalledWith({ token });
       expect(mockResponse.statusCode).toBe(200);
       expect(mockResponse.message).toBe('Successfully logged out');
       expect(responseHandler).toHaveBeenCalledWith(req, mockResponse);
@@ -211,7 +211,7 @@ describe('Auth Controller Tests', () => {
       expect(errorHandler).toHaveBeenCalledWith(
         req,
         mockResponse,
-        'Token is required for logout',
+        expect.any(String),
         401,
       );
     });

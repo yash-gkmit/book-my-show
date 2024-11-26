@@ -32,7 +32,7 @@ describe('Users Controller', () => {
       await usersController.fetchCurrent(mockReq, mockRes, mockNext);
 
       expect(mockRes.data).toEqual(mockReq.user);
-      expect(mockRes.message).toEqual('Current user details');
+      expect(mockRes.message).toEqual('current user details');
       expect(mockRes.statusCode).toEqual(200);
       expect(mockNext).toHaveBeenCalled();
     });
@@ -50,26 +50,20 @@ describe('Users Controller', () => {
 
       await usersController.fetchAll(mockReq, mockRes, mockNext);
 
-      expect(userService.getAll).toHaveBeenCalledWith(1, 10);
-      expect(mockRes.message).toEqual('Users details fetched Successfully!');
+      expect(userService.getAll).toHaveBeenCalledWith(mockReq.query);
+      expect(mockRes.message).toEqual('users details fetched Successfully!');
       expect(mockRes.data).toEqual(users);
       expect(mockRes.statusCode).toEqual(200);
       expect(mockNext).toHaveBeenCalled();
     });
 
     it('should handle errors when fetching users', async () => {
-      const errorMessage = 'Database error';
-      const error = new Error(errorMessage); // Create an Error object
-      userService.getAll.mockRejectedValue(error); // Mock the rejection with an Error object
+      const error = new Error('Database error');
+      userService.getAll.mockRejectedValue(error);
 
       await usersController.fetchAll(mockReq, mockRes, mockNext);
 
-      expect(errorHandler).toHaveBeenCalledWith(
-        mockReq,
-        mockRes,
-        error, // Pass the Error object
-        404,
-      );
+      expect(errorHandler).toHaveBeenCalledWith(mockReq, mockRes, error, 404);
     });
   });
 
@@ -82,13 +76,13 @@ describe('Users Controller', () => {
 
       await usersController.fetch(mockReq, mockRes, mockNext);
 
-      expect(userService.get).toHaveBeenCalledWith(user.id);
+      expect(userService.get).toHaveBeenCalledWith({ id: user.id });
       expect(mockRes.data).toEqual(user);
       expect(mockRes.statusCode).toEqual(200);
       expect(mockNext).toHaveBeenCalled();
     });
 
-    it('should handle "User not found" error', async () => {
+    it('should handle "user not found" error', async () => {
       userService.get.mockResolvedValue(null);
 
       mockReq.params.id = faker.string.uuid();
@@ -98,7 +92,7 @@ describe('Users Controller', () => {
       expect(errorHandler).toHaveBeenCalledWith(
         mockReq,
         mockRes,
-        'User not found',
+        'user not found',
         404,
       );
     });
@@ -117,47 +111,50 @@ describe('Users Controller', () => {
 
       await usersController.change(mockReq, mockRes, mockNext);
 
-      expect(userService.update).toHaveBeenCalledWith(
-        updatedUser.id,
-        mockReq.body,
-      );
-      expect(mockRes.message).toEqual('User updated successfully!');
+      expect(userService.update).toHaveBeenCalledWith({
+        id: updatedUser.id,
+        data: mockReq.body,
+      });
+      expect(mockRes.message).toEqual('user updated successfully!');
       expect(mockRes.data).toEqual(updatedUser);
       expect(mockRes.statusCode).toEqual(200);
       expect(mockNext).toHaveBeenCalled();
     });
 
-    it('should handle "User not found" error', async () => {
-      userService.update.mockRejectedValue(new Error('User not found'));
+    it('should handle "user not found" error', async () => {
+      const error = new Error('user not found');
+      userService.update.mockRejectedValue(error);
 
       mockReq.params.id = faker.string.uuid();
-      mockReq.body = { name: faker.person.fullName() };
 
       await usersController.change(mockReq, mockRes, mockNext);
 
       expect(errorHandler).toHaveBeenCalledWith(
         mockReq,
         mockRes,
-        'User not found',
+        'user not found',
         404,
       );
     });
   });
 
   describe('remove', () => {
-    it('should soft delete user and return status 200', async () => {
+    it('should delete user and return status 200', async () => {
       mockReq.params.id = faker.string.uuid();
 
       await usersController.remove(mockReq, mockRes);
 
-      expect(userService.remove).toHaveBeenCalledWith(mockReq.params.id);
-      expect(mockRes.message).toEqual('User soft deleted successfully');
+      expect(userService.remove).toHaveBeenCalledWith({
+        id: mockReq.params.id,
+      });
+      expect(mockRes.message).toEqual('user deleted successfully');
       expect(mockRes.statusCode).toEqual(200);
       expect(responseHandler).toHaveBeenCalledWith(mockReq, mockRes);
     });
 
-    it('should handle "User not found" error', async () => {
-      userService.remove.mockRejectedValue(new Error('User not found'));
+    it('should handle "user not found" error', async () => {
+      const error = new Error('user not found');
+      userService.remove.mockRejectedValue(error);
 
       mockReq.params.id = faker.string.uuid();
 
@@ -166,7 +163,7 @@ describe('Users Controller', () => {
       expect(errorHandler).toHaveBeenCalledWith(
         mockReq,
         mockRes,
-        'User not found',
+        'user not found',
         404,
       );
     });
@@ -176,23 +173,21 @@ describe('Users Controller', () => {
     it('should fetch user bookings and return status 200', async () => {
       const bookings = Array.from({ length: 3 }, () => ({
         id: faker.string.uuid(),
-        movie: faker.lorem.word(),
+        details: faker.lorem.sentence(),
       }));
       userService.getBookings.mockResolvedValue(bookings);
 
       mockReq.params.id = faker.string.uuid();
-      mockReq.query = { page: 1, limit: 10 };
+      mockReq.query = { filter: 'active' };
 
       await usersController.getBookings(mockReq, mockRes, mockNext);
 
-      expect(userService.getBookings).toHaveBeenCalledWith(
-        mockReq.params.id,
-        {},
-        1,
-        10,
-      );
+      expect(userService.getBookings).toHaveBeenCalledWith({
+        id: mockReq.params,
+        filters: mockReq.query,
+      });
       expect(mockRes.message).toEqual(
-        'Fetch users booking details successfully!',
+        'fetch users booking details successfully!',
       );
       expect(mockRes.data).toEqual(bookings);
       expect(mockRes.statusCode).toEqual(200);
@@ -200,15 +195,15 @@ describe('Users Controller', () => {
     });
 
     it('should handle errors when fetching bookings', async () => {
-      const errorMessage = 'Error fetching bookings';
-      userService.getBookings.mockRejectedValue(new Error(errorMessage));
+      const error = new Error('Error fetching bookings');
+      userService.getBookings.mockRejectedValue(error);
 
       await usersController.getBookings(mockReq, mockRes, mockNext);
 
       expect(errorHandler).toHaveBeenCalledWith(
         mockReq,
         mockRes,
-        'An error occurred while fetching bookings.',
+        'an error occurred while fetching bookings.',
         400,
       );
     });
@@ -223,18 +218,16 @@ describe('Users Controller', () => {
       userService.getTransactions.mockResolvedValue(transactions);
 
       mockReq.params.id = faker.string.uuid();
-      mockReq.query = { page: 1, limit: 10 };
+      mockReq.query = { filter: 'completed' };
 
       await usersController.getTransactions(mockReq, mockRes, mockNext);
 
-      expect(userService.getTransactions).toHaveBeenCalledWith(
-        mockReq.params.id,
-        {},
-        1,
-        10,
-      );
+      expect(userService.getTransactions).toHaveBeenCalledWith({
+        id: mockReq.params,
+        filters: mockReq.query,
+      });
       expect(mockRes.message).toEqual(
-        'Transaction of specific user fetched successfully!',
+        'transaction of specific user fetched successfully!',
       );
       expect(mockRes.data).toEqual(transactions);
       expect(mockRes.statusCode).toEqual(200);
@@ -247,45 +240,43 @@ describe('Users Controller', () => {
 
       await usersController.getTransactions(mockReq, mockRes, mockNext);
 
-      expect(mockRes.status).toHaveBeenCalledWith(400);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        message: 'An error occurred while fetching bookings.',
-        error: new Error(errorMessage),
-      });
+      expect(errorHandler).toHaveBeenCalledWith(
+        mockReq,
+        mockRes,
+        'an error occurred while fetching transactions.',
+        400,
+      );
     });
   });
 
   describe('fetchReports', () => {
     it('should fetch reports and return status 200', async () => {
       const reports = { totalUsers: 100, totalBookings: 500 };
-      userService.getReports.mockResolvedValue(reports);
 
       mockReq.query = { page: 1, limit: 10 };
 
+      userService.getReports.mockResolvedValue(reports);
+
       await usersController.fetchReports(mockReq, mockRes, mockNext);
 
-      expect(userService.getReports).toHaveBeenCalledWith(1, 10);
-      expect(mockRes.data).toEqual({
+      expect(userService.getReports).toHaveBeenCalledWith(mockReq.query);
+
+      expect(mockRes.data).toBe({
         ...reports,
         page: 1,
-        limit: 10,
+        limit: 10, // Ensure this matches mockReq.query.limit
       });
+
       expect(mockNext).toHaveBeenCalled();
     });
 
     it('should handle errors when fetching reports', async () => {
-      const errorMessage = 'Error fetching reports';
-      const error = new Error(errorMessage); // Create an Error object
-      userService.getReports.mockRejectedValue(error); // Mock rejection with the Error object
+      const error = new Error('Error fetching reports');
+      userService.getReports.mockRejectedValue(error);
 
       await usersController.fetchReports(mockReq, mockRes, mockNext);
 
-      expect(errorHandler).toHaveBeenCalledWith(
-        mockReq,
-        mockRes,
-        error, // Pass the Error object
-        400,
-      );
+      expect(errorHandler).toHaveBeenCalledWith(mockReq, mockRes, error, 400);
     });
   });
 });

@@ -15,8 +15,8 @@ describe('Cities Controller', () => {
   beforeEach(() => {
     mockReq = { params: {}, body: {}, query: {} };
     mockRes = {
-      status: jest.fn().mockReturnThis(), // Mock `status` to allow chaining
-      json: jest.fn(), // Mock `json` method
+      status: jest.fn().mockReturnThis(), // Mock status to allow chaining
+      json: jest.fn(), // Mock json method
       message: null,
       data: null,
       statusCode: null,
