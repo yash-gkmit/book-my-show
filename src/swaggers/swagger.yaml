@@ -32,10 +32,10 @@ paths:
             schema:
               type: object
               example:
-                name: Sahil Gupta
-                email: sahil6@mailinator.com
-                password: Sahil@1234
-                phone: '9875646890'
+                name: Ronny
+                email: Ronny2@mailinator.com
+                password: Ronny@1234
+                phone: '88056468944'
                 roles:
                   - Customer
       responses:
@@ -54,7 +54,7 @@ paths:
             schema:
               type: object
               example:
-                email: yash1@mailinator.com
+                email: yogita@mailinator.com
       responses:
         '200':
           description: Successful response
@@ -71,8 +71,8 @@ paths:
             schema:
               type: object
               example:
-                email: adityasinghrajawat393@gmail.com
-                otp: '947129'
+                email: yogita@mailinator.com
+                otp: '703402'
       responses:
         '200':
           description: Successful response
@@ -96,7 +96,7 @@ paths:
           description: Successful response
           content:
             application/json: {}
-  /api/auth/logout:
+  /api/auth:
     delete:
       tags:
         - auth
@@ -108,7 +108,7 @@ paths:
             type: string
           example: >-
             bearer
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNTQ3YzM4YzktNDU0Yy00N2JkLWJmMGUtYWEzMmViMjBlMmMxIiwicm9sZXMiOlsiQ3VzdG9tZXIiXSwic2VsZWN0ZWRSb2xlIjoiQ3VzdG9tZXIiLCJpYXQiOjE3MzIxODM5ODEsImV4cCI6MTczMjI3MDM4MX0.d1L_5C1EzsjVt3-bcvYSMUAsTFSebY98LHf5VyzILx4
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNTQ3YzM4YzktNDU0Yy00N2JkLWJmMGUtYWEzMmViMjBlMmMxIiwicm9sZXMiOlsiQ3VzdG9tZXIiXSwic2VsZWN0ZWRSb2xlIjoiQ3VzdG9tZXIiLCJpYXQiOjE3MzIxODM5ODEsImV4cCI6MTczMjI3MDM4MX0.d1L_5C1EzsjVt3-bcvYSMUAsTFSebY98LHf5VyzILx
       responses:
         '200':
           description: Successful response
@@ -119,14 +119,6 @@ paths:
       tags:
         - user
       summary: get current user
-      parameters:
-        - name: Authorization
-          in: header
-          schema:
-            type: string
-          example: >-
-            Bearer
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzIxODQ1NDAsImV4cCI6MTczMjI3MDk0MH0.eCQeHmwqPo7nb-X0EBHDwCCaOU_gM4FinYvCv8p4ieU
       responses:
         '200':
           description: Successful response
@@ -145,6 +137,11 @@ paths:
           example: >-
             Bearer
             eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzIxODQ1NDAsImV4cCI6MTczMjI3MDk0MH0.eCQeHmwqPo7nb-X0EBHDwCCaOU_gM4FinYvCv8p4ieU
+        - name: page
+          in: query
+          schema:
+            type: integer
+          example: '2'
       responses:
         '200':
           description: Successful response
@@ -168,13 +165,13 @@ paths:
           schema:
             type: string
           required: true
-          example: 547c38c9-454c-47bd-bf0e-aa32eb20e2c1
+          example: d10c7cf3-bfb4-49a4-ada2-9604b9917637
       responses:
         '200':
           description: Successful response
           content:
             application/json: {}
-    put:
+    patch:
       tags:
         - user
       summary: update user by id(Admin and user themselves)
@@ -184,8 +181,8 @@ paths:
             schema:
               type: object
               example:
-                name: Hari
-                phone: '1234567890'
+                name: aditya
+                phone: '8765434567'
       parameters:
         - name: Authorization
           in: header
@@ -199,7 +196,7 @@ paths:
           schema:
             type: string
           required: true
-          example: 547c38c9-454c-47bd-bf0e-aa32eb20e2c1
+          example: 47378a43-6b7b-40ec-9729-7c80d1f27917
       responses:
         '200':
           description: Successful response
@@ -222,7 +219,7 @@ paths:
           schema:
             type: string
           required: true
-          example: 108596d8-e30b-4755-9e0a-2d0d2d96c423
+          example: 23b781eb-d172-40cc-800d-ec8a81a1bab6
       responses:
         '200':
           description: Successful response
@@ -241,12 +238,22 @@ paths:
           example: >-
             Bearer
             eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzIxODQ1NDAsImV4cCI6MTczMjI3MDk0MH0.eCQeHmwqPo7nb-X0EBHDwCCaOU_gM4FinYvCv8p4ieU
+        - name: page
+          in: query
+          schema:
+            type: integer
+          example: '2'
+        - name: limit
+          in: query
+          schema:
+            type: integer
+          example: '1'
         - name: id
           in: path
           schema:
             type: string
           required: true
-          example: 78989c77-a3b1-4bf3-b686-a60b6bd9b170
+          example: 369559af-37aa-432a-8eb6-1a5dd617fe50
       responses:
         '200':
           description: Successful response
@@ -265,22 +272,34 @@ paths:
           example: >-
             Bearer
             eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzIxODQ1NDAsImV4cCI6MTczMjI3MDk0MH0.eCQeHmwqPo7nb-X0EBHDwCCaOU_gM4FinYvCv8p4ieU
+        - name: page
+          in: query
+          schema:
+            type: integer
+          example: '2'
+        - name: limit
+          in: query
+          schema:
+            type: integer
+          example: '1'
         - name: id
           in: path
           schema:
             type: string
           required: true
-          example: 7bb2e229-1ec1-4acd-8ee9-7d356862b847
+          example: 369559af-37aa-432a-8eb6-1a5dd617fe50
       responses:
         '200':
           description: Successful response
           content:
             application/json: {}
   /api/users/reports:
-    get:
+    post:
       tags:
         - user
       summary: users report(Admin)
+      requestBody:
+        content: {}
       parameters:
         - name: Authorization
           in: header
@@ -289,6 +308,16 @@ paths:
           example: >-
             Bearer
             eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzIxODQ1NDAsImV4cCI6MTczMjI3MDk0MH0.eCQeHmwqPo7nb-X0EBHDwCCaOU_gM4FinYvCv8p4ieU
+        - name: page
+          in: query
+          schema:
+            type: integer
+          example: '3'
+        - name: limit
+          in: query
+          schema:
+            type: integer
+          example: '5'
       responses:
         '200':
           description: Successful response
@@ -305,7 +334,7 @@ paths:
             schema:
               type: object
               example:
-                name: Meghalya
+                name: Noida
       parameters:
         - name: Authorization
           in: header
@@ -354,7 +383,7 @@ paths:
           schema:
             type: string
           required: true
-          example: 15bd49e7-ed8d-4cef-a48e-bca9d3d836b4
+          example: 839d23d5-a610-4925-a07e-2036e405dc27
       responses:
         '200':
           description: Successful response
@@ -370,7 +399,7 @@ paths:
             schema:
               type: object
               example:
-                name: Amsterdam
+                name: Chennai
       parameters:
         - name: Authorization
           in: header
@@ -384,7 +413,7 @@ paths:
           schema:
             type: string
           required: true
-          example: 7bc07ca2-4a5a-461b-ad3c-1a3d3955e732
+          example: 839d23d5-a610-4925-a07e-2036e405dc27
       responses:
         '200':
           description: Successful response
@@ -407,17 +436,19 @@ paths:
           schema:
             type: string
           required: true
-          example: f3bcdf9d-7a15-44c2-a2de-24c0ec9b5f87
+          example: 482b06ab-bf7d-40fe-ac9b-3823811d0f8e
       responses:
         '200':
           description: Successful response
           content:
             application/json: {}
   /api/cities/reports:
-    get:
+    post:
       tags:
         - city
       summary: city report(Admin)
+      requestBody:
+        content: {}
       parameters:
         - name: Authorization
           in: header
@@ -454,7 +485,7 @@ paths:
           schema:
             type: string
           required: true
-          example: 8e91b34d-6225-4b7b-9ca9-b0f058a6f39c
+          example: 944b682e-9434-4346-b1a7-cd1a7aa43d89
       responses:
         '200':
           description: Successful response
@@ -471,9 +502,9 @@ paths:
             schema:
               type: object
               example:
-                city_id: f56291eb-7a89-44bc-a826-3afd1fa49485
-                name: Banti babli Theater
-                address: nbgf
+                cityId: 6ca574bd-2b90-4a36-bf66-ac37cec1d2a6
+                name: INOX PVR Theater
+                address: Celebration Mall udaipur
       parameters:
         - name: Authorization
           in: header
@@ -499,6 +530,11 @@ paths:
           example: >-
             Bearer
             eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzIxODQ1NDAsImV4cCI6MTczMjI3MDk0MH0.eCQeHmwqPo7nb-X0EBHDwCCaOU_gM4FinYvCv8p4ieU
+        - name: page
+          in: query
+          schema:
+            type: integer
+          example: '2'
       responses:
         '200':
           description: Successful response
@@ -522,13 +558,13 @@ paths:
           schema:
             type: string
           required: true
-          example: 9a50b87c-2d96-4a08-9c00-e59228750389
+          example: 4309e1c7-dc06-47f0-b7dc-5cfa318ae74a
       responses:
         '200':
           description: Successful response
           content:
             application/json: {}
-    put:
+    patch:
       tags:
         - theater
       summary: update theater details (Theater Owner only)
@@ -538,8 +574,7 @@ paths:
             schema:
               type: object
               example:
-                name: ram shyam theater
-                address: jkh hjbnklm
+                name: INOX Dubai
       parameters:
         - name: Authorization
           in: header
@@ -553,7 +588,7 @@ paths:
           schema:
             type: string
           required: true
-          example: e488e76d-96d9-473f-be75-6338ec36597a
+          example: 4309e1c7-dc06-47f0-b7dc-5cfa318ae74a
       responses:
         '200':
           description: Successful response
@@ -576,7 +611,7 @@ paths:
           schema:
             type: string
           required: true
-          example: e488e76d-96d9-473f-be75-6338ec36597a
+          example: d05e5865-8d5a-49f7-b74b-68be3f4ea216
       responses:
         '200':
           description: Successful response
@@ -600,17 +635,19 @@ paths:
           schema:
             type: string
           required: true
-          example: 3d8cec24-fdce-4a59-bfde-625167aeca2a
+          example: 6fea481f-76a1-4027-b378-78dd3f1f780a
       responses:
         '200':
           description: Successful response
           content:
             application/json: {}
   /api/theaters/reports:
-    get:
+    post:
       tags:
         - theater
       summary: theater report(Admin)
+      requestBody:
+        content: {}
       parameters:
         - name: Authorization
           in: header
@@ -643,28 +680,28 @@ paths:
                   format: binary
                 name:
                   type: string
-                  example: vgvgbhddf
+                  example: Jailer
                 summary:
                   type: string
-                  example: Heartful mov
-                release_date:
+                  example: Romantic
+                releaseDate:
                   type: string
-                  example: 01-04-2022
+                  example: 01-04-2023
                 genre:
                   type: string
                   example: Romance
                 language:
                   type: string
-                  example: English
-                cast_member_list[]:
+                  example: Hindi
+                castMemberList[]:
                   type: string
                   example: Renate Reinsve
                 theaterIds[]:
                   type: string
-                  example: 3d8cec24-fdce-4a59-bfde-625167aeca2a
+                  example: 4309e1c7-dc06-47f0-b7dc-5cfa318ae74a
                 category:
                   type: string
-                  example: U/A
+                  example: A
       parameters:
         - name: Authorization
           in: header
@@ -690,6 +727,11 @@ paths:
           example: >-
             Bearer
             eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNDczNzhhNDMtNmI3Yi00MGVjLTk3MjktN2M4MGQxZjI3OTE3Iiwicm9sZXMiOlsiVGhlYXRlciBPd25lciIsIkN1c3RvbWVyIl0sInNlbGVjdGVkUm9sZSI6IlRoZWF0ZXIgT3duZXIiLCJpYXQiOjE3MzIxOTMzNTMsImV4cCI6MTczMjI3OTc1M30.FeerBXuwzFntAYsNlD2bDL26NmGqjzqbXDnJ_73wrOE
+        - name: category
+          in: query
+          schema:
+            type: string
+          example: A
       responses:
         '200':
           description: Successful response
@@ -713,7 +755,7 @@ paths:
           schema:
             type: string
           required: true
-          example: a16e3192-cd25-4c91-801a-ed92b40acf2f
+          example: e4656986-bf1c-40de-8e34-666cc8919441
       responses:
         '200':
           description: Successful response
@@ -729,7 +771,7 @@ paths:
             schema:
               type: object
               example:
-                name: njddccf
+                name: Singham Again
       parameters:
         - name: Authorization
           in: header
@@ -743,7 +785,7 @@ paths:
           schema:
             type: string
           required: true
-          example: 0543d995-9099-400a-99c8-d4ac13d127da
+          example: e4656986-bf1c-40de-8e34-666cc8919441
       responses:
         '200':
           description: Successful response
@@ -766,7 +808,7 @@ paths:
           schema:
             type: string
           required: true
-          example: 93fc4a48-f091-4dd6-95be-0971bcc4e25a
+          example: 0543d995-9099-400a-99c8-d4ac13d127da
       responses:
         '200':
           description: Successful response
@@ -790,17 +832,19 @@ paths:
           schema:
             type: string
           required: true
-          example: e73217a1-7b68-4760-b4a5-51bb64f159e6
+          example: e4656986-bf1c-40de-8e34-666cc8919441
       responses:
         '200':
           description: Successful response
           content:
             application/json: {}
   /api/movies/reports:
-    get:
+    post:
       tags:
         - movie
       summary: movie reoprts(Admin)
+      requestBody:
+        content: {}
       parameters:
         - name: Authorization
           in: header
@@ -813,12 +857,12 @@ paths:
           in: query
           schema:
             type: string
-          example: 01-03-2021
+          example: 01-11-2024
         - name: endDate
           in: query
           schema:
             type: string
-          example: 01-04-2021
+          example: 01-12-2024
       responses:
         '200':
           description: Successful response
@@ -837,10 +881,10 @@ paths:
               example:
                 movieId: e4656986-bf1c-40de-8e34-666cc8919441
                 theaterId: 4309e1c7-dc06-47f0-b7dc-5cfa318ae74a
-                showTime: Evening
-                availableSeats: 450
-                type: 2D
-                price: 399
+                showTime: Night
+                availableSeats: 342
+                type: 4D
+                price: 999
       parameters:
         - name: Authorization
           in: header
@@ -889,7 +933,7 @@ paths:
           schema:
             type: string
           required: true
-          example: 4f22b1c8-f877-48d8-a917-e248043e937f
+          example: 8969131f-36c0-4ec1-b609-728acf105755
       responses:
         '200':
           description: Successful response
@@ -905,7 +949,7 @@ paths:
             schema:
               type: object
               example:
-                show_time: Night
+                showTime: Night
       parameters:
         - name: Authorization
           in: header
@@ -919,7 +963,7 @@ paths:
           schema:
             type: string
           required: true
-          example: c4ee51ad-aac3-4024-a988-b0ccf3f19459
+          example: 8969131f-36c0-4ec1-b609-728acf105755
       responses:
         '200':
           description: Successful response
@@ -942,7 +986,7 @@ paths:
           schema:
             type: string
           required: true
-          example: 4f22b1c8-f877-48d8-a917-e248043e937f
+          example: 8969131f-36c0-4ec1-b609-728acf105754
       responses:
         '200':
           description: Successful response
@@ -959,10 +1003,9 @@ paths:
             schema:
               type: object
               example:
-                user_id: c5abcf8c-62c8-4f1b-9fda-f97f5c10aef8
-                show_id: cabff0e2-f896-4381-a207-8434186d8675
-                number_of_seat: 1
-                booking_date: '2024-11-26'
+                showId: 7b134b0a-4fef-4cc6-a12e-b7f3c9677b45
+                numberOfSeats: 10
+                bookingDate: '2024-11-30'
       parameters:
         - name: Authorization
           in: header
@@ -1011,7 +1054,7 @@ paths:
           schema:
             type: string
           required: true
-          example: 1d096938-a412-4feb-a90d-98703ccbf1f2
+          example: 442478aa-51fd-46b5-8334-85176acad72b
       responses:
         '200':
           description: Successful response
@@ -1027,7 +1070,7 @@ paths:
             schema:
               type: object
               example:
-                bookingSatus: Canceled
+                bookingStatus: Canceled
       parameters:
         - name: id
           in: path
@@ -1064,10 +1107,12 @@ paths:
           content:
             application/json: {}
   /api/bookings/reports:
-    get:
+    post:
       tags:
         - booking
       summary: booking report (Admin)
+      requestBody:
+        content: {}
       parameters:
         - name: Authorization
           in: header
@@ -1092,8 +1137,8 @@ paths:
             schema:
               type: object
               example:
-                bookingId: 442478aa-51fd-46b5-8334-85176acad72b
-                userId: c5abcf8c-62c8-4f1b-9fda-f97f5c10aef8
+                bookingId: 7f779242-fc2c-4d22-a33d-1d7d6f1e6625
+                userId: 47378a43-6b7b-40ec-9729-7c80d1f27917
       parameters:
         - name: Authorization
           in: header
@@ -1110,7 +1155,7 @@ paths:
     get:
       tags:
         - transaction
-      summary: get all transaction of user
+      summary: get all users transaction
       parameters:
         - name: Authorization
           in: header
@@ -1119,6 +1164,11 @@ paths:
           example: >-
             Bearer
             eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNDczNzhhNDMtNmI3Yi00MGVjLTk3MjktN2M4MGQxZjI3OTE3Iiwicm9sZXMiOlsiVGhlYXRlciBPd25lciIsIkN1c3RvbWVyIl0sInNlbGVjdGVkUm9sZSI6IlRoZWF0ZXIgT3duZXIiLCJpYXQiOjE3MzIxNzI0MjEsImV4cCI6MTczMjE3NjAyMX0.7kvsjhzSHySTmyA8I-zB5DGDHVaYy9Ahun-R2eEYjGA
+        - name: user_id
+          in: query
+          schema:
+            type: string
+          example: 47378a43-6b7b-40ec-9729-7c80d1f27917
       responses:
         '200':
           description: Successful response
@@ -1142,7 +1192,7 @@ paths:
           schema:
             type: string
           required: true
-          example: bff448f8-d8e3-4e44-8a22-547786228d20
+          example: c3d4fe7c-19ea-4535-a851-813eb183ddae
       responses:
         '200':
           description: Successful response
