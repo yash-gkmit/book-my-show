@@ -17,14 +17,14 @@ router.post(
   '/',
   authMiddleware,
   createValidation,
-  bookingController.generate,
+  bookingController.create,
   bookingsSerializer.serialize,
   commonHandler.responseHandler,
 );
 router.get(
   '/',
   authMiddleware,
-  bookingController.fetchAll,
+  bookingController.getAll,
   bookingsSerializer.serialize,
   commonHandler.responseHandler,
 );
@@ -33,7 +33,7 @@ router.get(
   '/reports',
   authMiddleware,
   rbacMiddleware([ADMIN]),
-  bookingController.fetchReports,
+  bookingController.getReport,
   commonHandler.responseHandler,
 );
 
@@ -41,7 +41,7 @@ router.get(
   '/:id',
   authMiddleware,
   rbacMiddleware([ADMIN, THEATER_OWNER]),
-  bookingController.fetch,
+  bookingController.get,
   bookingsSerializer.serialize,
   commonHandler.responseHandler,
 );
@@ -50,7 +50,7 @@ router.patch(
   '/:id',
   authMiddleware,
   updateValidation,
-  bookingController.change,
+  bookingController.update,
   bookingsSerializer.serialize,
   commonHandler.responseHandler,
 );
@@ -58,7 +58,6 @@ router.patch(
 router.delete(
   '/:id',
   authMiddleware,
-  rbacMiddleware([ADMIN], true),
   bookingController.remove,
   commonHandler.responseHandler,
 );

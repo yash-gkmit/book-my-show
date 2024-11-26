@@ -11,15 +11,15 @@ const { Op } = require('sequelize');
 const { sendTransactionEmail } = require('../helpers/mail.helper');
 const { throwCustomError } = require('../helpers/common.helper');
 
-const create = async data => {
+const create = async payload => {
   const t = await sequelize.transaction();
   try {
     const transactionData = {
-      user_id: data.userId,
-      booking_id: data.bookingId,
+      user_id: payload.userId,
+      booking_id: payload.bookingId,
     };
 
-    const booking = await Booking.findByPk(data.bookingId, {
+    const booking = await Booking.findByPk(payload.bookingId, {
       include: [
         { model: Show, as: 'show', include: [{ model: Movie, as: 'movie' }] },
         { model: User, as: 'user' },
@@ -30,6 +30,9 @@ const create = async data => {
     if (!booking) {
       throwCustomError('Booking not found', 404);
     }
+    if (booking.booking_status === 'Confirmed') {
+      throwCustomError('Payment of this booking already provided!', 400);
+    }
     if (!booking.user) {
       throwCustomError('User not found for this booking', 404);
     }
@@ -39,6 +42,7 @@ const create = async data => {
     if (!show) {
       throwCustomError('Show not found', 404);
     }
+
     const transaction_amount = booking.total_amount;
 
     const GST = transaction_amount * 0.18;
@@ -93,7 +97,9 @@ const create = async data => {
   }
 };
 
-const getAll = async (filters, page = 1, limit = 10) => {
+const getAll = async payload => {
+  const { page = 1, limit = 10, ...filters } = payload;
+
   const whereConditions = {};
 
   for (const [key, value] of Object.entries(filters)) {
@@ -116,9 +122,9 @@ const getAll = async (filters, page = 1, limit = 10) => {
         ],
       },
     ],
+    order: [['created_at', 'DESC']],
     offset,
     limit: parseInt(limit),
-    order: [['created_at', 'DESC']],
   });
 
   return {
@@ -132,7 +138,9 @@ const getAll = async (filters, page = 1, limit = 10) => {
   };
 };
 
-const get = async id => {
+const get = async payload => {
+  const { id } = payload;
+
   const transaction = await Transaction.findOne({
     where: { id },
     include: [
@@ -160,23 +168,15 @@ const get = async id => {
   return transaction;
 };
 
-const remove = async id => {
-  const transaction = await sequelize.transaction();
+const remove = async payload => {
+  const { id } = payload;
 
-  try {
-    const transactionRecord = await Transaction.findByPk(id, { transaction });
-    if (!transactionRecord) {
-      throwCustomError('Transaction not found', 404);
-    }
-
-    await transactionRecord.destroy({ transaction });
-
-    await transaction.commit();
-    return { message: 'Transaction removed successfully' };
-  } catch (error) {
-    await transaction.rollback();
-    throw error;
+  const transaction = await Transaction.findByPk(id);
+  if (!transaction) {
+    throwCustomError('Transaction not found', 404);
   }
+
+  await transaction.destroy();
 };
 
 module.exports = {

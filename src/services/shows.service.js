@@ -24,16 +24,16 @@ const create = async payload => {
     ]);
 
     if (!theater) {
-      throwCustomError('theater not found', 404);
+      throwCustomError('Theater not found', 404);
     }
 
     if (!movie) {
-      throwCustomError('movie not found', 404);
+      throwCustomError('Movie not found', 404);
     }
 
     const movieDuration = movie.duration;
     if (!movieDuration) {
-      throwCustomError('movie duration is required to create a show');
+      throwCustomError('Movie duration is required to create a show');
     }
 
     const startTime = new Date(show_time);
@@ -53,7 +53,7 @@ const create = async payload => {
             [Op.and]: [
               { show_time: { [Op.lte]: startTime } },
               sequelize.literal(
-                `"show_time" + interval '10 minute' * ${movieDuration} >= '${startTime.toISOString()}'`,
+                `"show_time" + interval '1 minute' * ${movieDuration} >= '${startTime.toISOString()}'`,
               ),
             ],
           },
@@ -63,7 +63,7 @@ const create = async payload => {
 
     if (isShowOverlap) {
       throwCustomError(
-        'Another show is also running at that specific time, please arrange another time!',
+        'Another show is arranged at that specific time, please provide another time!',
         400,
       );
     }
@@ -107,9 +107,9 @@ const getAll = async payload => {
         as: 'theater',
       },
     ],
+    order: [['created_at', 'DESC']],
     limit,
     offset,
-    order: [['created_at', 'DESC']],
   });
 
   return {
@@ -126,7 +126,7 @@ const getAll = async payload => {
 const get = async payload => {
   const show = await Show.findByPk(payload);
   if (!show) {
-    throwCustomError('show not available for that id', 404);
+    throwCustomError('Show not available for that id', 404);
   }
   return show;
 };
@@ -135,45 +135,26 @@ const update = async payload => {
   const { id } = payload.id;
   const data = payload.data;
 
-  console.log(id, data);
-  const transaction = await sequelize.transaction();
+  const show = await Show.findByPk(id);
 
-  try {
-    const show = await Show.findByPk(id, { transaction });
-
-    if (!show) {
-      throwCustomError('show not available for that id', 404);
-    }
-    await show.update(data, { transaction });
-
-    await transaction.commit();
-
-    return show;
-  } catch (error) {
-    await transaction.rollback();
-    throwCustomError(error);
+  if (!show) {
+    throwCustomError('Show not available for that id', 404);
   }
+  await show.update(data);
+
+  return show;
 };
 
 const remove = async payload => {
-  const t = await sequelize.transaction();
   const id = payload;
-  console.log(id);
-  try {
-    const show = await Show.findByPk(id, { transaction: t });
-    if (!show) {
-      throwCustomError('show with that id does not exist', 404);
-    }
 
-    await show.destroy({ transaction: t });
+  const show = await Show.findByPk(id);
 
-    await t.commit();
-
-    return { message: 'show successfully deleted' };
-  } catch (error) {
-    await t.rollback();
-    throwCustomError(error);
+  if (!show) {
+    throwCustomError('Show with that id does not exist', 404);
   }
+
+  await show.destroy();
 };
 
 module.exports = {

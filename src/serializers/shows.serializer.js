@@ -1,5 +1,5 @@
 const serialize = (req, res, next) => {
-  let { show, shows, pagination } = res.data || {};
+  let { show, data: shows, pagination } = res.data || {};
 
   const response = {
     show: null,
@@ -47,13 +47,13 @@ const serialize = (req, res, next) => {
     };
   }
 
-  if (Array.isArray(shows?.data) && shows?.data?.length > 0) {
-    response.shows = shows.data.map(show => ({
+  if (Array.isArray(shows) && shows.length > 0) {
+    response.shows = shows.map(show => ({
       id: show?.id,
       movieId: show?.movie_id,
       theaterId: show?.theater_id,
       showTime: show?.show_time,
-      availableSeats: show.available_seats || 0,
+      availableSeats: show?.available_seats || 0,
       type: show?.type,
       price: show?.price,
       createdAt: show?.created_at,
