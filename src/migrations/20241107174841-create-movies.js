@@ -39,12 +39,20 @@ module.exports = {
         type: Sequelize.STRING(30),
         allowNull: false,
       },
+      category: {
+        type: Sequelize.ENUM('U', 'U/A', 'A'),
+        allowNull: true,
+      },
       poster: {
         type: Sequelize.STRING,
         allowNull: false,
       },
       trailer: {
         type: Sequelize.STRING,
+        allowNull: false,
+      },
+      duration: {
+        type: Sequelize.INTEGER,
         allowNull: false,
       },
       created_at: {
