@@ -23,23 +23,37 @@ describe('Show Service', () => {
       const fakeTransaction = { commit: jest.fn(), rollback: jest.fn() };
       sequelize.transaction.mockResolvedValue(fakeTransaction);
 
+      // Use camelCase for the dummyData
       const dummyData = {
-        movie_id: faker.string.uuid(),
-        theater_id: faker.string.uuid(),
-        start_time: faker.date.future(),
-        end_time: faker.date.future(),
+        movieId: faker.string.uuid(),
+        theaterId: faker.string.uuid(),
+        showTime: faker.date.future(),
+        availableSeats: faker.number.int(),
+        type: faker.lorem.word(),
         price: faker.commerce.price(),
       };
 
-      Show.create.mockResolvedValue(dummyData);
+      // Transform the dummyData to match the snake_case attributes of the model
+      const transformedData = {
+        movie_id: dummyData.movieId,
+        theater_id: dummyData.theaterId,
+        show_time: dummyData.showTime,
+        available_seats: dummyData.availableSeats,
+        type: dummyData.type,
+        price: dummyData.price,
+      };
+
+      // Mock the `Show.create` method to resolve with transformedData
+      Show.create.mockResolvedValue(transformedData);
 
       const result = await showService.create(dummyData);
 
-      expect(Show.create).toHaveBeenCalledWith(dummyData, {
+      // Ensure the transformed data is passed to `Show.create`
+      expect(Show.create).toHaveBeenCalledWith(transformedData, {
         transaction: fakeTransaction,
       });
       expect(fakeTransaction.commit).toHaveBeenCalled();
-      expect(result).toEqual(dummyData);
+      expect(result).toEqual(transformedData);
     });
   });
 
@@ -69,7 +83,7 @@ describe('Show Service', () => {
       const result = await showService.getAll(filters, 1, 10);
 
       expect(Show.findAndCountAll).toHaveBeenCalledWith({
-        where: processedFilters, // Use the processed filters here
+        where: processedFilters,
         include: [
           { model: Movie, as: 'movie' },
           { model: Theater, as: 'theater' },
@@ -110,7 +124,7 @@ describe('Show Service', () => {
       Show.findByPk.mockResolvedValue(null);
 
       await expect(showService.get(faker.string.uuid())).rejects.toThrow(
-        'Show not available for that id',
+        'show not available for that id',
       );
     });
   });
@@ -134,7 +148,10 @@ describe('Show Service', () => {
         update: jest.fn().mockResolvedValue(updateData),
       });
 
-      const result = await showService.update(dummyData.id, updateData);
+      const result = await showService.update({
+        id: { id: dummyData.id },
+        data: updateData,
+      });
 
       expect(Show.findByPk).toHaveBeenCalledWith(dummyData.id, {
         transaction: fakeTransaction,
@@ -149,10 +166,11 @@ describe('Show Service', () => {
       Show.findByPk.mockResolvedValue(null);
 
       await expect(
-        showService.update(faker.string.uuid(), {
-          start_time: faker.date.future(),
+        showService.update({
+          id: { id: faker.string.uuid() },
+          data: { start_time: faker.date.future() },
         }),
-      ).rejects.toThrow('Show not available for that id');
+      ).rejects.toThrow('show not available for that id');
     });
   });
 
@@ -177,14 +195,14 @@ describe('Show Service', () => {
         transaction: fakeTransaction,
       });
       expect(fakeTransaction.commit).toHaveBeenCalled();
-      expect(result).toEqual({ message: 'Show successfully deleted' });
+      expect(result).toEqual({ message: 'show successfully deleted' });
     });
 
     it('should throw an error if the show does not exist', async () => {
       Show.findByPk.mockResolvedValue(null);
 
       await expect(showService.remove(faker.string.uuid())).rejects.toThrow(
-        'Show with that id does not exist',
+        'show with that id does not exist',
       );
     });
   });

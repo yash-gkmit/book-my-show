@@ -1,4 +1,11 @@
-const { Theater, sequelize } = require('../../src/models');
+const {
+  Theater,
+  sequelize,
+  TheaterMovie,
+  Movie,
+  Show,
+  Booking,
+} = require('../../src/models');
 const {
   create,
   getAll,
@@ -6,6 +13,7 @@ const {
   update,
   remove,
   getMovies,
+  getReports,
 } = require('../../src/services/theaters.service');
 const { faker } = require('@faker-js/faker');
 const { throwCustomError } = require('../../src/helpers/common.helper');
@@ -17,7 +25,7 @@ describe('Theater Service', () => {
   const mockTheaterData = {
     id: faker.string.uuid(),
     name: faker.commerce.productName(),
-    city_id: faker.string.uuid(), // Ensure the city_id is included
+    city_id: faker.string.uuid(),
     address: faker.address.streetAddress(),
   };
 
@@ -26,7 +34,8 @@ describe('Theater Service', () => {
     name: faker.company.name(),
     address: faker.address.streetAddress(),
     city_id: faker.string.uuid(),
-    update: jest.fn().mockResolvedValue([1]), // Ensure it's properly initialized
+    update: jest.fn().mockResolvedValue([1]),
+    destroy: jest.fn().mockResolvedValue(true),
   };
 
   beforeEach(() => {
@@ -62,6 +71,17 @@ describe('Theater Service', () => {
       await expect(create(mockTheaterData)).rejects.toThrow('Database error');
       expect(mockTransaction.rollback).toHaveBeenCalled();
     });
+
+    it('should throw an error if the address already exists', async () => {
+      const mockTransaction = { commit: jest.fn(), rollback: jest.fn() };
+      Theater.findOne.mockResolvedValue(mockTheaterData);
+      sequelize.transaction.mockResolvedValue(mockTransaction);
+
+      await expect(create(mockTheaterData)).rejects.toThrow(
+        'can not add theater with same address!',
+      );
+      expect(mockTransaction.rollback).toHaveBeenCalled();
+    });
   });
 
   describe('getAll', () => {
@@ -72,13 +92,12 @@ describe('Theater Service', () => {
       Theater.findAndCountAll.mockResolvedValue(mockResult);
       sequelize.transaction.mockResolvedValue(mockTransaction);
 
-      const result = await getAll(1, 10);
+      const result = await getAll({ page: 1, limit: 10 });
 
       expect(Theater.findAndCountAll).toHaveBeenCalledWith({
         limit: 10,
         offset: 0,
       });
-
       expect(result).toEqual({
         data: mockTheaters,
         pagination: {
@@ -95,7 +114,7 @@ describe('Theater Service', () => {
       Theater.findAndCountAll.mockResolvedValue({ rows: [], count: 0 });
       sequelize.transaction.mockResolvedValue(mockTransaction);
 
-      const result = await getAll(1, 10);
+      const result = await getAll({ page: 1, limit: 10 });
 
       expect(result).toEqual({
         data: [],
@@ -115,7 +134,7 @@ describe('Theater Service', () => {
       Theater.findByPk.mockResolvedValue(mockTheaterData);
       sequelize.transaction.mockResolvedValue(mockTransaction);
 
-      const result = await get(mockTheaterData.id);
+      const result = await get({ id: mockTheaterData.id });
 
       expect(Theater.findByPk).toHaveBeenCalledWith(mockTheaterData.id);
       expect(result).toEqual(mockTheaterData);
@@ -126,8 +145,8 @@ describe('Theater Service', () => {
       Theater.findByPk.mockResolvedValue(null);
       sequelize.transaction.mockResolvedValue(mockTransaction);
 
-      await expect(get(mockTheaterData.id)).rejects.toThrow(
-        'Theater not found with that id!',
+      await expect(get({ id: mockTheaterData.id })).rejects.toThrow(
+        'theater not found with that id!',
       );
     });
   });
@@ -140,12 +159,14 @@ describe('Theater Service', () => {
       Theater.findByPk.mockResolvedValue(mockTheaterInstance);
       sequelize.transaction.mockResolvedValue(mockTransaction);
 
-      const result = await update(mockTheaterInstance.id, updatedData);
+      const result = await update({
+        id: mockTheaterInstance.id,
+        data: updatedData,
+      });
 
       expect(mockTheaterInstance.update).toHaveBeenCalledWith(updatedData, {
         transaction: mockTransaction,
       });
-
       expect(mockTransaction.commit).toHaveBeenCalled();
       expect(result).toEqual(mockTheaterInstance);
     });
@@ -156,8 +177,8 @@ describe('Theater Service', () => {
       sequelize.transaction.mockResolvedValue(mockTransaction);
 
       await expect(
-        update(mockTheaterData.id, { name: 'New Name' }),
-      ).rejects.toThrow('Theater not found with that id!');
+        update({ id: mockTheaterData.id, data: { name: 'New Name' } }),
+      ).rejects.toThrow('theater not found with that id!');
     });
 
     it('should rollback transaction on error', async () => {
@@ -169,7 +190,7 @@ describe('Theater Service', () => {
       sequelize.transaction.mockResolvedValue(mockTransaction);
 
       await expect(
-        update(mockTheaterData.id, { name: 'New Name' }),
+        update({ id: mockTheaterData.id, data: { name: 'New Name' } }),
       ).rejects.toThrow('Update failed');
       expect(mockTransaction.rollback).toHaveBeenCalled();
     });
@@ -178,11 +199,10 @@ describe('Theater Service', () => {
   describe('remove', () => {
     it('should remove a theater successfully', async () => {
       const mockTransaction = { commit: jest.fn(), rollback: jest.fn() };
-      const mockTheaterInstance = { destroy: jest.fn() };
       Theater.findByPk.mockResolvedValue(mockTheaterInstance);
       sequelize.transaction.mockResolvedValue(mockTransaction);
 
-      await remove(mockTheaterData.id);
+      await remove({ id: mockTheaterData.id });
 
       expect(mockTheaterInstance.destroy).toHaveBeenCalled();
       expect(mockTransaction.commit).toHaveBeenCalled();
@@ -193,8 +213,8 @@ describe('Theater Service', () => {
       Theater.findByPk.mockResolvedValue(null);
       sequelize.transaction.mockResolvedValue(mockTransaction);
 
-      await expect(remove(mockTheaterData.id)).rejects.toThrow(
-        'Theater not found',
+      await expect(remove({ id: mockTheaterData.id })).rejects.toThrow(
+        'theater not found',
       );
     });
 
@@ -206,18 +226,53 @@ describe('Theater Service', () => {
       Theater.findByPk.mockResolvedValue(mockTheaterInstance);
       sequelize.transaction.mockResolvedValue(mockTransaction);
 
-      await expect(remove(mockTheaterData.id)).rejects.toThrow('Delete failed');
+      await expect(remove({ id: mockTheaterData.id })).rejects.toThrow(
+        'Delete failed',
+      );
       expect(mockTransaction.rollback).toHaveBeenCalled();
+    });
+  });
+
+  describe('getMovies', () => {
+    it('should return a list of movies for a theater', async () => {
+      const mockTransaction = { commit: jest.fn(), rollback: jest.fn() };
+      const mockMovies = [faker.random.alphaNumeric(10)];
+      const mockTheaterMovies = [{ movie: mockMovies[0] }];
+      Theater.findByPk.mockResolvedValue(mockTheaterData);
+      TheaterMovie.findAll.mockResolvedValue(mockTheaterMovies);
+      sequelize.transaction.mockResolvedValue(mockTransaction);
+
+      const result = await getMovies(mockTheaterData.id, 1, 10);
+
+      expect(Theater.findByPk).toHaveBeenCalledWith(mockTheaterData.id);
+      expect(TheaterMovie.findAll).toHaveBeenCalled();
+      expect(result.data).toEqual(mockMovies);
     });
 
     it('should throw an error if theater not found', async () => {
-      const mockTheaterId = '199f40d5-312d-4420-b4e9-390475ac8bc5';
-      Theater.findByPk.mockResolvedValue(null); // Simulate that no theater was found
+      const mockTransaction = { commit: jest.fn(), rollback: jest.fn() };
+      Theater.findByPk.mockResolvedValue(null);
+      sequelize.transaction.mockResolvedValue(mockTransaction);
 
-      // Using regex to match the error message
-      await expect(getMovies(mockTheaterId, 1, 10)).rejects.toThrow(
-        new RegExp(`Theater with ID ${mockTheaterId} not found`),
+      await expect(getMovies(mockTheaterData.id)).rejects.toThrow(
+        `theater with ID ${mockTheaterData.id} not found`,
       );
+    });
+  });
+
+  describe('getReports', () => {
+    it('should return a list of bookings and showings for a theater', async () => {
+      const mockTransaction = { commit: jest.fn(), rollback: jest.fn() };
+      const mockReports = [faker.random.alphaNumeric(10)];
+      Show.findAll.mockResolvedValue(mockReports);
+      Booking.findAll.mockResolvedValue(mockReports);
+      sequelize.transaction.mockResolvedValue(mockTransaction);
+
+      const result = await getReports(mockTheaterData.id);
+
+      expect(Show.findAll).toHaveBeenCalled();
+      expect(Booking.findAll).toHaveBeenCalled();
+      expect(result).toEqual(mockReports);
     });
   });
 });

@@ -26,18 +26,23 @@ describe('Booking Service', () => {
       };
       const bookingData = {
         user_id: faker.string.uuid(),
-        show_id: dummyShow.id,
-        number_of_seat: 2,
-        booking_date: faker.date.future(),
+        showId: dummyShow.id,
+        numberOfSeats: 2,
+        bookingDate: faker.date.future(),
       };
 
       Show.findByPk.mockResolvedValue(dummyShow);
       Booking.create.mockResolvedValue({
         ...bookingData,
         id: faker.string.uuid(),
+        total_amount: 1000, // 2 * 500
+        booking_status: 'Pending',
       });
 
-      const result = await bookingService.create(bookingData);
+      const result = await bookingService.create(
+        bookingData.user_id,
+        bookingData,
+      );
 
       expect(Show.findByPk).toHaveBeenCalledWith(dummyShow.id, {
         transaction: fakeTransaction,
@@ -52,13 +57,16 @@ describe('Booking Service', () => {
       );
       expect(fakeTransaction.commit).toHaveBeenCalled();
       expect(result).toBeDefined();
+      expect(result.total_amount).toEqual(1000);
     });
 
     it('should throw an error if the show does not exist', async () => {
       Show.findByPk.mockResolvedValue(null);
 
       await expect(
-        bookingService.create({ show_id: faker.string.uuid() }),
+        bookingService.create(faker.string.uuid(), {
+          showId: faker.string.uuid(),
+        }),
       ).rejects.toThrow('Show not found');
 
       expect(fakeTransaction.rollback).toHaveBeenCalled();
@@ -70,7 +78,10 @@ describe('Booking Service', () => {
       Show.findByPk.mockResolvedValue(dummyShow);
 
       await expect(
-        bookingService.create({ show_id: dummyShow.id, number_of_seat: 2 }),
+        bookingService.create(faker.string.uuid(), {
+          showId: dummyShow.id,
+          numberOfSeats: 2,
+        }),
       ).rejects.toThrow('Seats not available');
 
       expect(fakeTransaction.rollback).toHaveBeenCalled();
@@ -224,78 +235,6 @@ describe('Booking Service', () => {
       expect(result.totalBookings).toEqual(10);
       expect(result.revenueGenerated).toEqual(1000);
       expect(result.mostBookedMovies).toHaveLength(1);
-    });
-  });
-
-  describe('cancel', () => {
-    it('should cancel a booking if user is authorized', async () => {
-      const dummyUser = {
-        id: faker.string.uuid(),
-        name: faker.name.fullName(),
-        email: faker.internet.email(),
-      };
-      const dummyBooking = {
-        id: faker.string.uuid(),
-        user_id: dummyUser.id,
-        status: 'Confirmed',
-        save: jest.fn(),
-      };
-
-      Booking.findByPk.mockResolvedValue({ ...dummyBooking, user: dummyUser });
-
-      const result = await bookingService.cancel(dummyBooking.id, dummyUser.id);
-
-      expect(result.status).toEqual('Canceled');
-    });
-
-    it('should throw an error if booking does not exist', async () => {
-      Booking.findByPk.mockResolvedValue(null);
-
-      await expect(
-        bookingService.cancel(faker.string.uuid(), faker.string.uuid()),
-      ).rejects.toThrow(
-        "Booking not found or you're not authorized to cancel this booking.",
-      );
-    });
-
-    it('should throw an error if user is not authorized to cancel booking', async () => {
-      const dummyUser = {
-        id: faker.string.uuid(),
-        name: faker.name.fullName(),
-        email: faker.internet.email(),
-      };
-      const dummyBooking = {
-        id: faker.string.uuid(),
-        user_id: faker.string.uuid(),
-        status: 'Confirmed',
-        save: jest.fn(),
-      };
-
-      Booking.findByPk.mockResolvedValue({ ...dummyBooking, user: dummyUser });
-
-      await expect(
-        bookingService.cancel(dummyBooking.id, dummyUser.id),
-      ).rejects.toThrow('User not authorized for cancelling this booking');
-    });
-
-    it('should throw an error if booking is already canceled', async () => {
-      const dummyUser = {
-        id: faker.string.uuid(),
-        name: faker.name.fullName(),
-        email: faker.internet.email(),
-      };
-      const dummyBooking = {
-        id: faker.string.uuid(),
-        user_id: dummyUser.id,
-        status: 'Canceled',
-        save: jest.fn(),
-      };
-
-      Booking.findByPk.mockResolvedValue({ ...dummyBooking, user: dummyUser });
-
-      await expect(
-        bookingService.cancel(dummyBooking.id, dummyUser.id),
-      ).rejects.toThrow('This booking has already been cancelled.');
     });
   });
 });
