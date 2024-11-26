@@ -16,7 +16,7 @@ router.post(
   authMiddleware,
   rbacMiddleware([THEATER_OWNER]),
   createValidation,
-  showController.generate,
+  showController.create,
   showsSerializer.serialize,
   commonHelper.responseHandler,
 );
@@ -24,7 +24,7 @@ router.post(
 router.get(
   '/',
   authMiddleware,
-  showController.fetchAll,
+  showController.getAll,
   showsSerializer.serialize,
   commonHelper.responseHandler,
 );
@@ -32,7 +32,7 @@ router.get(
 router.get(
   '/:id',
   authMiddleware,
-  showController.fetch,
+  showController.get,
   showsSerializer.serialize,
   commonHelper.responseHandler,
 );
@@ -42,7 +42,7 @@ router.patch(
   authMiddleware,
   rbacMiddleware([THEATER_OWNER]),
   updateValidation,
-  showController.change,
+  showController.update,
   showsSerializer.serialize,
   commonHelper.responseHandler,
 );
