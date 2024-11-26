@@ -30,7 +30,6 @@ const create = async (userId, data) => {
       await show.save({ transaction: t });
     }
     await t.commit();
-    console.log(booking);
     return booking;
   } catch (error) {
     console.log(error);
