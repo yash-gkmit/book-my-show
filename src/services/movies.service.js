@@ -13,26 +13,25 @@ const path = require('path');
 const { Op } = require('sequelize');
 const moment = require('moment');
 
-const create = async (movieDetails, theaterIds) => {
-  const transaction = await sequelize.transaction();
-
-  const movieData = {
-    poster: movieDetails.poster,
-    trailer: movieDetails.trailer,
-    name: movieDetails.name,
-    summary: movieDetails.summary,
-    release_date: movieDetails.releaseDate,
-    genre: movieDetails.genre,
-    language: movieDetails.language,
-    cast_member_list: movieDetails.castMemberList,
-    category: movieDetails.category,
-    duration: movieDetails.duration, // Ensure this field is included if applicable
+const create = async (theaterIds, movieData) => {
+  const movieDetails = {
+    poster: movieData.poster,
+    trailer: movieData.trailer,
+    name: movieData.name,
+    summary: movieData.summary,
+    release_date: movieData.releaseDate,
+    genre: movieData.genre,
+    language: movieData.language,
+    cast_member_list: movieData.castMemberList,
+    category: movieData.category,
+    duration: movieData.duration,
   };
 
-  try {
-    const movie = await Movie.create(movieData, { transaction });
+  const transaction = await sequelize.transaction();
 
-    // Handle association with theaters
+  try {
+    const movie = await Movie.create(movieDetails, { transaction });
+
     if (theaterIds && theaterIds.length > 0) {
       const theaterAssociations = theaterIds.map(theaterId => ({
         movie_id: movie.id,
@@ -44,7 +43,6 @@ const create = async (movieDetails, theaterIds) => {
 
     await transaction.commit();
 
-    // Fetch the movie along with associated theaters
     const movieWithTheaters = await Movie.findByPk(movie.id, {
       include: {
         model: Theater,
@@ -56,7 +54,7 @@ const create = async (movieDetails, theaterIds) => {
     return movieWithTheaters;
   } catch (error) {
     await transaction.rollback();
-    throwCustomError(error.message);
+    throwCustomError(error.message, 400);
   }
 };
 
@@ -101,64 +99,50 @@ const getAll = async query => {
   };
 };
 
-const get = async movieId => {
+const get = async payload => {
+  const { id } = payload;
   const movie = await Movie.findOne({
-    where: { id: movieId },
+    where: { id: id },
   });
   if (!movie) {
-    throwCustomError('movie not exist with that id!', 404);
+    throwCustomError('Movie not exist with that id!', 404);
   }
   return movie;
 };
 
-const update = async (movieId, movieData) => {
-  const transaction = await sequelize.transaction();
+const update = async payload => {
+  const { id } = payload.id;
+  const data = payload.body;
+  const movie = await Movie.findByPk(id);
 
-  try {
-    const movie = await Movie.findByPk(movieId, { transaction });
-
-    if (!movie) {
-      throwCustomError('Movie not found', 404);
-    }
-
-    await movie.update(movieData, { transaction });
-
-    await transaction.commit();
-
-    return movie;
-  } catch (error) {
-    await transaction.rollback();
-    throw error;
+  if (!movie) {
+    throwCustomError('Movie not found', 404);
   }
+
+  await movie.update(data);
+
+  return movie;
 };
 
-const remove = async movieId => {
-  const transaction = await sequelize.transaction();
+const remove = async payload => {
+  const { id } = payload;
 
-  try {
-    const movie = await Movie.findByPk(movieId, { transaction });
-    if (!movie) {
-      throwCustomError('movie not found', 404);
-    }
-
-    await movie.destroy({ transaction });
-
-    await TheaterMovie.update(
-      { deleted_at: new Date() },
-      { where: { movie_id: movieId }, individualHooks: true, transaction },
-    );
-
-    await transaction.commit();
-
-    return { message: 'movie soft deleted successfully' };
-  } catch (error) {
-    await transaction.rollback();
-    throw error;
+  const movie = await Movie.findByPk(id);
+  if (!movie) {
+    throwCustomError('movie not found', 404);
   }
+
+  await movie.destroy();
+
+  await TheaterMovie.update(
+    { deleted_at: new Date() },
+    { where: { movie_id: movieId }, individualHooks: true, transaction },
+  );
 };
 
-const getTheatersByMovie = async movieId => {
-  const movie = await Movie.findByPk(movieId, {
+const getTheatersByMovieId = async payload => {
+  const { id } = payload;
+  const movie = await Movie.findByPk(id, {
     include: {
       model: Theater,
       as: 'theaters',
@@ -173,7 +157,8 @@ const getTheatersByMovie = async movieId => {
   return movie.theaters;
 };
 
-const generateReport = async (startDate, endDate) => {
+const getReport = async payload => {
+  const { startDate, endDate } = payload;
   try {
     const whereClause = {};
 
@@ -261,11 +246,10 @@ const generateReport = async (startDate, endDate) => {
     const filePath = path.join(reportsDir, fileName);
 
     fs.writeFileSync(filePath, csv);
-    console.log('CSV successfully written to:', filePath);
+
     return filePath;
   } catch (error) {
-    console.error('Error in generateReport:', error.stack);
-    throw new Error(`Failed to generate report: ${error.message}`);
+    throwCustomError(`Failed to generate report: ${error.message}`, 400);
   }
 };
 
@@ -275,6 +259,6 @@ module.exports = {
   get,
   update,
   remove,
-  getTheatersByMovie,
-  generateReport,
+  getTheatersByMovieId,
+  getReport,
 };

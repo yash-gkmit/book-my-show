@@ -15,27 +15,23 @@ const getAll = async payload => {
 
   const offset = (page - 1) * limit;
 
-  try {
-    const users = await User.findAll({
-      limit,
-      offset,
-      order: [['created_at', 'DESC']],
-    });
+  const users = await User.findAll({
+    limit,
+    offset,
+    order: [['created_at', 'DESC']],
+  });
 
-    const totalUsers = await User.count();
+  const totalUsers = await User.count();
 
-    return {
-      users: users,
-      pagination: {
-        totalItems: totalUsers,
-        currentPage: parseInt(page, 10),
-        itemsPerPage: parseInt(limit, 10),
-        totalPages: Math.ceil(totalUsers / limit),
-      },
-    };
-  } catch (error) {
-    throw error;
-  }
+  return {
+    users: users,
+    pagination: {
+      totalItems: totalUsers,
+      currentPage: parseInt(page, 10),
+      itemsPerPage: parseInt(limit, 10),
+      totalPages: Math.ceil(totalUsers / limit),
+    },
+  };
 };
 
 const get = async payload => {
@@ -48,45 +44,32 @@ const get = async payload => {
 };
 
 const update = async payload => {
-  const { id, data } = payload;
+  const { id } = payload.id;
+  const data = payload.body;
 
-  try {
-    const user = await User.findByPk(id);
-    if (!user) throwCustomError('user not found', 404);
+  const user = await User.findOne({
+    where: { id: id },
+  });
+  if (!user) throwCustomError('user not found', 404);
 
-    await user.update(data);
-
-    return user;
-  } catch (error) {
-    throwCustomError(`error generated: ${error}`, 400);
-  }
+  await user.update(data);
 };
 
 const remove = async payload => {
-  const transaction = await sequelize.transaction();
   const { id } = payload;
 
-  try {
-    const user = await User.findByPk(id, { transaction });
-    if (!user) throwCustomError('User not found');
-    await user.destroy({ transaction });
+  const user = await User.findByPk(id, { transaction });
+  if (!user) throwCustomError('User not found');
+  await user.destroy({ transaction });
 
-    await UserRole.update(
-      { deleted_at: new Date() },
-      {
-        where: { user_id: id },
-        individualHooks: true,
-        transaction,
-      },
-    );
-
-    await transaction.commit();
-
-    return { message: 'user deleted successfully' };
-  } catch (error) {
-    await transaction.rollback();
-    throwCustomError(error);
-  }
+  await UserRole.update(
+    { deleted_at: new Date() },
+    {
+      where: { user_id: id },
+      individualHooks: true,
+      transaction,
+    },
+  );
 };
 
 const getBookings = async payload => {
@@ -215,6 +198,7 @@ const getReports = async payload => {
     registrationHistory,
   };
 };
+
 module.exports = {
   getAll,
   get,
