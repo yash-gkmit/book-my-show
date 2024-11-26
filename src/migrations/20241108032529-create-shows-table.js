@@ -25,7 +25,7 @@ module.exports = {
         },
       },
       show_time: {
-        type: Sequelize.ENUM('Morning', 'Afternoon', 'Evening', 'Night'),
+        type: Sequelize.DATE,
         allowNull: false,
       },
       available_seats: {

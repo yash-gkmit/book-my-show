@@ -35,7 +35,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       show_time: {
-        type: DataTypes.ENUM('Morning', 'Afternoon', 'Evening', 'Night'),
+        type: DataTypes.DATE,
         allowNull: false,
       },
       available_seats: {
