@@ -4,79 +4,70 @@ const {
   throwCustomError,
 } = require('../helpers/common.helper.js');
 
-const generate = async (req, res, next) => {
+const create = async (req, res, next) => {
+  const payload = req.body;
   try {
-    if (req.body.userId !== req.user.id) {
+    console.log(payload);
+    if (payload.userId !== req.user.id) {
       throwCustomError(
         'You are not authorize to do transaction of that specific booking!',
         403,
       );
     }
-    const transaction = await transactionService.create(req.body);
+
+    const transaction = await transactionService.create(payload);
 
     res.message =
-      'Transaction genearted successfully, Please check your mail for bill.!';
+      'Transaction genearted successfully, Please check your mail for bill!';
     res.data = transaction;
     res.statusCode = 201;
     next();
   } catch (error) {
-    errorHandler(req, res, error, error.statusCode || 400);
+    errorHandler(req, res, error.message, error.statusCode || 400);
   }
 };
 
-const fetchAll = async (req, res, next) => {
+const getAll = async (req, res, next) => {
+  const filters = req.query;
   try {
-    const { page = 1, limit = 10, ...filters } = req.query;
-
-    const result = await transactionService.getAll(filters, page, limit);
-
+    const result = await transactionService.getAll(filters);
+    res.message = 'transaction details fetched successfully!';
     res.data = result;
     res.statusCode = 200;
     next();
   } catch (error) {
-    console.error(error);
-
-    errorHandler(req, res, error, error.statusCode || 404);
+    errorHandler(req, res, error.message, error.statusCode || 404);
   }
 };
 
-const fetch = async (req, res, next) => {
+const get = async (req, res, next) => {
+  const payload = req.params;
   try {
-    const { id } = req.params;
-
-    const transaction = await transactionService.get(id);
-
+    const transaction = await transactionService.get(payload);
     res.data = transaction;
+    res.message = 'detail fetched successfully!';
     res.statusCode = 200;
     next();
   } catch (error) {
-    console.error(error);
-
-    if (error.statusCode) {
-      errorHandler(req, res, error.message, error.statusCode);
-    } else {
-      errorHandler(req, res, 'Transaction not found', 404);
-    }
+    errorHandler(req, res, error.message, error.statusCode || 404);
   }
 };
 
 const remove = async (req, res, next) => {
+  const payload = req.params;
   try {
-    await transactionService.remove(req.params.id);
-    res.data = {
-      message: 'Transaction deleted successfully!',
-    };
+    await transactionService.remove(payload);
+    res.message = 'transaction deleted successfully!';
     res.statusCode = 204;
     next();
   } catch (error) {
-    console.log(error);
-    errorHandler(req, res, error.message, 404);
+    errorHandler(req, res, error.message, error.statusCode || 404);
   }
 };
 
 module.exports = {
-  generate,
-  fetchAll,
-  fetch,
+  create,
+  getAll,
+  get,
   remove,
 };

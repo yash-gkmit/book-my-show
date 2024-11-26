@@ -5,12 +5,12 @@ const { authMiddleware } = require('../middlewares/auth.middleware');
 const { rbacMiddleware } = require('../middlewares/rbac.middleware');
 const commonHelper = require('../helpers/common.helper');
 const transactionsSerialize = require('../serializers/transactions.serializer');
-const { CUSTOMER, ADMIN } = require('../constants/roles.constant.js').roles;
+const { ADMIN } = require('../constants/roles.constant.js').roles;
 
 router.post(
   '/',
   authMiddleware,
-  transactionController.generate,
+  transactionController.create,
   transactionsSerialize.serialize,
   commonHelper.responseHandler,
 );
@@ -19,7 +19,7 @@ router.get(
   '/',
   authMiddleware,
   rbacMiddleware([ADMIN]),
-  transactionController.fetchAll,
+  transactionController.getAll,
   transactionsSerialize.serialize,
   commonHelper.responseHandler,
 );
@@ -27,8 +27,8 @@ router.get(
 router.get(
   '/:id',
   authMiddleware,
-  rbacMiddleware([CUSTOMER], true),
-  transactionController.fetch,
+  rbacMiddleware([ADMIN], true),
+  transactionController.get,
   transactionsSerialize.serialize,
   commonHelper.responseHandler,
 );
