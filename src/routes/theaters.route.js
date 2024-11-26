@@ -18,7 +18,7 @@ router.post(
   authMiddleware,
   rbacMiddleware([ADMIN]),
   createValidation,
-  theaterController.generate,
+  theaterController.create,
   theatersSerializer.serialize,
   commonHelper.responseHandler,
 );
@@ -27,7 +27,7 @@ router.get(
   '/',
   authMiddleware,
   rbacMiddleware([ADMIN]),
-  theaterController.fetchAll,
+  theaterController.getAll,
   theatersSerializer.serialize,
   commonHelper.responseHandler,
 );
@@ -36,7 +36,7 @@ router.get(
   '/reports',
   authMiddleware,
   rbacMiddleware([ADMIN]),
-  theaterController.fetchReports,
+  theaterController.getReport,
   commonHelper.responseHandler,
 );
 
@@ -44,7 +44,7 @@ router.get(
   '/:id',
   authMiddleware,
   rbacMiddleware([ADMIN, THEATER_OWNER]),
-  theaterController.fetch,
+  theaterController.get,
   theatersSerializer.serialize,
   commonHelper.responseHandler,
 );
@@ -54,7 +54,7 @@ router.patch(
   authMiddleware,
   rbacMiddleware([ADMIN, THEATER_OWNER]),
   updateValidation,
-  theaterController.change,
+  theaterController.update,
   theatersSerializer.serialize,
   commonHelper.responseHandler,
 );
@@ -70,7 +70,7 @@ router.delete(
 router.get(
   '/:id/movies',
   authMiddleware,
-  theaterController.fetchMovies,
+  theaterController.getMovies,
   theatersSerializer.movieSerialize,
   commonHelper.responseHandler,
 );

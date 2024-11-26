@@ -1,7 +1,7 @@
 const userService = require('../services/users.service');
 const { errorHandler, responseHandler } = require('../helpers/common.helper');
 
-const fetchCurrent = async (req, res, next) => {
+const getMe = async (req, res, next) => {
   try {
     res.data = req.user;
     res.message = 'current user details';
@@ -12,7 +12,7 @@ const fetchCurrent = async (req, res, next) => {
   }
 };
 
-const fetchAll = async (req, res, next) => {
+const getAll = async (req, res, next) => {
   const query = req.query;
 
   try {
@@ -27,7 +27,7 @@ const fetchAll = async (req, res, next) => {
   }
 };
 
-const fetch = async (req, res, next) => {
+const get = async (req, res, next) => {
   const { id } = req.params;
   try {
     const user = await userService.get({ id });
@@ -42,22 +42,18 @@ const fetch = async (req, res, next) => {
   }
 };
 
-const change = async (req, res, next) => {
+const update = async (req, res, next) => {
   const payload = {
-    id: req.params.id,
-    data: req.body,
+    id: req.params,
+    body: req.body,
   };
 
   try {
-    const updatedUser = await userService.update(payload);
-    res.message = 'user updated successfully!';
-    res.data = updatedUser;
+    await userService.update(payload);
+    res.message = 'User updated successfully!';
     res.statusCode = 200;
     next();
   } catch (error) {
-    if (error.message === 'user not found') {
-      return errorHandler(req, res, 'user not found', 404);
-    }
     errorHandler(req, res, error, 400);
   }
 };
@@ -66,13 +62,13 @@ const remove = async (req, res) => {
   const { id } = req.params;
   try {
     await userService.remove({ id });
-    res.message = 'user deleted successfully';
+    res.message = 'User deleted successfully';
     res.statusCode = 200;
     responseHandler(req, res);
   } catch (error) {
     console.log(error);
-    if (error.message === 'user not found') {
-      return errorHandler(req, res, 'user not found', 404);
+    if (error.message === 'User not found') {
+      return errorHandler(req, res, 'User not found', 404);
     }
     errorHandler(req, res, error, 400);
   }
@@ -86,7 +82,7 @@ const getBookings = async (req, res, next) => {
 
   try {
     const result = await userService.getBookings(payload);
-    res.message = 'fetch users booking details successfully!';
+    res.message = 'Fetch users booking details successfully!';
     res.data = result;
     res.statusCode = 200;
     next();
@@ -104,7 +100,7 @@ const getTransactions = async (req, res, next) => {
   try {
     const result = await userService.getTransactions(payload);
 
-    res.message = 'transaction of specific user fetched successfully!';
+    res.message = 'Transaction of specific user fetched successfully!';
     res.data = result;
     res.statusCode = 200;
     next();
@@ -113,7 +109,7 @@ const getTransactions = async (req, res, next) => {
   }
 };
 
-const fetchReports = async (req, res, next) => {
+const getReport = async (req, res, next) => {
   const filters = req.query;
 
   try {
@@ -132,12 +128,12 @@ const fetchReports = async (req, res, next) => {
 };
 
 module.exports = {
-  fetchCurrent,
-  fetchAll,
-  fetch,
-  change,
+  getMe,
+  getAll,
+  get,
+  update,
   remove,
   getBookings,
   getTransactions,
-  fetchReports,
+  getReport,
 };

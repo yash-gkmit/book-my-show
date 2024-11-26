@@ -16,20 +16,17 @@ const create = async payload => {
     address: payload.address,
   };
 
-  const t = await sequelize.transaction();
   try {
     const isAddressExist = await Theater.findOne({
       where: { address: data.address },
     });
 
     if (isAddressExist) {
-      throwCustomError('can not add theater with same address!', 400);
+      throwCustomError('Can not add theater with same address!', 400);
     }
-    const theater = await Theater.create(data, { transaction: t });
-    await t.commit();
+    const theater = await Theater.create(data);
     return theater;
   } catch (error) {
-    await t.rollback();
     throwCustomError(error);
   }
 };
@@ -58,62 +55,48 @@ const getAll = async payload => {
 const get = async payload => {
   const id = payload.id;
   const theater = await Theater.findByPk(id);
-  if (!theater) throwCustomError('theater not found with that id!', 404);
+  if (!theater) throwCustomError('Theater not found with that id!', 404);
   return theater;
 };
 
 const update = async payload => {
-  const t = await sequelize.transaction();
-
   const { id } = payload.id;
   const data = payload.data;
 
-  try {
-    const theater = await Theater.findByPk(id, { transaction: t });
-    if (!theater) throwCustomError('theater not found with that id!', 404);
-    await theater.update(data, { transaction: t });
-    await t.commit();
-    return theater;
-  } catch (error) {
-    await t.rollback();
-    throwCustomError(`rrror updating the theater: ${error}`, 400);
-  }
+  const theater = await Theater.findByPk(id);
+  if (!theater) throwCustomError('Theater not found with that id!', 404);
+  await theater.update(data);
+  return theater;
 };
 
 const remove = async payload => {
-  const t = await sequelize.transaction();
   const { id } = payload;
 
-  try {
-    const theater = await Theater.findByPk(id, { transaction: t });
-    if (!theater) throwCustomError('theater not found', 404);
+  const theater = await Theater.findByPk(id);
+  if (!theater) throwCustomError('Theater not found', 404);
 
-    await theater.destroy({ transaction: t });
-
-    await t.commit();
-    return { message: 'theater deleted successfully!' };
-  } catch (error) {
-    await t.rollback();
-
-    throwCustomError(`error removing the theater: ${error}`, 400);
-  }
+  await theater.destroy();
+  return { message: 'Theater deleted successfully!' };
 };
 
-const getMovies = async (theaterId, page = 1, limit = 10) => {
+const getMovies = async payload => {
+  const { id } = payload.id;
+  const { page = 1, limit = 10 } = payload.query;
+
   const offset = (page - 1) * limit;
 
-  const theater = await Theater.findByPk(theaterId);
+  const theater = await Theater.findByPk(id);
 
   if (!theater) {
-    throwCustomError(`theater with ID ${theaterId} not found`, 404);
+    throwCustomError(`Theater with ID ${id} not found`, 404);
   }
 
   const { count: totalMovies } = await TheaterMovie.findAndCountAll({
-    where: { theater_id: theaterId },
+    where: { theater_id: id },
   });
 
   const theaterMovies = await TheaterMovie.findAll({
-    where: { theater_id: theaterId },
+    where: { theater_id: id },
     include: [
       {
         model: Movie,
@@ -138,10 +121,11 @@ const getMovies = async (theaterId, page = 1, limit = 10) => {
   };
 };
 
-const getReports = async theaterId => {
+const getReport = async payload => {
+  const { id } = payload;
   const whereClause = {};
-  if (theaterId) {
-    whereClause.id = theaterId;
+  if (id) {
+    whereClause.id = id;
   }
 
   const reports = await Theater.findAll({
@@ -193,5 +177,5 @@ module.exports = {
   update,
   remove,
   getMovies,
-  getReports,
+  getReport,
 };

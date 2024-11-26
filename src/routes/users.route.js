@@ -12,7 +12,7 @@ const router = express.Router();
 router.get(
   '/me',
   authMiddleware,
-  usersController.fetchCurrent,
+  usersController.getMe,
   usersSerializer.serialize,
   commonHelper.responseHandler,
 );
@@ -21,7 +21,7 @@ router.get(
   '/',
   authMiddleware,
   rbacMiddleware([ADMIN]),
-  usersController.fetchAll,
+  usersController.getAll,
   usersSerializer.serialize,
   commonHelper.responseHandler,
 );
@@ -30,7 +30,7 @@ router.get(
   '/reports',
   authMiddleware,
   rbacMiddleware([ADMIN]),
-  usersController.fetchReports,
+  usersController.getReport,
   commonHelper.responseHandler,
 );
 
@@ -38,7 +38,7 @@ router.get(
   '/:id',
   authMiddleware,
   rbacMiddleware([ADMIN]),
-  usersController.fetch,
+  usersController.get,
   usersSerializer.serialize,
   commonHelper.responseHandler,
 );
@@ -48,7 +48,7 @@ router.patch(
   authMiddleware,
   rbacMiddleware([ADMIN], true),
   usersValidator.updateValidation,
-  usersController.change,
+  usersController.update,
   usersSerializer.serialize,
   commonHelper.responseHandler,
 );

@@ -13,14 +13,14 @@ router.post(
   authMiddleware,
   rbacMiddleware([ADMIN]),
   createCity,
-  cityController.generate,
+  cityController.create,
   citiesSerializer.serialize,
   commonHelper.responseHandler,
 );
 
 router.get(
   '/',
-  cityController.fetchAll,
+  cityController.getAll,
   citiesSerializer.serialize,
   commonHelper.responseHandler,
 );
@@ -29,13 +29,13 @@ router.get(
   '/reports',
   authMiddleware,
   rbacMiddleware([ADMIN]),
-  cityController.fetchReport,
+  cityController.getReport,
   commonHelper.responseHandler,
 );
 
 router.get(
   '/:id',
-  cityController.fetch,
+  cityController.get,
   citiesSerializer.serialize,
   commonHelper.responseHandler,
 );
@@ -45,7 +45,7 @@ router.put(
   authMiddleware,
   rbacMiddleware([ADMIN]),
   updateCity,
-  cityController.change,
+  cityController.update,
   citiesSerializer.serialize,
   commonHelper.responseHandler,
 );
@@ -62,7 +62,7 @@ router.get(
   '/:id/theaters',
   authMiddleware,
   rbacMiddleware([ADMIN]),
-  cityController.fetchTheaters,
+  cityController.getTheaters,
   citiesSerializer.theaterSerialize,
   commonHelper.responseHandler,
 );

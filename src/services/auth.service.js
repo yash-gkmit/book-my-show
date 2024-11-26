@@ -135,7 +135,7 @@ const login = async payload => {
     include: 'Roles',
   });
 
-  if (!user) throwCustomError('user not found', 404);
+  if (!user) throwCustomError('User not found', 404);
 
   const isPasswordCorrect = await bcrypt.compare(password, user.password);
 

@@ -11,7 +11,7 @@ const register = async (req, res) => {
 
     const result = await authService.register(payload);
 
-    res.message = 'user created successfully!';
+    res.message = 'User created successfully!';
     res.data = result;
     res.statusCode = 201;
     responseHandler(req, res);
@@ -24,7 +24,7 @@ const sendOtp = async (req, res) => {
   const email = req.body;
   try {
     await authService.sendOtp(email);
-    res.message = `otp send successfully to ${email}`;
+    res.message = `OTP send successfully to ${email}`;
     res.statusCode = 200;
     return responseHandler(req, res);
   } catch (error) {

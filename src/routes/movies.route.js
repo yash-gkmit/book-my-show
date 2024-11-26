@@ -22,7 +22,7 @@ router.post(
     { name: 'trailer', maxCount: 1 },
   ]),
   createValidation,
-  moviesController.generate,
+  moviesController.create,
   moviesSerializer.serialize,
   commonHelper.responseHandler,
 );
@@ -30,7 +30,7 @@ router.post(
 router.get(
   '/',
   authMiddleware,
-  moviesController.fetchAll,
+  moviesController.getAll,
   moviesSerializer.serialize,
   commonHelper.responseHandler,
 );
@@ -39,7 +39,7 @@ router.get(
   '/reports',
   authMiddleware,
   rbacMiddleware([ADMIN]),
-  moviesController.fetchReport,
+  moviesController.getReport,
   moviesSerializer.serialize,
   commonHelper.responseHandler,
 );
@@ -47,7 +47,7 @@ router.get(
 router.get(
   '/:id',
   authMiddleware,
-  moviesController.fetch,
+  moviesController.get,
   moviesSerializer.serialize,
   commonHelper.responseHandler,
 );
@@ -57,7 +57,7 @@ router.patch(
   authMiddleware,
   rbacMiddleware([THEATER_OWNER]),
   updateValidation,
-  moviesController.change,
+  moviesController.update,
   moviesSerializer.serialize,
   commonHelper.responseHandler,
 );

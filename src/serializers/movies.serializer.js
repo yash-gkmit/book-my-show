@@ -1,5 +1,5 @@
 const serialize = (req, res, next) => {
-  let { movie, movies, pagination } = res.data || {};
+  let { movie, data: movies, pagination } = res.data || {};
 
   const response = {
     movie: null,

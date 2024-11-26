@@ -4,26 +4,22 @@ const { errorHandler } = require('../helpers/common.helper');
 const path = require('path');
 const fs = require('fs');
 
-const generate = async (req, res, next) => {
+const create = async (req, res, next) => {
   try {
     const posterUrl = await uploadOnS3(req.files.poster[0], 'poster');
     const trailerUrl = await uploadOnS3(req.files.trailer[0], 'trailer');
 
-    console.log(req.body);
     const { theaterIds, ...movieData } = req.body;
-    console.log(movieData);
+    movieData.poster = posterUrl;
+    movieData.trailer = trailerUrl;
 
     movieData.poster = posterUrl;
     movieData.trailer = trailerUrl;
 
-    const movie = await movieService.create(movieData, theaterIds);
+    const movie = await movieService.create(theaterIds, movieData);
 
     res.message = 'Movie created successfully!';
-    res.data = {
-      movie: {
-        ...movie?.toJSON(),
-      },
-    };
+    res.data = movie;
     res.statusCode = 201;
     next();
   } catch (error) {
@@ -31,7 +27,7 @@ const generate = async (req, res, next) => {
   }
 };
 
-const fetchAll = async (req, res, next) => {
+const getAll = async (req, res, next) => {
   try {
     const { query } = req;
     const movies = await movieService.getAll(query);
@@ -39,12 +35,8 @@ const fetchAll = async (req, res, next) => {
     if (!movies.data.length) {
       return errorHandler(req, res, 'No movies found', 404);
     }
-    res.message = 'movies fetched successfully';
-    res.data = {
-      pagination: movies.pagination,
-      movies: movies.data,
-    };
-
+    res.message = 'Movies fetched successfully';
+    res.data = movies;
     res.statusCode = 200;
     next();
   } catch (error) {
@@ -52,9 +44,10 @@ const fetchAll = async (req, res, next) => {
   }
 };
 
-const fetch = async (req, res, next) => {
+const get = async (req, res, next) => {
+  const payload = req.params;
   try {
-    const movie = await movieService.get(req.params.id);
+    const movie = await movieService.get(payload);
     if (!movie) {
       return errorHandler(req, res, 'Movie not found', 404);
     }
@@ -68,13 +61,15 @@ const fetch = async (req, res, next) => {
   }
 };
 
-const change = async (req, res, next) => {
+const update = async (req, res, next) => {
+  const payload = {
+    id: req.params,
+    body: req.body,
+  };
   try {
-    const updatedMovie = await movieService.update(req.params.id, req.body);
+    const movie = await movieService.update(payload);
     res.message = 'Movie updated successfully';
-    res.data = {
-      movie: updatedMovie,
-    };
+    res.data = movie;
     res.statusCode = 200;
     next();
   } catch (error) {
@@ -82,9 +77,11 @@ const change = async (req, res, next) => {
   }
 };
 const remove = async (req, res, next) => {
+  const payload = req.params;
+
   try {
-    await movieService.remove(req.params.id);
-    res.message = 'Movie Soft deleted successfully';
+    await movieService.remove(payload);
+    res.message = 'Movie deleted successfully';
     res.statusCode = 200;
     next();
   } catch (error) {
@@ -93,8 +90,10 @@ const remove = async (req, res, next) => {
 };
 
 const getTheatersByMovieId = async (req, res, next) => {
+  const payload = req.params;
+
   try {
-    const theaters = await movieService.getTheatersByMovie(req.params.id);
+    const theaters = await movieService.getTheatersByMovieId(payload);
     if (!theaters.length) {
       return errorHandler(req, res, 'No theaters found for this movie', 404);
     }
@@ -108,11 +107,11 @@ const getTheatersByMovieId = async (req, res, next) => {
   }
 };
 
-const fetchReport = async (req, res) => {
-  const { startDate, endDate } = req.query;
+const getReport = async (req, res) => {
+  const payload = req.query;
 
   try {
-    const filePath = await movieService.generateReport(startDate, endDate);
+    const filePath = await movieService.getReport(payload);
 
     if (!filePath) {
       throwCustomError('Report generation failed', 422);
@@ -134,11 +133,11 @@ const fetchReport = async (req, res) => {
   }
 };
 module.exports = {
-  generate,
-  fetchAll,
-  fetch,
-  change,
+  create,
+  getAll,
+  get,
+  update,
   remove,
   getTheatersByMovieId,
-  fetchReport,
+  getReport,
 };
