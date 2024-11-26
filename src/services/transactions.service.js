@@ -30,6 +30,9 @@ const create = async payload => {
     if (!booking) {
       throwCustomError('Booking not found', 404);
     }
+    if (booking.booking_status === 'Confirmed') {
+      throwCustomError('Payment of this booking already provided!', 400);
+    }
     if (!booking.user) {
       throwCustomError('User not found for this booking', 404);
     }
@@ -159,7 +162,7 @@ const get = async payload => {
   });
 
   if (!transaction) {
-    throwCustomError('transaction not found', 404);
+    throwCustomError('Transaction not found', 404);
   }
 
   return transaction;

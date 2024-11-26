@@ -27,7 +27,7 @@ router.get(
 router.get(
   '/:id',
   authMiddleware,
-  rbacMiddleware([ADMIN], true),
+  rbacMiddleware([ADMIN]),
   transactionController.get,
   transactionsSerialize.serialize,
   commonHelper.responseHandler,
@@ -36,7 +36,7 @@ router.get(
 router.delete(
   '/:id',
   authMiddleware,
-  rbacMiddleware([ADMIN], true),
+  rbacMiddleware([ADMIN]),
   transactionController.remove,
   commonHelper.responseHandler,
 );

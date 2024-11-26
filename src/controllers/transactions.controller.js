@@ -7,7 +7,6 @@ const {
 const create = async (req, res, next) => {
   const payload = req.body;
   try {
-    console.log(payload);
     if (payload.userId !== req.user.id) {
       throwCustomError(
         'You are not authorize to do transaction of that specific booking!',
@@ -23,7 +22,7 @@ const create = async (req, res, next) => {
     res.statusCode = 201;
     next();
   } catch (error) {
-    errorHandler(req, res, error.message, error.statusCode || 400);
+    errorHandler(req, res, error, error.statusCode || 400);
   }
 };
 
@@ -31,12 +30,12 @@ const getAll = async (req, res, next) => {
   const filters = req.query;
   try {
     const result = await transactionService.getAll(filters);
-    res.message = 'transaction details fetched successfully!';
+    res.message = 'Transaction details fetched successfully!';
     res.data = result;
     res.statusCode = 200;
     next();
   } catch (error) {
-    errorHandler(req, res, error.message, error.statusCode || 404);
+    errorHandler(req, res, error, error.statusCode || 404);
   }
 };
 
@@ -45,11 +44,11 @@ const get = async (req, res, next) => {
   try {
     const transaction = await transactionService.get(payload);
     res.data = transaction;
-    res.message = 'detail fetched successfully!';
+    res.message = 'Detail fetched successfully!';
     res.statusCode = 200;
     next();
   } catch (error) {
-    errorHandler(req, res, error.message, error.statusCode || 404);
+    errorHandler(req, res, error, error.statusCode || 404);
   }
 };
 
@@ -57,11 +56,11 @@ const remove = async (req, res, next) => {
   const payload = req.params;
   try {
     await transactionService.remove(payload);
-    res.message = 'transaction deleted successfully!';
+    res.message = 'Transaction deleted successfully!';
     res.statusCode = 204;
     next();
   } catch (error) {
-    errorHandler(req, res, error.message, error.statusCode || 404);
+    errorHandler(req, res, error, error.statusCode || 404);
   }
 };
 
