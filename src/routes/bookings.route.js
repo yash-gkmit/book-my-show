@@ -29,7 +29,7 @@ router.get(
   commonHandler.responseHandler,
 );
 
-router.post(
+router.get(
   '/reports',
   authMiddleware,
   rbacMiddleware([ADMIN]),

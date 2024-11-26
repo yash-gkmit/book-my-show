@@ -48,21 +48,17 @@ const get = async payload => {
 };
 
 const update = async payload => {
-  const transaction = await sequelize.transaction();
   const { id, data } = payload;
 
   try {
-    const user = await User.findByPk(id, { transaction });
+    const user = await User.findByPk(id);
     if (!user) throwCustomError('user not found', 404);
 
-    await user.update(data, { transaction });
-
-    await transaction.commit();
+    await user.update(data);
 
     return user;
   } catch (error) {
-    await transaction.rollback();
-    throwCustomError(error);
+    throwCustomError(`error generated: ${error}`, 400);
   }
 };
 
@@ -97,7 +93,6 @@ const getBookings = async payload => {
   const { id } = payload.id;
   const { filters = {}, page = 1, limit = 10 } = payload.filters;
 
-  console.log('id:', id);
   const offset = (page - 1) * limit;
   const bookingConditions = { user_id: id };
   const showConditions = {};
@@ -139,7 +134,6 @@ const getBookings = async payload => {
     offset,
   });
 
-  console.log(result);
   return {
     data: result.rows,
     pagination: {

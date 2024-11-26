@@ -16,7 +16,6 @@ const register = async (req, res) => {
     res.statusCode = 201;
     responseHandler(req, res);
   } catch (error) {
-    console.log(error);
     errorHandler(req, res, error, error.statusCode || 400);
   }
 };
@@ -25,7 +24,7 @@ const sendOtp = async (req, res) => {
   const email = req.body;
   try {
     await authService.sendOtp(email);
-    res.message = `otp send successfully to ${req.body.email}`;
+    res.message = `otp send successfully to ${email}`;
     res.statusCode = 200;
     return responseHandler(req, res);
   } catch (error) {
@@ -46,21 +45,20 @@ const verifyOtp = async (req, res) => {
     res.statusCode = 200;
     return responseHandler(req, res);
   } catch (error) {
-    console.log(error);
     return errorHandler(req, res, error, error.statusCode || 400);
   }
 };
 
 const login = async (req, res) => {
+  const payload = req.body;
   try {
-    const result = await authService.login(req.body);
+    const result = await authService.login(payload);
 
     res.message = 'Login successful';
     res.data = result;
     res.statusCode = 200;
     return responseHandler(req, res);
   } catch (error) {
-    console.error('Login error:', error);
     errorHandler(req, res, error, error.statusCode || 401);
   }
 };

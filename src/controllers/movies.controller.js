@@ -9,7 +9,10 @@ const generate = async (req, res, next) => {
     const posterUrl = await uploadOnS3(req.files.poster[0], 'poster');
     const trailerUrl = await uploadOnS3(req.files.trailer[0], 'trailer');
 
+    console.log(req.body);
     const { theaterIds, ...movieData } = req.body;
+    console.log(movieData);
+
     movieData.poster = posterUrl;
     movieData.trailer = trailerUrl;
 

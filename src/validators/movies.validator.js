@@ -37,6 +37,11 @@ const createValidation = (req, res, next) => {
     category: Joi.string().messages({
       'string.max': 'City name must be a string up to 50 characters',
     }),
+    duration: Joi.number().integer().positive().messages({
+      'number.base': 'Duration must be a number.',
+      'number.integer': 'Duration must be an integer.',
+      'number.positive': 'Duration must be a positive number.',
+    }),
   });
 
   const { error } = schema.validate(req.body);
