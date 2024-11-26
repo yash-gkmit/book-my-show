@@ -10,7 +10,9 @@ const {
 const { Op } = require('sequelize');
 const { throwCustomError } = require('../helpers/common.helper');
 
-const getAll = async (page = 1, limit = 10) => {
+const getAll = async payload => {
+  const { page = 1, limit = 10 } = payload;
+
   const offset = (page - 1) * limit;
 
   try {
@@ -35,19 +37,23 @@ const getAll = async (page = 1, limit = 10) => {
     throw error;
   }
 };
-const get = async userId => {
-  const user = await User.findByPk(userId);
+
+const get = async payload => {
+  const { id } = payload;
+  const user = await User.findByPk(id);
   if (!user) {
     throwCustomError('user with this id does not exist', 404);
   }
   return user;
 };
 
-const update = async (userId, data) => {
+const update = async payload => {
   const transaction = await sequelize.transaction();
+  const { id, data } = payload;
+
   try {
-    const user = await User.findByPk(userId, { transaction });
-    if (!user) throwCustomError('User not found', 404);
+    const user = await User.findByPk(id, { transaction });
+    if (!user) throwCustomError('user not found', 404);
 
     await user.update(data, { transaction });
 
@@ -60,18 +66,19 @@ const update = async (userId, data) => {
   }
 };
 
-const remove = async userId => {
+const remove = async payload => {
   const transaction = await sequelize.transaction();
+  const { id } = payload;
 
   try {
-    const user = await User.findByPk(userId, { transaction });
+    const user = await User.findByPk(id, { transaction });
     if (!user) throwCustomError('User not found');
     await user.destroy({ transaction });
 
     await UserRole.update(
       { deleted_at: new Date() },
       {
-        where: { user_id: userId },
+        where: { user_id: id },
         individualHooks: true,
         transaction,
       },
@@ -79,15 +86,20 @@ const remove = async userId => {
 
     await transaction.commit();
 
-    return { message: 'User soft deleted successfully' };
+    return { message: 'user deleted successfully' };
   } catch (error) {
     await transaction.rollback();
     throwCustomError(error);
   }
 };
-const getBookings = async (userId, filters = {}, page = 1, limit = 10) => {
+
+const getBookings = async payload => {
+  const { id } = payload.id;
+  const { filters = {}, page = 1, limit = 10 } = payload.filters;
+
+  console.log('id:', id);
   const offset = (page - 1) * limit;
-  const bookingConditions = { user_id: userId };
+  const bookingConditions = { user_id: id };
   const showConditions = {};
 
   for (const [key, value] of Object.entries(filters)) {
@@ -119,7 +131,7 @@ const getBookings = async (userId, filters = {}, page = 1, limit = 10) => {
       {
         model: User,
         as: 'user',
-        where: { id: userId },
+        where: { id: id },
       },
     ],
     order: [['created_at', 'DESC']],
@@ -139,9 +151,11 @@ const getBookings = async (userId, filters = {}, page = 1, limit = 10) => {
   };
 };
 
-const getTransactions = async (userId, filters = {}, page = 1, limit = 10) => {
+const getTransactions = async payload => {
+  const { id } = payload.id;
+  const { filters = {}, page = 1, limit = 10 } = payload.filters;
   const offset = (page - 1) * limit;
-  const transactionConditions = { user_id: userId };
+  const transactionConditions = { user_id: id };
 
   for (const [key, value] of Object.entries(filters)) {
     if (Object.keys(Transaction.rawAttributes).includes(key)) {
@@ -155,7 +169,7 @@ const getTransactions = async (userId, filters = {}, page = 1, limit = 10) => {
       {
         model: User,
         as: 'user',
-        where: { id: userId },
+        where: { id: id },
       },
     ],
     order: [['created_at', 'DESC']],
@@ -174,7 +188,8 @@ const getTransactions = async (userId, filters = {}, page = 1, limit = 10) => {
   };
 };
 
-const getReports = async (page, limit) => {
+const getReports = async payload => {
+  const { page = 1, limit = 10 } = payload;
   const offset = (page - 1) * limit;
 
   const totalUsers = await User.count();

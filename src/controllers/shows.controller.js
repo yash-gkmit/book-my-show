@@ -2,10 +2,11 @@ const showService = require('../services/shows.service');
 const { errorHandler } = require('../helpers/common.helper');
 
 const generate = async (req, res, next) => {
+  const payload = req.body;
   try {
-    const show = await showService.create(req.body);
+    const show = await showService.create(payload);
     res.data = show;
-    res.message = 'Show created successfully!';
+    res.message = 'show created successfully!';
     res.statusCode = 201;
     next();
   } catch (error) {
@@ -16,11 +17,11 @@ const generate = async (req, res, next) => {
 
 const fetchAll = async (req, res, next) => {
   try {
-    const { page = 1, limit = 10, ...filters } = req.query;
+    const payload = req.query;
 
-    const shows = await showService.getAll(filters, page, limit);
+    const shows = await showService.getAll(payload);
 
-    res.message = 'Fetched shows successfully';
+    res.message = 'fetched shows successfully';
     res.data = {
       shows,
     };
@@ -34,7 +35,7 @@ const fetchAll = async (req, res, next) => {
       errorHandler(
         req,
         res,
-        'An error occurred while fetching shows',
+        'an error occurred while fetching shows',
         error.statusCode || 400,
       );
     }
@@ -42,8 +43,9 @@ const fetchAll = async (req, res, next) => {
 };
 
 const fetch = async (req, res, next) => {
+  const { id } = req.params;
   try {
-    const show = await showService.get(req.params.id);
+    const show = await showService.get(id);
     res.message = 'Fetched show By Id successfully';
     res.data = {
       show,
@@ -57,9 +59,13 @@ const fetch = async (req, res, next) => {
 };
 
 const change = async (req, res, next) => {
+  const payload = {
+    id: req.params,
+    data: req.body,
+  };
   try {
-    const show = await showService.update(req.params.id, req.body);
-    res.message = 'Show data updated successfully!';
+    const show = await showService.update(payload);
+    res.message = 'show data updated successfully!';
     res.data = show;
     next();
   } catch (error) {
@@ -68,9 +74,10 @@ const change = async (req, res, next) => {
 };
 
 const remove = async (req, res, next) => {
+  const { id } = req.params;
   try {
-    await showService.remove(req.params.id);
-    res.message = 'Show removed successfully!';
+    await showService.remove(id);
+    res.message = 'show removed successfully!';
     res.statusCode = 204;
     next();
   } catch (error) {

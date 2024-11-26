@@ -2,17 +2,17 @@ const { Show, Movie, Theater, sequelize } = require('../models');
 const { Op } = require('sequelize');
 const { throwCustomError } = require('../helpers/common.helper');
 
-const create = async data => {
+const create = async payload => {
   const t = await sequelize.transaction();
 
   try {
     const showData = {
-      movie_id: data.movieId,
-      theater_id: data.theaterId,
-      show_time: data.showTime,
-      available_seats: data.availableSeats,
-      type: data.type,
-      price: data.price,
+      movie_id: payload.movieId,
+      theater_id: payload.theaterId,
+      show_time: payload.showTime,
+      available_seats: payload.availableSeats,
+      type: payload.type,
+      price: payload.price,
     };
     const show = await Show.create(showData, { transaction: t });
     await t.commit();
@@ -23,7 +23,8 @@ const create = async data => {
   }
 };
 
-const getAll = async (filters, page = 1, limit = 10) => {
+const getAll = async payload => {
+  const { page = 1, limit = 10, ...filters } = payload;
   const offset = (page - 1) * limit;
 
   const whereConditions = {};
@@ -62,22 +63,26 @@ const getAll = async (filters, page = 1, limit = 10) => {
   };
 };
 
-const get = async id => {
-  const show = await Show.findByPk(id);
+const get = async payload => {
+  const show = await Show.findByPk(payload);
   if (!show) {
-    throwCustomError('Show not available for that id', 404);
+    throwCustomError('show not available for that id', 404);
   }
   return show;
 };
 
-const update = async (id, data) => {
+const update = async payload => {
+  const { id } = payload.id;
+  const data = payload.data;
+
+  console.log(id, data);
   const transaction = await sequelize.transaction();
 
   try {
     const show = await Show.findByPk(id, { transaction });
 
     if (!show) {
-      throwCustomError('Show not available for that id', 404);
+      throwCustomError('show not available for that id', 404);
     }
     await show.update(data, { transaction });
 
@@ -90,20 +95,21 @@ const update = async (id, data) => {
   }
 };
 
-const remove = async id => {
+const remove = async payload => {
   const t = await sequelize.transaction();
-
+  const id = payload;
+  console.log(id);
   try {
     const show = await Show.findByPk(id, { transaction: t });
     if (!show) {
-      throwCustomError('Show with that id does not exist', 404);
+      throwCustomError('show with that id does not exist', 404);
     }
 
     await show.destroy({ transaction: t });
 
     await t.commit();
 
-    return { message: 'Show successfully deleted' };
+    return { message: 'show successfully deleted' };
   } catch (error) {
     await t.rollback();
     throwCustomError(error);

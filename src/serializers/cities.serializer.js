@@ -3,10 +3,11 @@ const serialize = (req, res, next) => {
 
   const response = {
     cities: [],
+    pagination: null,
   };
 
   if (data) {
-    const { data: items } = data;
+    const { data: items, pagination } = data;
 
     if (Array.isArray(items)) {
       response.cities = items.map(city => ({
@@ -23,6 +24,7 @@ const serialize = (req, res, next) => {
         updatedAt: data.updated_at,
       };
     }
+    response.pagination = pagination || null;
   }
   res.data = response;
 

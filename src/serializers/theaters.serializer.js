@@ -25,11 +25,11 @@ const serialize = (req, res, next) => {
     }
   } else {
     response.theater = {
-      id: theater.id,
-      name: theater.name,
-      address: theater.address,
-      createdAt: theater.created_at,
-      updatedAt: theater.updated_at,
+      id: theater?.id,
+      name: theater?.name,
+      address: theater?.address,
+      createdAt: theater?.created_at,
+      updatedAt: theater?.updated_at,
     };
   }
 
