@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const otpStore = new Map();
-const { User, Role } = require('../models');
+const { User, Role, sequelize } = require('../models');
 
 const { sendOtpEmail } = require('../helpers/mail.helper');
 const { generateToken } = require('../helpers/jwt.helper');
@@ -10,45 +10,80 @@ const { throwCustomError } = require('../helpers/common.helper');
 const { addTokenToBlacklist } = require('../helpers/redis.helper');
 
 const register = async payload => {
-  const { name, email, password, phone, roles = 'Customer' } = payload;
+  const { name, email, password, phone, roles = ['Customer'] } = payload;
 
-  const hashedPassword = await bcrypt.hash(password, 10);
+  const transaction = await sequelize.transaction();
 
-  const emailExist = await User.findOne({
-    where: { email: email },
-  });
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-  if (emailExist) {
-    throwCustomError('Email already exist!', 400);
-  }
+    const userExist = await User.findOne(
+      {
+        where: { email: email },
+        include: [
+          {
+            model: Role,
+          },
+        ],
+      },
+      { transaction },
+    );
 
-  const phoneExist = await User.findOne({
-    where: { phone: phone },
-  });
+    if (userExist) {
+      const userRoles = userExist?.Roles?.map(role => role.name);
 
-  if (phoneExist) {
-    throwCustomError('Phone number already exist!', 400);
-  }
+      if (roles.every(role => userRoles.includes(role))) {
+        throwCustomError('User with role already exist!', 400);
+      }
+    }
 
-  const user = await User.create({
-    name,
-    email,
-    password: hashedPassword,
-    phone,
-  });
+    let user = userExist;
 
-  if (!user) {
-    throwCustomError('User creation failed', 400);
-  }
+    if (!userExist) {
+      const phoneExist = await User.findOne(
+        {
+          where: { phone: phone },
+        },
+        { transaction },
+      );
 
-  const userRoles = await Role.findAll({
-    where: { name: roles },
-  });
+      if (phoneExist) {
+        throwCustomError('Phone number already exist!', 400);
+      }
 
-  if (userRoles.length > 0) {
-    await user.setRoles(userRoles);
-  } else {
-    console.error(`Roles not found for names: ${roles}`);
+      user = await User.create(
+        {
+          name,
+          email,
+          password: hashedPassword,
+          phone,
+        },
+        { transaction },
+      );
+    }
+
+    if (!user) {
+      throwCustomError('User creation failed', 400);
+    }
+
+    const userRoles = await Role.findAll(
+      {
+        where: { name: roles },
+      },
+      { transaction },
+    );
+
+    if (userRoles.length > 0) {
+      // Add roles to the user
+      await user.addRoles(userRoles, { transaction });
+    } else {
+      console.error(`Roles not found for names: ${roles}`);
+    }
+
+    await transaction.commit();
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
   }
 };
 
@@ -66,7 +101,7 @@ const sendOtp = async payload => {
 
   console.log(otp);
   otpStore.set(email, otp);
-  await sendOtpEmail(email, otp);
+  sendOtpEmail(email, otp);
 };
 
 const verifyOtp = async payload => {
@@ -75,10 +110,8 @@ const verifyOtp = async payload => {
   const user = await User.findOne({
     where: { email: email },
   });
-  console.log(user);
 
   const storedOtp = otpStore.get(email);
-  console.log('Stored OTP:', storedOtp);
 
   if (!storedOtp) {
     throwCustomError('OTP expired or does not exist', 400);
@@ -124,12 +157,7 @@ const logout = async payload => {
 
   const expiresIn = 300;
 
-  return addTokenToBlacklist(token, expiresIn)
-    .then()
-    .catch(error => {
-      console.log(error);
-      throwCustomError('Logout failed', 400);
-    });
+  return addTokenToBlacklist(token, expiresIn);
 };
 
 module.exports = {

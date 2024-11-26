@@ -3,23 +3,83 @@ const { Op } = require('sequelize');
 const { throwCustomError } = require('../helpers/common.helper');
 
 const create = async payload => {
-  const t = await sequelize.transaction();
+  const {
+    movieId,
+    theaterId,
+    type,
+    price,
+    showTime: show_time,
+    availableSeats,
+  } = payload;
 
   try {
-    const showData = {
-      movie_id: payload.movieId,
-      theater_id: payload.theaterId,
-      show_time: payload.showTime,
-      available_seats: payload.availableSeats,
-      type: payload.type,
-      price: payload.price,
-    };
-    const show = await Show.create(showData, { transaction: t });
-    await t.commit();
+    const [theater, movie] = await Promise.all([
+      Theater.findOne({
+        where: { id: theaterId },
+      }),
+      Movie.findOne({
+        where: { id: movieId },
+        attributes: ['duration'],
+      }),
+    ]);
+
+    if (!theater) {
+      throwCustomError('theater not found', 404);
+    }
+
+    if (!movie) {
+      throwCustomError('movie not found', 404);
+    }
+
+    const movieDuration = movie.duration;
+    if (!movieDuration) {
+      throwCustomError('movie duration is required to create a show');
+    }
+
+    const startTime = new Date(show_time);
+    const endTime = new Date(startTime);
+    endTime.setMinutes(startTime.getMinutes() + movieDuration);
+
+    const isShowOverlap = await Show.findOne({
+      where: {
+        theater_id: theaterId,
+        [Op.or]: [
+          {
+            show_time: {
+              [Op.between]: [startTime, endTime],
+            },
+          },
+          {
+            [Op.and]: [
+              { show_time: { [Op.lte]: startTime } },
+              sequelize.literal(
+                `"show_time" + interval '10 minute' * ${movieDuration} >= '${startTime.toISOString()}'`,
+              ),
+            ],
+          },
+        ],
+      },
+    });
+
+    if (isShowOverlap) {
+      throwCustomError(
+        'Another show is also running at that specific time, please arrange another time!',
+        400,
+      );
+    }
+
+    const show = await Show.create({
+      movie_id: movieId,
+      theater_id: theaterId,
+      show_time: startTime,
+      type,
+      price,
+      available_seats: availableSeats,
+    });
+
     return show;
   } catch (error) {
-    await t.rollback();
-    throwCustomError(error);
+    throw error;
   }
 };
 

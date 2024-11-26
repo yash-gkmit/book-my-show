@@ -13,37 +13,38 @@ const path = require('path');
 const { Op } = require('sequelize');
 const moment = require('moment');
 
-const create = async (movie, theaterIds) => {
+const create = async (movieDetails, theaterIds) => {
   const transaction = await sequelize.transaction();
 
   const movieData = {
-    poster: movie.poster,
-    trailer: movie.trailer,
-    name: movie.name,
-    summary: movie.summary,
-    release_date: movie.releaseDate,
-    genre: movie.genre,
-    language: movie.language,
-    cast_member_list: movie.castMemberList,
-    theaterIds: movie.theaterIds,
-    category: movie.category,
+    poster: movieDetails.poster,
+    trailer: movieDetails.trailer,
+    name: movieDetails.name,
+    summary: movieDetails.summary,
+    release_date: movieDetails.releaseDate,
+    genre: movieDetails.genre,
+    language: movieDetails.language,
+    cast_member_list: movieDetails.castMemberList,
+    category: movieDetails.category,
+    duration: movieDetails.duration, // Ensure this field is included if applicable
   };
 
   try {
     const movie = await Movie.create(movieData, { transaction });
 
+    // Handle association with theaters
     if (theaterIds && theaterIds.length > 0) {
       const theaterAssociations = theaterIds.map(theaterId => ({
         movie_id: movie.id,
         theater_id: theaterId,
       }));
-      console.log(theaterAssociations);
 
       await TheaterMovie.bulkCreate(theaterAssociations, { transaction });
     }
 
     await transaction.commit();
 
+    // Fetch the movie along with associated theaters
     const movieWithTheaters = await Movie.findByPk(movie.id, {
       include: {
         model: Theater,

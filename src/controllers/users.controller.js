@@ -23,7 +23,6 @@ const fetchAll = async (req, res, next) => {
     res.statusCode = 200;
     next();
   } catch (error) {
-    console.error('error fetching users:', error);
     errorHandler(req, res, error, 404);
   }
 };
@@ -92,8 +91,7 @@ const getBookings = async (req, res, next) => {
     res.statusCode = 200;
     next();
   } catch (error) {
-    console.error('error fetching bookings:', error);
-    errorHandler(req, res, 'an error occurred while fetching bookings.', 400);
+    errorHandler(req, res, error, error.statusCode || 400);
   }
 };
 
@@ -111,11 +109,7 @@ const getTransactions = async (req, res, next) => {
     res.statusCode = 200;
     next();
   } catch (error) {
-    console.error('error fetching bookings:', error);
-    return res.status(400).json({
-      message: 'an error occurred while fetching bookings.',
-      error: error,
-    });
+    errorHandler(req, res, error, error.statusCode || 400);
   }
 };
 
@@ -133,7 +127,6 @@ const fetchReports = async (req, res, next) => {
 
     next();
   } catch (error) {
-    console.error('error fetching reports:', error);
     errorHandler(req, res, error, error.statusCode || 400);
   }
 };
