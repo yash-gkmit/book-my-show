@@ -2,7 +2,6 @@ const {
   Theater,
   sequelize,
   TheaterMovie,
-  Movie,
   Show,
   Booking,
 } = require('../../src/models');

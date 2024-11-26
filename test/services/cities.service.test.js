@@ -225,18 +225,6 @@ describe('City Service', () => {
       const city = faker.address.city();
       const startDate = '01-01-2023';
       const endDate = '31-12-2023';
-      const mockMovies = [
-        {
-          id: faker.string.uuid(),
-          name: faker.commerce.productName(),
-          release_date: faker.date.past(),
-          shows: [
-            {
-              bookings: [{ total_amount: 100 }, { total_amount: 200 }],
-            },
-          ],
-        },
-      ];
 
       // Movie.findAll.mockResolvedValueOnce(mockMovies);
       fs.existsSync.mockReturnValue(false);

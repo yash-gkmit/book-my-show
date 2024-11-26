@@ -5,16 +5,8 @@ const {
   get,
   remove,
 } = require('../../src/services/transactions.service');
-const {
-  Transaction,
-  Booking,
-  Show,
-  User,
-  Movie,
-  sequelize,
-} = require('../../src/models');
+const { Transaction, Booking, sequelize } = require('../../src/models');
 const { sendTransactionEmail } = require('../../src/helpers/mail.helper');
-const { throwCustomError } = require('../../src/helpers/common.helper');
 
 jest.mock('../../src/models');
 jest.mock('../../src/helpers/mail.helper', () => ({
