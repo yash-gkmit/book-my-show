@@ -36,7 +36,7 @@ const fetchAll = async (req, res, next) => {
     if (!movies.data.length) {
       return errorHandler(req, res, 'No movies found', 404);
     }
-    res.message = 'Movies fetched successfully';
+    res.message = 'movies fetched successfully';
     res.data = {
       pagination: movies.pagination,
       movies: movies.data,

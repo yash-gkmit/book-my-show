@@ -105,7 +105,7 @@ const get = async movieId => {
     where: { id: movieId },
   });
   if (!movie) {
-    throwCustomError('Movie not exist with that id!', 404);
+    throwCustomError('movie not exist with that id!', 404);
   }
   return movie;
 };
@@ -137,7 +137,7 @@ const remove = async movieId => {
   try {
     const movie = await Movie.findByPk(movieId, { transaction });
     if (!movie) {
-      throwCustomError('Movie not found', 404);
+      throwCustomError('movie not found', 404);
     }
 
     await movie.destroy({ transaction });
@@ -149,7 +149,7 @@ const remove = async movieId => {
 
     await transaction.commit();
 
-    return { message: 'Movie soft deleted successfully' };
+    return { message: 'movie soft deleted successfully' };
   } catch (error) {
     await transaction.rollback();
     throw error;
@@ -166,7 +166,7 @@ const getTheatersByMovie = async movieId => {
   });
 
   if (!movie) {
-    throwCustomError('Movie not found', 404);
+    throwCustomError('movie not found', 404);
   }
 
   return movie.theaters;
@@ -190,7 +190,7 @@ const generateReport = async (startDate, endDate) => {
       }
 
       if (moment(parsedStartDate).isAfter(moment(parsedEndDate))) {
-        throw new Error('Start date must be before end date.');
+        throwCustomError('start date must be before end date.');
       }
 
       whereClause.created_at = {
@@ -213,7 +213,7 @@ const generateReport = async (startDate, endDate) => {
     });
 
     if (!movies.length) {
-      console.log('No movies found within the specified date range.');
+      console.log('no movies found within the specified date range.');
     }
 
     const reportData = movies.map(movie => {
@@ -238,7 +238,7 @@ const generateReport = async (startDate, endDate) => {
     });
 
     if (!reportData.length) {
-      console.log('No bookings data found for the movies.');
+      console.log('no bookings data found for the movies.');
     }
 
     const fields = [
