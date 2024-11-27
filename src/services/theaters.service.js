@@ -16,19 +16,15 @@ const create = async payload => {
     address: payload.address,
   };
 
-  try {
-    const isAddressExist = await Theater.findOne({
-      where: { address: data.address },
-    });
+  const isAddressExist = await Theater.findOne({
+    where: { address: data.address },
+  });
 
-    if (isAddressExist) {
-      throwCustomError('Can not add theater with same address!', 400);
-    }
-    const theater = await Theater.create(data);
-    return theater;
-  } catch (error) {
-    throwCustomError(error);
+  if (isAddressExist) {
+    throwCustomError('Can not add theater with same address!', 400);
   }
+  const theater = await Theater.create(data);
+  return theater;
 };
 
 const getAll = async payload => {

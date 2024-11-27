@@ -1,10 +1,7 @@
 const bookingController = require('../../src/controllers/bookings.controller');
 const bookingService = require('../../src/services/bookings.service');
 const { Booking } = require('../../src/models');
-const {
-  errorHandler,
-  throwCustomError,
-} = require('../../src/helpers/common.helper');
+const { errorHandler } = require('../../src/helpers/common.helper');
 const { faker } = require('@faker-js/faker');
 
 // Mock dependencies

@@ -2,8 +2,6 @@
 
 const { faker } = require('@faker-js/faker');
 const fs = require('fs');
-const path = require('path');
-const moment = require('moment');
 const { throwCustomError } = require('../../src/helpers/common.helper');
 const {
   create,
@@ -14,7 +12,7 @@ const {
   getTheaters,
   generateReport,
 } = require('../../src/services/cities.service');
-const { City, Movie, Show, Booking, Theater } = require('../../src/models');
+const { City, Theater } = require('../../src/models');
 
 jest.mock('../../src/models', () => ({
   City: jest.fn().mockImplementation(() => ({})),
@@ -163,7 +161,7 @@ describe('City Service', () => {
       City.findByPk = jest.fn(() => Promise.resolve(city));
       city.destroy = jest.fn(() => Promise.resolve());
 
-      const result = await remove(city.id);
+      // const result = await remove(city.id);
 
       expect(City.findByPk).toHaveBeenCalledWith(city.id);
       expect(city.destroy).toHaveBeenCalled();

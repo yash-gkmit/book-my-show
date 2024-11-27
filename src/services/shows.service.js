@@ -12,75 +12,71 @@ const create = async payload => {
     availableSeats,
   } = payload;
 
-  try {
-    const [theater, movie] = await Promise.all([
-      Theater.findOne({
-        where: { id: theaterId },
-      }),
-      Movie.findOne({
-        where: { id: movieId },
-        attributes: ['duration'],
-      }),
-    ]);
+  const [theater, movie] = await Promise.all([
+    Theater.findOne({
+      where: { id: theaterId },
+    }),
+    Movie.findOne({
+      where: { id: movieId },
+      attributes: ['duration'],
+    }),
+  ]);
 
-    if (!theater) {
-      throwCustomError('Theater not found', 404);
-    }
-
-    if (!movie) {
-      throwCustomError('Movie not found', 404);
-    }
-
-    const movieDuration = movie.duration;
-    if (!movieDuration) {
-      throwCustomError('Movie duration is required to create a show');
-    }
-
-    const startTime = new Date(show_time);
-    const endTime = new Date(startTime);
-    endTime.setMinutes(startTime.getMinutes() + movieDuration);
-
-    const isShowOverlap = await Show.findOne({
-      where: {
-        theater_id: theaterId,
-        [Op.or]: [
-          {
-            show_time: {
-              [Op.between]: [startTime, endTime],
-            },
-          },
-          {
-            [Op.and]: [
-              { show_time: { [Op.lte]: startTime } },
-              sequelize.literal(
-                `"show_time" + interval '1 minute' * ${movieDuration} >= '${startTime.toISOString()}'`,
-              ),
-            ],
-          },
-        ],
-      },
-    });
-
-    if (isShowOverlap) {
-      throwCustomError(
-        'Another show is arranged at that specific time, please provide another time!',
-        400,
-      );
-    }
-
-    const show = await Show.create({
-      movie_id: movieId,
-      theater_id: theaterId,
-      show_time: startTime,
-      type,
-      price,
-      available_seats: availableSeats,
-    });
-
-    return show;
-  } catch (error) {
-    throw error;
+  if (!theater) {
+    throwCustomError('Theater not found', 404);
   }
+
+  if (!movie) {
+    throwCustomError('Movie not found', 404);
+  }
+
+  const movieDuration = movie.duration;
+  if (!movieDuration) {
+    throwCustomError('Movie duration is required to create a show');
+  }
+
+  const startTime = new Date(show_time);
+  const endTime = new Date(startTime);
+  endTime.setMinutes(startTime.getMinutes() + movieDuration);
+
+  const isShowOverlap = await Show.findOne({
+    where: {
+      theater_id: theaterId,
+      [Op.or]: [
+        {
+          show_time: {
+            [Op.between]: [startTime, endTime],
+          },
+        },
+        {
+          [Op.and]: [
+            { show_time: { [Op.lte]: startTime } },
+            sequelize.literal(
+              `"show_time" + interval '1 minute' * ${movieDuration} >= '${startTime.toISOString()}'`,
+            ),
+          ],
+        },
+      ],
+    },
+  });
+
+  if (isShowOverlap) {
+    throwCustomError(
+      'Another show is arranged at that specific time, please provide another time!',
+      400,
+    );
+  }
+
+  const show = await Show.create({
+    movie_id: movieId,
+    theater_id: theaterId,
+    show_time: startTime,
+    type,
+    price,
+    available_seats: availableSeats,
+  });
+
+  return show;
 };
 
 const getAll = async payload => {

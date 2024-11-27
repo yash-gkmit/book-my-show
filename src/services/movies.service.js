@@ -136,7 +136,7 @@ const remove = async payload => {
 
   await TheaterMovie.update(
     { deleted_at: new Date() },
-    { where: { movie_id: movieId }, individualHooks: true, transaction },
+    { where: { movie_id: id }, individualHooks: true },
   );
 };
 

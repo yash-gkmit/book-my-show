@@ -13,6 +13,7 @@ security:
   - bearerAuth: []
 tags:
   - name: auth
+  - name: role
   - name: user
   - name: city
   - name: theater
@@ -32,12 +33,12 @@ paths:
             schema:
               type: object
               example:
-                name: Ronny
-                email: Ronny2@mailinator.com
-                password: Ronny@1234
-                phone: '88056468944'
+                name: Akshay
+                email: akshay@mailinator.com
+                password: Akshay@1234
+                phone: '9873456781'
                 roles:
-                  - Customer
+                  - Theater Owner
       responses:
         '200':
           description: Successful response
@@ -54,7 +55,7 @@ paths:
             schema:
               type: object
               example:
-                email: yogita@mailinator.com
+                email: yash@mailinator.com
       responses:
         '200':
           description: Successful response
@@ -70,9 +71,11 @@ paths:
           application/json:
             schema:
               type: object
-              example:
-                email: yogita@mailinator.com
-                otp: '703402'
+              example: |-
+                {
+                    "email":"yash4@mailinator.com"
+                    "otp":"327315"
+                }
       responses:
         '200':
           description: Successful response
@@ -89,14 +92,14 @@ paths:
             schema:
               type: object
               example:
-                email: yashgupta@gkmit.co
-                password: Yashg@9414
+                email: adityasinghrajawat393@gmail.com
+                password: Aditya@1234
       responses:
         '200':
           description: Successful response
           content:
             application/json: {}
-  /api/auth:
+  /api/auth/logout:
     delete:
       tags:
         - auth
@@ -109,6 +112,88 @@ paths:
           example: >-
             bearer
             eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNTQ3YzM4YzktNDU0Yy00N2JkLWJmMGUtYWEzMmViMjBlMmMxIiwicm9sZXMiOlsiQ3VzdG9tZXIiXSwic2VsZWN0ZWRSb2xlIjoiQ3VzdG9tZXIiLCJpYXQiOjE3MzIxODM5ODEsImV4cCI6MTczMjI3MDM4MX0.d1L_5C1EzsjVt3-bcvYSMUAsTFSebY98LHf5VyzILx
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/roles:
+    post:
+      tags:
+        - role
+      summary: create-role
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                name: Content Creator
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    get:
+      tags:
+        - role
+      summary: get all roles
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/roles/{id}:
+    get:
+      tags:
+        - role
+      summary: get single role
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: fdf791b0-40cc-4a2b-93ae-75f42dc4bbbf
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    patch:
+      tags:
+        - role
+      summary: update role
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                name: njdfhuvjndf
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 40a4440b-3112-4306-b8c1-bf145e488df2
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - role
+      summary: delete role
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 40a4440b-3112-4306-b8c1-bf145e488df2
       responses:
         '200':
           description: Successful response
@@ -141,7 +226,12 @@ paths:
           in: query
           schema:
             type: integer
-          example: '2'
+          example: '1'
+        - name: limit
+          in: query
+          schema:
+            type: integer
+          example: '5'
       responses:
         '200':
           description: Successful response
@@ -165,7 +255,7 @@ paths:
           schema:
             type: string
           required: true
-          example: d10c7cf3-bfb4-49a4-ada2-9604b9917637
+          example: 67b07a8f-88cd-45df-b811-8daa44fff2ef
       responses:
         '200':
           description: Successful response
@@ -181,8 +271,8 @@ paths:
             schema:
               type: object
               example:
-                name: aditya
-                phone: '8765434567'
+                name: meena
+                phone: '8765434522'
       parameters:
         - name: Authorization
           in: header
@@ -196,7 +286,7 @@ paths:
           schema:
             type: string
           required: true
-          example: 47378a43-6b7b-40ec-9729-7c80d1f27917
+          example: 67b07a8f-88cd-45df-b811-8daa44fff2ef
       responses:
         '200':
           description: Successful response
@@ -219,7 +309,7 @@ paths:
           schema:
             type: string
           required: true
-          example: 23b781eb-d172-40cc-800d-ec8a81a1bab6
+          example: 67b07a8f-88cd-45df-b811-8daa44fff2ef
       responses:
         '200':
           description: Successful response
@@ -253,7 +343,7 @@ paths:
           schema:
             type: string
           required: true
-          example: 369559af-37aa-432a-8eb6-1a5dd617fe50
+          example: 9fdcae55-59b0-446a-b8c7-52448cb51438
       responses:
         '200':
           description: Successful response
@@ -276,7 +366,7 @@ paths:
           in: query
           schema:
             type: integer
-          example: '2'
+          example: '1'
         - name: limit
           in: query
           schema:
@@ -287,19 +377,17 @@ paths:
           schema:
             type: string
           required: true
-          example: 369559af-37aa-432a-8eb6-1a5dd617fe50
+          example: d1ecc0e2-555c-4786-9081-b44ed4584df7
       responses:
         '200':
           description: Successful response
           content:
             application/json: {}
   /api/users/reports:
-    post:
+    get:
       tags:
         - user
       summary: users report(Admin)
-      requestBody:
-        content: {}
       parameters:
         - name: Authorization
           in: header
@@ -334,7 +422,7 @@ paths:
             schema:
               type: object
               example:
-                name: Noida
+                name: goa
       parameters:
         - name: Authorization
           in: header
@@ -360,6 +448,11 @@ paths:
           example: >-
             Bearer
             eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWZkY2FlNTUtNTliMC00NDZhLWI4YzctNTI0NDhjYjUxNDM4Iiwicm9sZXMiOlsiQWRtaW4iXSwic2VsZWN0ZWRSb2xlIjoiQWRtaW4iLCJpYXQiOjE3MzE5MDYxOTUsImV4cCI6MTczMTkwOTc5NX0.apyIhcbHuJMos7XjhCdijzH7KxU-AYf86z0PWEk00KI
+        - name: page
+          in: query
+          schema:
+            type: integer
+          example: '2'
       responses:
         '200':
           description: Successful response
@@ -399,7 +492,7 @@ paths:
             schema:
               type: object
               example:
-                name: Chennai
+                name: Patiala
       parameters:
         - name: Authorization
           in: header
@@ -413,7 +506,7 @@ paths:
           schema:
             type: string
           required: true
-          example: 839d23d5-a610-4925-a07e-2036e405dc27
+          example: 6ca574bd-2b90-4a36-bf66-ac37cec1d2a6
       responses:
         '200':
           description: Successful response
@@ -436,19 +529,17 @@ paths:
           schema:
             type: string
           required: true
-          example: 482b06ab-bf7d-40fe-ac9b-3823811d0f8e
+          example: bfd70ecf-ae6c-4abe-a3ce-54659e5e15ec
       responses:
         '200':
           description: Successful response
           content:
             application/json: {}
   /api/cities/reports:
-    post:
+    get:
       tags:
         - city
       summary: city report(Admin)
-      requestBody:
-        content: {}
       parameters:
         - name: Authorization
           in: header
@@ -502,9 +593,9 @@ paths:
             schema:
               type: object
               example:
-                cityId: 6ca574bd-2b90-4a36-bf66-ac37cec1d2a6
-                name: INOX PVR Theater
-                address: Celebration Mall udaipur
+                cityId: ecd0b538-485a-487e-ab9f-829fee936e60
+                name: Most Wanted Theater
+                address: justin pune
       parameters:
         - name: Authorization
           in: header
@@ -535,6 +626,11 @@ paths:
           schema:
             type: integer
           example: '2'
+        - name: limit
+          in: query
+          schema:
+            type: integer
+          example: '5'
       responses:
         '200':
           description: Successful response
@@ -558,7 +654,7 @@ paths:
           schema:
             type: string
           required: true
-          example: 4309e1c7-dc06-47f0-b7dc-5cfa318ae74a
+          example: e360e182-1c11-423d-a437-25b775c69ddc
       responses:
         '200':
           description: Successful response
@@ -574,7 +670,8 @@ paths:
             schema:
               type: object
               example:
-                name: INOX Dubai
+                name: Theater Nice
+                address: justin pune
       parameters:
         - name: Authorization
           in: header
@@ -588,7 +685,7 @@ paths:
           schema:
             type: string
           required: true
-          example: 4309e1c7-dc06-47f0-b7dc-5cfa318ae74a
+          example: e360e182-1c11-423d-a437-25b775c69ddc
       responses:
         '200':
           description: Successful response
@@ -611,7 +708,7 @@ paths:
           schema:
             type: string
           required: true
-          example: d05e5865-8d5a-49f7-b74b-68be3f4ea216
+          example: e360e182-1c11-423d-a437-25b775c69ddc
       responses:
         '200':
           description: Successful response
@@ -642,12 +739,10 @@ paths:
           content:
             application/json: {}
   /api/theaters/reports:
-    post:
+    get:
       tags:
         - theater
       summary: theater report(Admin)
-      requestBody:
-        content: {}
       parameters:
         - name: Authorization
           in: header
@@ -839,12 +934,10 @@ paths:
           content:
             application/json: {}
   /api/movies/reports:
-    post:
+    get:
       tags:
         - movie
       summary: movie reoprts(Admin)
-      requestBody:
-        content: {}
       parameters:
         - name: Authorization
           in: header
@@ -879,12 +972,12 @@ paths:
             schema:
               type: object
               example:
-                movieId: e4656986-bf1c-40de-8e34-666cc8919441
-                theaterId: 4309e1c7-dc06-47f0-b7dc-5cfa318ae74a
-                showTime: Night
-                availableSeats: 342
-                type: 4D
-                price: 999
+                movieId: 43d4c1e0-741f-44c8-ac78-998c2178fdce
+                theaterId: a4e57883-5f30-4e00-843e-47275975e80c
+                showTime: '2024-11-26 7:32:42.704+00'
+                availableSeats: 220
+                type: 2D
+                price: 450
       parameters:
         - name: Authorization
           in: header
@@ -910,6 +1003,16 @@ paths:
           example: >-
             Bearer
             eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNDczNzhhNDMtNmI3Yi00MGVjLTk3MjktN2M4MGQxZjI3OTE3Iiwicm9sZXMiOlsiVGhlYXRlciBPd25lciIsIkN1c3RvbWVyIl0sInNlbGVjdGVkUm9sZSI6IlRoZWF0ZXIgT3duZXIiLCJpYXQiOjE3MzIxNjkxMjIsImV4cCI6MTczMjE3MjcyMn0.8xZHMvEQL6t8dbNsrFu6qW6yMSvsNnk0JinbUYGPzdU
+        - name: page
+          in: query
+          schema:
+            type: integer
+          example: '1'
+        - name: limit
+          in: query
+          schema:
+            type: integer
+          example: '1'
       responses:
         '200':
           description: Successful response
@@ -933,7 +1036,7 @@ paths:
           schema:
             type: string
           required: true
-          example: 8969131f-36c0-4ec1-b609-728acf105755
+          example: 5199d78a-a5e4-405f-8e1e-118f8500a066
       responses:
         '200':
           description: Successful response
@@ -949,7 +1052,7 @@ paths:
             schema:
               type: object
               example:
-                showTime: Night
+                type: 3D
       parameters:
         - name: Authorization
           in: header
@@ -963,7 +1066,7 @@ paths:
           schema:
             type: string
           required: true
-          example: 8969131f-36c0-4ec1-b609-728acf105755
+          example: 5199d78a-a5e4-405f-8e1e-118f8500a066
       responses:
         '200':
           description: Successful response
@@ -986,7 +1089,7 @@ paths:
           schema:
             type: string
           required: true
-          example: 8969131f-36c0-4ec1-b609-728acf105754
+          example: 5199d78a-a5e4-405f-8e1e-118f8500a066
       responses:
         '200':
           description: Successful response
@@ -1003,9 +1106,9 @@ paths:
             schema:
               type: object
               example:
-                showId: 7b134b0a-4fef-4cc6-a12e-b7f3c9677b45
-                numberOfSeats: 10
-                bookingDate: '2024-11-30'
+                showId: e035abbe-885c-449d-bdf8-17276289f41e
+                numberOfSeats: 55
+                bookingDate: '2024-11-27T20:21:29.704Z'
       parameters:
         - name: Authorization
           in: header
@@ -1107,12 +1210,10 @@ paths:
           content:
             application/json: {}
   /api/bookings/reports:
-    post:
+    get:
       tags:
         - booking
       summary: booking report (Admin)
-      requestBody:
-        content: {}
       parameters:
         - name: Authorization
           in: header
@@ -1155,7 +1256,7 @@ paths:
     get:
       tags:
         - transaction
-      summary: get all users transaction
+      summary: get all users transaction(Admin)
       parameters:
         - name: Authorization
           in: header

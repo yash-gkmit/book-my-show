@@ -58,16 +58,15 @@ const update = async payload => {
 const remove = async payload => {
   const { id } = payload;
 
-  const user = await User.findByPk(id, { transaction });
+  const user = await User.findByPk(id);
   if (!user) throwCustomError('User not found');
-  await user.destroy({ transaction });
+  await user.destroy();
 
   await UserRole.update(
     { deleted_at: new Date() },
     {
       where: { user_id: id },
       individualHooks: true,
-      transaction,
     },
   );
 };

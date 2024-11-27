@@ -1,7 +1,7 @@
 const { Booking, Show, Movie, sequelize } = require('../../src/models');
 const bookingService = require('../../src/services/bookings.service');
 const { faker } = require('@faker-js/faker');
-const { throwCustomError } = require('../../src/helpers/common.helper');
+// const { throwCustomError } = require('../../src/helpers/common.helper');
 
 jest.mock('../../src/models');
 jest.mock('../../src/helpers/common.helper');

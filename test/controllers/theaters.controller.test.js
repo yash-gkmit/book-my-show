@@ -1,9 +1,6 @@
 const theaterController = require('../../src/controllers/theaters.controller');
 const theaterService = require('../../src/services/theaters.service');
-const {
-  errorHandler,
-  throwCustomError,
-} = require('../../src/helpers/common.helper');
+const { errorHandler } = require('../../src/helpers/common.helper');
 const { faker } = require('@faker-js/faker');
 
 jest.mock('../../src/services/theaters.service');

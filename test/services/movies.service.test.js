@@ -7,17 +7,9 @@ const {
   getTheatersByMovieId,
   getReport,
 } = require('../../src/services/movies.service');
-const {
-  Movie,
-  Theater,
-  TheaterMovie,
-  Show,
-  Booking,
-  sequelize,
-} = require('../../src/models');
+const { Movie, Theater, TheaterMovie, sequelize } = require('../../src/models');
 const { faker } = require('@faker-js/faker');
 const fs = require('fs');
-const path = require('path');
 const { parse } = require('json2csv');
 
 jest.mock('fs');

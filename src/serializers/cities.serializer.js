@@ -1,11 +1,7 @@
 const serialize = (req, res, next) => {
   const { data } = res;
 
-  const response = {
-    city: {},
-    cities: [],
-    pagination: null,
-  };
+  let response = {};
 
   if (data) {
     const { data: cities, pagination } = data;
@@ -36,53 +32,9 @@ const serialize = (req, res, next) => {
 };
 
 const theaterSerialize = (req, res, next) => {
-  // const { data: theaters } = res.data || {};
-
-  // let response = {
-  //   theaters: [],
-  //   pagination: {},
-  // };
-  // if (!res.data.data) {
-  //   theater = res.data;
-  // }
-
-  // if (theaters && Array.isArray(theaters?.data) && theaters?.data?.length > 0) {
-  //   response.theaters = theaters?.data?.map(theater => {
-  //     const { id, name, address, created_at, updated_at } = theater;
-  //     return {
-  //       id,
-  //       name,
-  //       address,
-  //       createdAt: created_at,
-  //       updatedAt: updated_at,
-  //     };
-  //   });
-
-  //   if (theaters.pagination) {
-  //     response.pagination = theaters.pagination;
-  //   }
-  // } else if (theaters && theaters?.data && theaters?.data[0]) {
-  //   const { id, name, address, created_at, updated_at } = theaters?.data[0];
-  //   response.theater = {
-  //     id,
-  //     name,
-  //     address,
-  //     createdAt: created_at,
-  //     updatedAt: updated_at,
-  //   };
-  // } else {
-  //   response.message = 'No theater data found!';
-  // }
-
-  // res.data = response;
-  // next();
-
   const { data } = res;
 
-  const response = {
-    theaters: [],
-    pagination: null,
-  };
+  const response = {};
 
   if (data) {
     const { data: theaters, pagination } = data;
@@ -96,7 +48,9 @@ const theaterSerialize = (req, res, next) => {
         updatedAt: theater?.updated_at,
       }));
     }
-    res.pagination = pagination;
+    if (pagination) {
+      response.pagination = pagination;
+    }
   }
   res.data = response;
 
