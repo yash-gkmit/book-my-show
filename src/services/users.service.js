@@ -52,7 +52,8 @@ const update = async payload => {
   });
   if (!user) throwCustomError('user not found', 404);
 
-  await user.update(data);
+  const updatedUser = await user.update(data);
+  return updatedUser;
 };
 
 const remove = async payload => {

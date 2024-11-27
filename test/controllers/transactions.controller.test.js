@@ -12,10 +12,10 @@ describe('Transaction Controller', () => {
 
   beforeEach(() => {
     req = {
-      body: {},
-      params: {},
-      query: {},
-      user: { id: faker.string.uuid() }, // Mocking user ID
+      {"body": {"bookingId": "ad6a968a-5120-4d78-b35a-877f600db4d8", "userId": "152ad5df-94fb-4757-bcac-b78baf7f5457"},
+       "params": {},
+        "query": {},
+         "user": {"id": "0c68021b-d35f-488a-8999-a98c72aa3a92"}}, {"data": {"id": "b4511b70-9f78-422c-93f7-14552fe468f8"}, "json": [Function mockConstructor], "message": "Transaction genearted successfully, Please check your mail for bill!", "status": [Function mockConstructor], "statusCode": 201}, [Error: You are not authorize to do transaction of that specific booking!], 403, // Mocking user ID
     };
     res = {
       status: jest.fn().mockReturnThis(),

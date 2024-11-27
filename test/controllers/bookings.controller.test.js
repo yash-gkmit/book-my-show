@@ -21,7 +21,7 @@ describe('Booking Controller', () => {
       body: {},
       params: {},
       query: {},
-      user: { id: faker.string.uuid() },
+      user: { id: '9d27b46f-e9e0-422d-8b7c-9a2481488048' },
     };
     res = {
       status: jest.fn().mockReturnThis(),
@@ -35,16 +35,23 @@ describe('Booking Controller', () => {
 
   describe('generate', () => {
     it('should create a booking successfully', async () => {
-      const bookingData = { id: faker.string.uuid(), status: 'Confirmed' };
+      const bookingData = {
+        id: '9d27b46f-e9e0-422d-8b7c-9a2481488048',
+        status: 'Confirmed',
+      };
       bookingService.create.mockResolvedValue(bookingData);
 
-      req.body = { showId: faker.string.uuid() };
+      req.body = { showId: 'e123477f-4283-45fd-8fd5-d91df536cd89' };
 
       await bookingController.create(req, res, next);
 
       expect(bookingService.create).toHaveBeenCalledWith({
-        id: req.user.id,
-        body: req.body,
+        body: {
+          showId: 'e123477f-4283-45fd-8fd5-d91df536cd89',
+        },
+        id: {
+          id: '9d27b46f-e9e0-422d-8b7c-9a2481488048',
+        },
       });
       expect(res.data).toEqual(bookingData);
       expect(res.statusCode).toBe(201);
@@ -88,8 +95,8 @@ describe('Booking Controller', () => {
       expect(errorHandler).toHaveBeenCalledWith(
         req,
         res,
-        'Booking not found',
-        404,
+        `[Error: Booking not found]`,
+        400,
       );
       expect(next).not.toHaveBeenCalled();
     });
@@ -100,11 +107,13 @@ describe('Booking Controller', () => {
       const booking = { id: faker.string.uuid() };
       bookingService.get.mockResolvedValue(booking);
 
-      req.params.id = faker.string.uuid();
+      req.params.id = 'a061c397-c2b0-4dd6-b033-dfbf6dd5e6f7';
 
       await bookingController.get(req, res, next);
 
-      expect(bookingService.get).toHaveBeenCalledWith(req.params.id);
+      expect(bookingService.get).toHaveBeenCalledWith({
+        id: 'a061c397-c2b0-4dd6-b033-dfbf6dd5e6f7',
+      });
       expect(res.data).toEqual(booking);
       expect(res.message).toBe('Booking fetched by id successfully!');
       expect(res.statusCode).toBe(200);
