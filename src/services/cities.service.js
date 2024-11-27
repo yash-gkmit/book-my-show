@@ -52,22 +52,20 @@ const get = async payload => {
 const update = async payload => {
   const { id } = payload.id;
   const data = payload.data;
-  const city = await City.findByPk(id, { transaction });
+  const city = await City.findByPk(id);
   if (!city) {
     throwCustomError('City not found', 404);
   }
 
-  await city.update(data, { transaction });
-  await transaction.commit();
+  await city.update(data);
   return city;
 };
 
 const remove = async payload => {
   const id = payload;
 
-  const city = await City.findByPk(id, { transaction });
+  const city = await City.findByPk(id);
   if (!city) {
-    await transaction.rollback();
     throwCustomError('City not found', 404);
   }
 

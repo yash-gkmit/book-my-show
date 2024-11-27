@@ -4,18 +4,14 @@ const {
   get,
   update,
   remove,
-  generateReport,
-  getTheatersByMovie,
+  getTheatersByMovieId,
+  getReport,
 } = require('../../src/services/movies.service');
-const {
-  Movie,
-  Theater,
-  TheaterMovie,
-  Show,
-  Booking,
-  sequelize,
-} = require('../../src/models');
+const { Movie, Theater, TheaterMovie, sequelize } = require('../../src/models');
 const { faker } = require('@faker-js/faker');
+const fs = require('fs');
+const { parse } = require('json2csv');
+
 jest.mock('fs');
 jest.mock('path');
 jest.mock('json2csv', () => ({
@@ -26,13 +22,15 @@ jest.mock('../../src/models', () => ({
   Movie: {
     create: jest.fn(),
     findByPk: jest.fn(),
+    findAndCountAll: jest.fn(),
     update: jest.fn(),
     destroy: jest.fn(),
-    findAndCountAll: jest.fn(),
+    findOne: jest.fn(),
     findAll: jest.fn(),
   },
   Theater: {
     findByPk: jest.fn(),
+    findAll: jest.fn(),
   },
   TheaterMovie: {
     bulkCreate: jest.fn(),
@@ -49,16 +47,6 @@ jest.mock('../../src/models', () => ({
       commit: jest.fn(),
       rollback: jest.fn(),
     }),
-    models: {
-      Movie: {
-        create: jest.fn(),
-        findByPk: jest.fn(),
-        update: jest.fn(),
-      },
-      TheaterMovie: {
-        bulkCreate: jest.fn(),
-      },
-    },
   },
 }));
 
@@ -72,13 +60,14 @@ describe('Movie Service', () => {
       const movieData = {
         name: faker.lorem.words(),
         releaseDate: faker.date.future(),
-        poster: faker.image.image(),
+        poster: faker.image.imageUrl(),
         trailer: faker.internet.url(),
         summary: faker.lorem.paragraph(),
         genre: faker.lorem.word(),
         language: faker.lorem.word(),
         castMemberList: [faker.name.firstName(), faker.name.firstName()],
         category: faker.lorem.word(),
+        duration: 120,
       };
       const theaterIds = [1, 2, 3];
       const mockTransaction = { commit: jest.fn(), rollback: jest.fn() };
@@ -92,7 +81,7 @@ describe('Movie Service', () => {
         theaters: theaterIds,
       });
 
-      const result = await create(movieData, theaterIds);
+      const result = await create(theaterIds, movieData);
 
       expect(Movie.create).toHaveBeenCalledWith(movieData, {
         transaction: mockTransaction,
@@ -115,7 +104,7 @@ describe('Movie Service', () => {
       sequelize.transaction.mockResolvedValue(mockTransaction);
       Movie.create.mockRejectedValue(new Error('Database error'));
 
-      await expect(create(movieData)).rejects.toEqual('Database error');
+      await expect(create([], movieData)).rejects.toThrow('Database error');
       expect(mockTransaction.rollback).toHaveBeenCalled();
     });
   });
@@ -150,22 +139,25 @@ describe('Movie Service', () => {
   });
 
   describe('get', () => {
-    it('should return a movie by ID with theaters', async () => {
+    it('should return a movie by ID', async () => {
       const movie = { id: 1, name: faker.lorem.words() };
 
-      // Mock Movie.findByPk instead of Movie.findOne
       Movie.findByPk.mockResolvedValue(movie);
 
-      const result = await get(1);
+      const result = await get({ id: 1 });
 
-      expect(Movie.findByPk).toHaveBeenCalledWith(1); // Check that findByPk is called with the correct id
+      expect(Movie.findOne).toHaveBeenCalledWith({
+        where: { id: 1 },
+      });
       expect(result).toEqual(movie);
     });
 
     it('should throw an error if movie not found', async () => {
-      Movie.findByPk.mockResolvedValue(null); // Simulate movie not found
+      Movie.findOne.mockResolvedValue(null);
 
-      await expect(get(1)).rejects.toEqual('movie not exist with that id!');
+      await expect(get({ id: 1 })).rejects.toThrow(
+        'Movie not exist with that id!',
+      );
     });
   });
 
@@ -173,24 +165,20 @@ describe('Movie Service', () => {
     it('should update a movie', async () => {
       const movie = { id: 1, update: jest.fn() };
       const updatedData = { name: faker.lorem.words() };
-      const mockTransaction = { commit: jest.fn(), rollback: jest.fn() };
 
-      sequelize.transaction.mockResolvedValue(mockTransaction);
       Movie.findByPk.mockResolvedValue(movie);
+      const result = await update({ id: 1, body: updatedData });
 
-      const result = await update(1, updatedData);
-
-      expect(movie.update).toHaveBeenCalledWith(updatedData, {
-        transaction: mockTransaction,
-      });
-      expect(mockTransaction.commit).toHaveBeenCalled();
+      expect(movie.update).toHaveBeenCalledWith(updatedData);
       expect(result).toEqual(movie);
     });
 
     it('should throw an error if the movie is not found', async () => {
       Movie.findByPk.mockResolvedValue(null);
 
-      await expect(update(1, {})).rejects.toEqual('Movie not found');
+      await expect(update({ id: 1, body: {} })).rejects.toThrow(
+        'Movie not found',
+      );
     });
   });
 
@@ -202,11 +190,9 @@ describe('Movie Service', () => {
       sequelize.transaction.mockResolvedValue(mockTransaction);
       Movie.findByPk.mockResolvedValue(movie);
 
-      const result = await remove(1);
+      const result = await remove({ id: 1 });
 
-      expect(movie.destroy).toHaveBeenCalledWith({
-        transaction: mockTransaction,
-      });
+      expect(movie.destroy).toHaveBeenCalled();
       expect(mockTransaction.commit).toHaveBeenCalled();
       expect(result).toEqual({ message: 'movie soft deleted successfully' });
     });
@@ -214,11 +200,11 @@ describe('Movie Service', () => {
     it('should throw an error if the movie is not found', async () => {
       Movie.findByPk.mockResolvedValue(null);
 
-      await expect(remove(1)).rejects.toEqual('movie not found');
+      await expect(remove({ id: 1 })).rejects.toThrow('movie not found');
     });
   });
 
-  describe('getTheatersByMovie', () => {
+  describe('getTheatersByMovieId', () => {
     it('should return theaters for a given movie', async () => {
       const movie = {
         id: 1,
@@ -229,7 +215,7 @@ describe('Movie Service', () => {
       };
       Movie.findByPk.mockResolvedValue(movie);
 
-      const result = await getTheatersByMovie(1);
+      const result = await getTheatersByMovieId({ id: 1 });
 
       expect(Movie.findByPk).toHaveBeenCalledWith(1, {
         include: {
@@ -244,30 +230,27 @@ describe('Movie Service', () => {
     it('should throw an error if the movie is not found', async () => {
       Movie.findByPk.mockResolvedValue(null);
 
-      await expect(getTheatersByMovie(1)).rejects.toEqual('movie not found');
+      await expect(getTheatersByMovieId({ id: 1 })).rejects.toThrow(
+        'movie not found',
+      );
     });
   });
 
-  describe('generateReport', () => {
-    it('should throw an error for invalid date format', async () => {
-      await expect(
-        generateReport('invalid-date', '31-12-2023'),
-      ).rejects.toThrow('Invalid date format. Please use DD-MM-YYYY.');
-    });
-
+  describe('getReport', () => {
     it('should throw an error if start date is after end date', async () => {
-      await expect(generateReport('31-12-2023', '01-01-2023')).rejects.toEqual(
-        'start date must be before end date.',
-      );
+      await expect(
+        getReport({ startDate: '31-12-2023', endDate: '01-01-2023' }),
+      ).rejects.toThrow('start date must be before end date.');
     });
 
-    it('should generate a report and return file path', async () => {
+    it('should generate a report and return the file path', async () => {
       const movieData = {
         id: 1,
         name: 'Test Movie',
         release_date: '2023-12-01',
         shows: [
           {
+            id: 1,
             bookings: [
               { total_amount: 100, created_at: '2023-12-01' },
               { total_amount: 200, created_at: '2023-12-01' },
@@ -275,13 +258,18 @@ describe('Movie Service', () => {
           },
         ],
       };
+
       Movie.findAll.mockResolvedValue([movieData]);
-      Show.findAll.mockResolvedValue(movieData.shows);
-      Booking.findAll.mockResolvedValue(movieData.shows[0].bookings);
+      const mockFilePath = 'reports/test_report.csv';
+      parse.mockReturnValue('csv_content');
+      fs.writeFileSync.mockImplementation(() => {});
 
-      const filePath = await generateReport('01-12-2023', '31-12-2023');
+      const result = await getReport({
+        startDate: '01-12-2023',
+        endDate: '31-12-2023',
+      });
 
-      expect(filePath).toMatch(/reports\/report_\d+\.csv/);
+      expect(result).toBe(mockFilePath);
     });
   });
 });

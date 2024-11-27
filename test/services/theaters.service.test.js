@@ -2,7 +2,6 @@ const {
   Theater,
   sequelize,
   TheaterMovie,
-  Show,
   Booking,
 } = require('../../src/models');
 const {
@@ -12,7 +11,7 @@ const {
   update,
   remove,
   getMovies,
-  getReports,
+  getReport,
 } = require('../../src/services/theaters.service');
 const { faker } = require('@faker-js/faker');
 const { throwCustomError } = require('../../src/helpers/common.helper');
@@ -77,7 +76,7 @@ describe('Theater Service', () => {
       sequelize.transaction.mockResolvedValue(mockTransaction);
 
       await expect(create(mockTheaterData)).rejects.toThrow(
-        'can not add theater with same address!',
+        'Can not add theater with same address!',
       );
       expect(mockTransaction.rollback).toHaveBeenCalled();
     });
@@ -145,7 +144,7 @@ describe('Theater Service', () => {
       sequelize.transaction.mockResolvedValue(mockTransaction);
 
       await expect(get({ id: mockTheaterData.id })).rejects.toThrow(
-        'theater not found with that id!',
+        'Theater not found with that id!',
       );
     });
   });
@@ -177,7 +176,7 @@ describe('Theater Service', () => {
 
       await expect(
         update({ id: mockTheaterData.id, data: { name: 'New Name' } }),
-      ).rejects.toThrow('theater not found with that id!');
+      ).rejects.toThrow('Theater not found with that id!');
     });
 
     it('should rollback transaction on error', async () => {
@@ -213,7 +212,7 @@ describe('Theater Service', () => {
       sequelize.transaction.mockResolvedValue(mockTransaction);
 
       await expect(remove({ id: mockTheaterData.id })).rejects.toThrow(
-        'theater not found',
+        'Theater not found',
       );
     });
 
@@ -241,7 +240,10 @@ describe('Theater Service', () => {
       TheaterMovie.findAll.mockResolvedValue(mockTheaterMovies);
       sequelize.transaction.mockResolvedValue(mockTransaction);
 
-      const result = await getMovies(mockTheaterData.id, 1, 10);
+      const result = await getMovies({
+        id: mockTheaterData.id,
+        query: { page: 1, limit: 10 },
+      });
 
       expect(Theater.findByPk).toHaveBeenCalledWith(mockTheaterData.id);
       expect(TheaterMovie.findAll).toHaveBeenCalled();
@@ -253,25 +255,42 @@ describe('Theater Service', () => {
       Theater.findByPk.mockResolvedValue(null);
       sequelize.transaction.mockResolvedValue(mockTransaction);
 
-      await expect(getMovies(mockTheaterData.id)).rejects.toThrow(
-        `theater with ID ${mockTheaterData.id} not found`,
+      await expect(getMovies({ id: mockTheaterData.id })).rejects.toThrow(
+        'Theater not found with that id!',
       );
     });
   });
 
-  describe('getReports', () => {
-    it('should return a list of bookings and showings for a theater', async () => {
+  describe('getReport', () => {
+    it('should return a report for a theater', async () => {
       const mockTransaction = { commit: jest.fn(), rollback: jest.fn() };
-      const mockReports = [faker.random.alphaNumeric(10)];
-      Show.findAll.mockResolvedValue(mockReports);
-      Booking.findAll.mockResolvedValue(mockReports);
+      const mockReport = {
+        bookings: [{ id: 1, movie: 'Inception', quantity: 3 }],
+        totalRevenue: 1000,
+      };
+      Theater.findByPk.mockResolvedValue(mockTheaterData);
+      Booking.findAll.mockResolvedValue(mockReport.bookings);
       sequelize.transaction.mockResolvedValue(mockTransaction);
 
-      const result = await getReports(mockTheaterData.id);
+      const result = await getReport({
+        id: mockTheaterData.id,
+        dateRange: { start: '2024-01-01', end: '2024-01-31' },
+      });
 
-      expect(Show.findAll).toHaveBeenCalled();
-      expect(Booking.findAll).toHaveBeenCalled();
-      expect(result).toEqual(mockReports);
+      expect(result).toEqual(mockReport);
+    });
+
+    it('should throw an error if theater not found for report', async () => {
+      const mockTransaction = { commit: jest.fn(), rollback: jest.fn() };
+      Theater.findByPk.mockResolvedValue(null);
+      sequelize.transaction.mockResolvedValue(mockTransaction);
+
+      await expect(
+        getReport({
+          id: mockTheaterData.id,
+          dateRange: { start: '2024-01-01', end: '2024-01-31' },
+        }),
+      ).rejects.toThrow('Theater not found with that id!');
     });
   });
 });

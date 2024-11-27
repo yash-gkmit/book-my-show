@@ -27,7 +27,7 @@ describe('Shows Controller', () => {
     jest.clearAllMocks();
   });
 
-  describe('generate', () => {
+  describe('create', () => {
     it('should create a new show successfully', async () => {
       const newShow = { id: faker.string.uuid(), name: 'Show 1' };
       showService.create.mockResolvedValue(newShow);
@@ -38,7 +38,7 @@ describe('Shows Controller', () => {
         theaterId: faker.string.uuid(),
       };
 
-      await showController.generate(req, res, next);
+      await showController.create(req, res, next);
 
       expect(showService.create).toHaveBeenCalledWith(req.body);
       expect(res.data).toEqual(newShow);
@@ -51,7 +51,7 @@ describe('Shows Controller', () => {
       const errorMessage = 'Error creating show';
       showService.create.mockRejectedValue(new Error(errorMessage));
 
-      await showController.generate(req, res, next);
+      await showController.create(req, res, next);
 
       expect(errorHandler).toHaveBeenCalledWith(
         req,
@@ -63,7 +63,7 @@ describe('Shows Controller', () => {
     });
   });
 
-  describe('fetchAll', () => {
+  describe('getAll', () => {
     it('should fetch all shows successfully', async () => {
       const shows = [
         { id: faker.string.uuid(), name: 'Show 1' },
@@ -75,11 +75,11 @@ describe('Shows Controller', () => {
 
       req.query = { page: 1, limit: 10 };
 
-      await showController.fetchAll(req, res, next);
+      await showController.getAll(req, res, next);
 
-      expect(showService.getAll).toHaveBeenCalledWith({}, 1, 10);
+      expect(showService.getAll).toHaveBeenCalledWith(req.query);
       expect(res.message).toBe('Fetched shows successfully');
-      expect(res.data.shows).toEqual({ data: shows, ...paginationInfo });
+      expect(res.data).toEqual({ data: shows, ...paginationInfo });
       expect(res.statusCode).toBe(200);
       expect(next).toHaveBeenCalled();
     });
@@ -88,29 +88,29 @@ describe('Shows Controller', () => {
       const errorMessage = 'Error fetching shows';
       showService.getAll.mockRejectedValue(new Error(errorMessage));
 
-      await showController.fetchAll(req, res, next);
+      await showController.getAll(req, res, next);
 
       expect(errorHandler).toHaveBeenCalledWith(
         req,
         res,
-        'An error occurred while fetching shows',
+        'Error fetching shows',
         400,
       );
       expect(next).not.toHaveBeenCalled();
     });
   });
 
-  describe('fetch', () => {
+  describe('get', () => {
     it('should fetch a show by ID successfully', async () => {
       const show = { id: faker.string.uuid(), name: 'Show 1' };
       showService.get.mockResolvedValue(show);
 
       req.params.id = show.id;
 
-      await showController.fetch(req, res, next);
+      await showController.get(req, res, next);
 
       expect(showService.get).toHaveBeenCalledWith(req.params.id);
-      expect(res.message).toBe('Fetched show By Id successfully');
+      expect(res.message).toBe('Fetched show by id successfully');
       expect(res.data.show).toEqual(show);
       expect(res.statusCode).toBe(200);
       expect(next).toHaveBeenCalled();
@@ -122,7 +122,7 @@ describe('Shows Controller', () => {
 
       req.params.id = faker.string.uuid();
 
-      await showController.fetch(req, res, next);
+      await showController.get(req, res, next);
 
       expect(errorHandler).toHaveBeenCalledWith(
         req,
@@ -134,7 +134,7 @@ describe('Shows Controller', () => {
     });
   });
 
-  describe('change', () => {
+  describe('update', () => {
     it('should update a show successfully', async () => {
       const updatedShow = { id: faker.string.uuid(), name: 'Updated Show' };
       showService.update.mockResolvedValue(updatedShow);
@@ -142,9 +142,12 @@ describe('Shows Controller', () => {
       req.params.id = updatedShow.id;
       req.body = { name: 'Updated Show' };
 
-      await showController.change(req, res, next);
+      await showController.update(req, res, next);
 
-      expect(showService.update).toHaveBeenCalledWith(req.params.id, req.body);
+      expect(showService.update).toHaveBeenCalledWith({
+        id: req.params,
+        data: req.body,
+      });
       expect(res.message).toBe('Show data updated successfully!');
       expect(res.data).toEqual(updatedShow);
       expect(next).toHaveBeenCalled();
@@ -154,7 +157,7 @@ describe('Shows Controller', () => {
       const errorMessage = 'Error updating show';
       showService.update.mockRejectedValue(new Error(errorMessage));
 
-      await showController.change(req, res, next);
+      await showController.update(req, res, next);
 
       expect(errorHandler).toHaveBeenCalledWith(
         req,

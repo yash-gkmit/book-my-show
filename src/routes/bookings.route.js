@@ -24,6 +24,7 @@ router.post(
 router.get(
   '/',
   authMiddleware,
+  rbacMiddleware([ADMIN]),
   bookingController.getAll,
   bookingsSerializer.serialize,
   commonHandler.responseHandler,

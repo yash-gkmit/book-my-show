@@ -37,20 +37,20 @@ const register = async payload => {
       }
     }
 
+    const phoneExist = await User.findOne(
+      {
+        where: { phone: phone },
+      },
+      { transaction },
+    );
+
+    if (phoneExist) {
+      throwCustomError('Phone number already exist!', 400);
+    }
+
     let user = userExist;
 
     if (!userExist) {
-      const phoneExist = await User.findOne(
-        {
-          where: { phone: phone },
-        },
-        { transaction },
-      );
-
-      if (phoneExist) {
-        throwCustomError('Phone number already exist!', 400);
-      }
-
       user = await User.create(
         {
           name,

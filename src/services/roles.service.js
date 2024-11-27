@@ -1,9 +1,7 @@
-const { Role, sequelize } = require('../models');
+const { Role } = require('../models');
 const { throwCustomError } = require('../helpers/common.helper');
 
 const create = async data => {
-  const transaction = await sequelize.transaction();
-
   try {
     if (!data) {
       throwCustomError("Invalid input: 'name' is required.", 400);
@@ -15,17 +13,10 @@ const create = async data => {
     if (isRoleExist) {
       throwCustomError('Role already exist!', 400);
     }
-    const role = await Role.create(data, { transaction });
-
-    await transaction.commit();
+    const role = await Role.create(data);
 
     return role;
   } catch (error) {
-    await transaction.rollback();
-
-    if (error.name === 'SequelizeValidationError') {
-      throwCustomError(error.errors.map(err => err.message).join(', '), 400);
-    }
     throwCustomError(error);
   }
 };
@@ -57,46 +48,31 @@ const get = async payload => {
 };
 
 const update = async payload => {
-  const transaction = await sequelize.transaction();
   const { id, data } = payload;
 
-  try {
-    const role = await Role.findByPk(id, { transaction });
-    if (!role) {
-      throwCustomError('Role not found!', 404);
-    }
-
-    await role.update(data, { transaction });
-    await transaction.commit();
-
-    return role;
-  } catch (error) {
-    await transaction.rollback();
-    throwCustomError(error || 'An error occurred', 500);
+  const role = await Role.findByPk(id);
+  if (!role) {
+    throwCustomError('Role not found!', 404);
   }
+
+  await role.update(data);
+
+  return role;
 };
 
 const remove = async id => {
-  const transaction = await sequelize.transaction();
-
-  try {
-    if (!id) {
-      throwCustomError('Invalid ID provided', 400);
-    }
-
-    const role = await Role.findByPk(id, { transaction });
-    if (!role) {
-      throwCustomError('Role not found!', 404);
-    }
-
-    await role.destroy({ transaction });
-    await transaction.commit();
-
-    return { message: 'Role deleted successfully!' };
-  } catch (error) {
-    await transaction.rollback();
-    throwCustomError(error || 'An error occurred', error.statusCode || 500);
+  if (!id) {
+    throwCustomError('Invalid ID provided', 400);
   }
+
+  const role = await Role.findByPk(id);
+  if (!role) {
+    throwCustomError('Role not found!', 404);
+  }
+
+  await role.destroy();
+
+  return { message: 'Role deleted successfully!' };
 };
 
 module.exports = {

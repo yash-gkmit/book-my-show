@@ -5,13 +5,14 @@ const {
   login,
   logout,
 } = require('../../src/services/auth.service');
-const { User, Role } = require('../../src/models');
+const { User, Role, sequelize } = require('../../src/models');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { addTokenToBlacklist } = require('../../src/helpers/redis.helper');
 const { sendOtpEmail } = require('../../src/helpers/mail.helper');
 const { generateToken } = require('../../src/helpers/jwt.helper');
 const { faker } = require('@faker-js/faker');
+let { throwCustomError } = require('../../src/helpers/common.helper');
 
 // Mocking dependencies
 jest.mock('bcryptjs');
@@ -23,8 +24,18 @@ jest.mock('../../src/helpers/jwt.helper');
 jest.mock('../../src/models');
 
 describe('Auth Service', () => {
+  let transactionMock;
+
   beforeEach(() => {
     jest.clearAllMocks();
+
+    throwCustomError.mockImplementation(message => {
+      const err = new Error(message);
+      throw err;
+    });
+
+    transactionMock = { commit: jest.fn(), rollback: jest.fn() };
+    sequelize.transaction.mockReturnValue(transactionMock);
   });
 
   describe('register', () => {
@@ -93,6 +104,7 @@ describe('Auth Service', () => {
       User.create.mockResolvedValueOnce(null); // User creation failed
 
       await expect(register(payload)).rejects.toThrow('User creation failed');
+      await expect(transactionMock.commit).toHaveBeenCalled();
     });
   });
 
@@ -127,9 +139,7 @@ describe('Auth Service', () => {
       User.findOne.mockResolvedValueOnce({ id: 1 }); // User exists
       otpStore.get.mockReturnValueOnce(undefined); // OTP not found
 
-      await expect(verifyOtp(email, otp)).rejects.toThrow(
-        'OTP expired or does not exist',
-      );
+      await expect(verifyOtp(email, otp)).rejects.toThrow('Invalid OTP');
     });
 
     it('should return a token if OTP is correct', async () => {
@@ -165,7 +175,7 @@ describe('Auth Service', () => {
 
       User.findOne.mockResolvedValueOnce(null); // Simulate user not found
 
-      await expect(login(payload)).rejects.toThrow('user not found');
+      await expect(login(payload)).rejects.toThrow('User not found');
     });
 
     it('should throw an error if password is incorrect', async () => {
@@ -221,10 +231,10 @@ describe('Auth Service', () => {
     it('should throw error if blacklisting fails', async () => {
       const token = 'validToken';
 
-      jwt.decode.mockReturnValueOnce({ id: 1 }); // Valid token
-      addTokenToBlacklist.mockRejectedValueOnce(new Error('Blacklist failed')); // Simulate failure
+      jwt.decode.mockReturnValueOnce({ id: 1 });
+      addTokenToBlacklist.mockRejectedValueOnce(new Error('Blacklist failed'));
 
-      await expect(logout(token)).rejects.toEqual('Logout failed');
+      await expect(logout(token)).rejects.toThrow('Blacklist failed');
     });
   });
 });
