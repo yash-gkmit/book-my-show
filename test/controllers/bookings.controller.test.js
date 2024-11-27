@@ -1,7 +1,10 @@
 const bookingController = require('../../src/controllers/bookings.controller');
 const bookingService = require('../../src/services/bookings.service');
 const { Booking } = require('../../src/models');
-const { errorHandler } = require('../../src/helpers/common.helper');
+const {
+  errorHandler,
+  throwCustomError,
+} = require('../../src/helpers/common.helper');
 const { faker } = require('@faker-js/faker');
 
 // Mock dependencies
@@ -40,9 +43,12 @@ describe('Booking Controller', () => {
 
       req.body = { showId: faker.string.uuid() };
 
-      await bookingController.generate(req, res, next);
+      await bookingController.create(req, res, next);
 
-      expect(bookingService.create).toHaveBeenCalledWith(req.user.id, req.body);
+      expect(bookingService.create).toHaveBeenCalledWith({
+        id: req.user.id,
+        body: req.body,
+      });
       expect(res.data).toEqual(bookingData);
       expect(res.statusCode).toBe(201);
       expect(next).toHaveBeenCalled();
@@ -53,7 +59,7 @@ describe('Booking Controller', () => {
       const error = new Error(errorMessage); // Create an error instance
       bookingService.create.mockRejectedValue(error);
 
-      await bookingController.generate(req, res, next);
+      await bookingController.create(req, res, next);
 
       expect(errorHandler).toHaveBeenCalledWith(req, res, error, 400); // Pass the error instance
       expect(next).not.toHaveBeenCalled();
@@ -67,9 +73,9 @@ describe('Booking Controller', () => {
 
       req.query = { page: 1, limit: 10 };
 
-      await bookingController.fetchAll(req, res, next);
+      await bookingController.getAll(req, res, next);
 
-      expect(bookingService.getAll).toHaveBeenCalledWith({}, 1, 10);
+      expect(bookingService.getAll).toHaveBeenCalledWith(req.query);
       expect(res.data).toEqual(bookings);
       expect(res.message).toBe('Bookings fetched successfully!');
       expect(res.statusCode).toBe(200);
@@ -80,7 +86,7 @@ describe('Booking Controller', () => {
       const errorMessage = 'Booking not found';
       bookingService.getAll.mockRejectedValue(new Error(errorMessage));
 
-      await bookingController.fetchAll(req, res, next);
+      await bookingController.getAll(req, res, next);
 
       expect(errorHandler).toHaveBeenCalledWith(
         req,
@@ -99,10 +105,10 @@ describe('Booking Controller', () => {
 
       req.params.id = faker.string.uuid();
 
-      await bookingController.fetch(req, res, next);
+      await bookingController.get(req, res, next);
 
       expect(bookingService.get).toHaveBeenCalledWith(req.params.id);
-      expect(res.data).toEqual({ booking });
+      expect(res.data).toEqual(booking);
       expect(res.message).toBe('Booking fetched by id successfully!');
       expect(res.statusCode).toBe(200);
       expect(next).toHaveBeenCalled();
@@ -113,7 +119,7 @@ describe('Booking Controller', () => {
       const error = new Error(errorMessage); // Create an error instance
       bookingService.get.mockRejectedValue(error);
 
-      await bookingController.fetch(req, res, next);
+      await bookingController.get(req, res, next);
 
       expect(errorHandler).toHaveBeenCalledWith(req, res, error, 404); // Pass the error instance
       expect(next).not.toHaveBeenCalled();
@@ -131,17 +137,17 @@ describe('Booking Controller', () => {
       req.params.id = bookingData.id;
       req.body = { status: 'Confirmed' };
 
-      await bookingController.change(req, res, next);
+      await bookingController.update(req, res, next);
 
       expect(Booking.findOne).toHaveBeenCalledWith({
         where: { id: req.params.id },
       });
-      expect(bookingService.update).toHaveBeenCalledWith(
-        req.params.id,
-        req.body,
-      );
+      expect(bookingService.update).toHaveBeenCalledWith({
+        id: req.params.id,
+        body: req.body,
+      });
       expect(res.data).toEqual(updatedBooking);
-      expect(res.message).toBe('Booking Updated Successfully');
+      expect(res.message).toBe('Booking updated successfully');
       expect(res.statusCode).toBe(200);
       expect(next).toHaveBeenCalled();
     });
@@ -151,7 +157,7 @@ describe('Booking Controller', () => {
 
       Booking.findOne.mockRejectedValue(errorMessage); // Simulate a failed database call.
 
-      await bookingController.change(req, res, next);
+      await bookingController.update(req, res, next);
 
       expect(errorHandler).toHaveBeenCalledWith(req, res, errorMessage, 404); // Expect the Error object.
       expect(next).not.toHaveBeenCalled(); // Ensure middleware is not called after an error.
@@ -164,37 +170,34 @@ describe('Booking Controller', () => {
 
       await bookingController.remove(req, res, next);
 
-      expect(bookingService.remove).toHaveBeenCalledWith(req.params.id);
+      expect(bookingService.remove).toHaveBeenCalledWith(req.params);
       expect(res.message).toBe('Booking deleted successfully!');
       expect(res.statusCode).toBe(204);
       expect(next).toHaveBeenCalled();
     });
 
     it('should handle errors when deleting a booking', async () => {
-      const errorMessage = new Error('Booking not found'); // Use an Error object.
+      const errorMessage = new Error('Booking not found');
 
-      bookingService.remove.mockRejectedValue(errorMessage); // Simulate an error during deletion.
+      bookingService.remove.mockRejectedValue(errorMessage);
 
       await bookingController.remove(req, res, next);
 
-      expect(errorHandler).toHaveBeenCalledWith(req, res, errorMessage, 404); // Expect the Error object.
-      expect(next).not.toHaveBeenCalled(); // Ensure the middleware chain is not called.
+      expect(errorHandler).toHaveBeenCalledWith(req, res, errorMessage, 404);
+      expect(next).not.toHaveBeenCalled();
     });
   });
 
   describe('fetchReports', () => {
     it('should fetch booking reports successfully', async () => {
       const reports = [{ date: '2024-01-01', count: 10 }];
-      bookingService.getReports.mockResolvedValue(reports);
+      bookingService.getReport.mockResolvedValue(reports);
 
       req.query = { startDate: '2024-01-01', endDate: '2024-12-31' };
 
-      await bookingController.fetchReports(req, res, next);
+      await bookingController.getReport(req, res, next);
 
-      expect(bookingService.getReports).toHaveBeenCalledWith(
-        req.query.startDate,
-        req.query.endDate,
-      );
+      expect(bookingService.getReport).toHaveBeenCalledWith();
       expect(res.data).toEqual(reports);
       expect(res.message).toBe('Report fetched successfully!');
       expect(res.statusCode).toBe(200);
@@ -203,14 +206,14 @@ describe('Booking Controller', () => {
 
     it('should handle errors when fetching reports', async () => {
       const errorMessage = new Error('Error fetching reports');
-      errorMessage.statusCode = 400; // Simulate an error with a status code.
+      errorMessage.statusCode = 400;
 
-      bookingService.getReports.mockRejectedValue(errorMessage); // Simulate service rejection.
+      bookingService.getReport.mockRejectedValue(errorMessage);
 
-      await bookingController.fetchReports(req, res, next);
+      await bookingController.getReport(req, res, next);
 
-      expect(errorHandler).toHaveBeenCalledWith(req, res, errorMessage, 400); // Expect the error object and status code.
-      expect(next).not.toHaveBeenCalled(); // Ensure middleware chain is not called.
+      expect(errorHandler).toHaveBeenCalledWith(req, res, errorMessage, 400);
+      expect(next).not.toHaveBeenCalled();
     });
   });
 });

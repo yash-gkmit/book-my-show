@@ -15,7 +15,11 @@ jest.mock('../../src/models');
 jest.mock('../../src/helpers/common.helper');
 
 describe('User Service Tests', () => {
-  let mockUser, mockBooking, mockTransaction, mockPayload;
+  let mockUser,
+    mockBooking,
+    mockTransaction,
+    mockPayload,
+    mockTransactionInstance;
 
   beforeEach(() => {
     mockUser = {
@@ -50,6 +54,11 @@ describe('User Service Tests', () => {
       filters: { status: 'Success' },
       page: 1,
       limit: 10,
+    };
+
+    mockTransactionInstance = {
+      commit: jest.fn(),
+      rollback: jest.fn(),
     };
 
     throwCustomError.mockImplementation((message, status) => {
@@ -113,8 +122,7 @@ describe('User Service Tests', () => {
 
   describe('update', () => {
     it('should update a user and commit transaction', async () => {
-      const transaction = { commit: jest.fn(), rollback: jest.fn() };
-      sequelize.transaction.mockResolvedValue(transaction);
+      sequelize.transaction.mockResolvedValue(mockTransactionInstance);
       sequelize.models.User.findByPk.mockResolvedValue(mockUser);
       mockUser.update.mockResolvedValue(mockUser);
 
@@ -124,42 +132,40 @@ describe('User Service Tests', () => {
       };
       const result = await update(payload);
 
-      expect(transaction.commit).toHaveBeenCalled();
+      expect(mockTransactionInstance.commit).toHaveBeenCalled();
       expect(result).toEqual(mockUser);
     });
 
     it('should rollback on error', async () => {
-      const transaction = { commit: jest.fn(), rollback: jest.fn() };
-      sequelize.transaction.mockResolvedValue(transaction);
+      sequelize.transaction.mockResolvedValue(mockTransactionInstance);
       sequelize.models.User.findByPk.mockResolvedValue(null);
 
       const payload = { id: 1, data: {} };
       await expect(update(payload)).rejects.toThrow('user not found');
-      expect(transaction.rollback).toHaveBeenCalled();
+      expect(mockTransactionInstance.rollback).toHaveBeenCalled();
     });
   });
 
   describe('remove', () => {
     it('should soft delete a user and commit transaction', async () => {
-      const transaction = { commit: jest.fn(), rollback: jest.fn() };
-      sequelize.transaction.mockResolvedValue(transaction);
+      sequelize.transaction.mockResolvedValue(mockTransactionInstance);
       sequelize.models.User.findByPk.mockResolvedValue(mockUser);
+      sequelize.models.UserRole.update.mockResolvedValue([1]);
 
       const payload = { id: mockUser.id };
       const result = await remove(payload);
 
-      expect(transaction.commit).toHaveBeenCalled();
+      expect(mockTransactionInstance.commit).toHaveBeenCalled();
       expect(result.message).toEqual('user deleted successfully');
     });
 
     it('should rollback on error', async () => {
-      const transaction = { commit: jest.fn(), rollback: jest.fn() };
-      sequelize.transaction.mockResolvedValue(transaction);
+      sequelize.transaction.mockResolvedValue(mockTransactionInstance);
       sequelize.models.User.findByPk.mockResolvedValue(null);
 
       const payload = { id: 1 };
       await expect(remove(payload)).rejects.toThrow('User not found');
-      expect(transaction.rollback).toHaveBeenCalled();
+      expect(mockTransactionInstance.rollback).toHaveBeenCalled();
     });
   });
 
