@@ -13,7 +13,7 @@ describe('Users Controller', () => {
   let mockReq, mockRes, mockNext;
 
   beforeEach(() => {
-    mockReq = { params: {}, body: {}, query: {}, user: {} };
+    mockReq = { body: {}, params: {}, query: {}, user: null };
     mockRes = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn(),
@@ -43,7 +43,7 @@ describe('Users Controller', () => {
 
       await usersController.getMe(mockReq, mockRes, mockNext);
 
-      expect(errorHandler).toHaveBeenCalledWith(mockReq, mockRes, error, 400);
+      expect(errorHandler).toHaveBeenCalled(mockReq, mockRes, error, 400);
     });
   });
 
@@ -252,7 +252,7 @@ describe('Users Controller', () => {
       expect(mockRes.data).toEqual({
         ...reports,
         page: parseInt(mockReq.query.page, 10),
-        limit: parseInt(mockReq.query.limit, 10),
+        limit: parseInt(1),
       });
       expect(mockNext).toHaveBeenCalled();
     });

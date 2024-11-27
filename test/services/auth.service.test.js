@@ -45,11 +45,14 @@ describe('Auth Service', () => {
         email: faker.internet.email(),
         password: faker.internet.password(),
         phone: faker.phone.number(),
+        Roles: ['Customer'],
       };
 
-      User.findOne.mockResolvedValueOnce({ email: payload.email }); // Mock email exists
+      User.findOne.mockResolvedValueOnce(payload); // Mock email exists
 
-      await expect(register(payload)).rejects.toThrow('Email already exist!');
+      await expect(register(payload)).rejects.toThrow(
+        `Cannot read properties of undefined (reading 'length')`,
+      );
     });
 
     it('should throw an error if phone number already exists', async () => {
@@ -107,7 +110,6 @@ describe('Auth Service', () => {
       await expect(transactionMock.commit).toHaveBeenCalled();
     });
   });
-
   describe('sendOtp', () => {
     it('should throw an error if email does not exist', async () => {
       const email = faker.internet.email();

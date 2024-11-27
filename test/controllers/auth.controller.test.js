@@ -53,7 +53,7 @@ describe('Auth Controller Tests', () => {
 
       expect(authService.register).toHaveBeenCalledWith(payload);
       expect(mockResponse.statusCode).toBe(201);
-      expect(mockResponse.message).toBe('user created successfully!');
+      expect(mockResponse.message).toBe('User created successfully!');
       expect(mockResponse.data).toEqual(result);
       expect(responseHandler).toHaveBeenCalledWith(req, mockResponse);
     });
@@ -89,7 +89,7 @@ describe('Auth Controller Tests', () => {
 
       expect(authService.sendOtp).toHaveBeenCalledWith({ email });
       expect(mockResponse.statusCode).toBe(200);
-      expect(mockResponse.message).toBe(`otp send successfully to ${email}`);
+      expect(mockResponse.message).toBe('OTP send successfully!');
       expect(responseHandler).toHaveBeenCalledWith(req, mockResponse);
     });
 

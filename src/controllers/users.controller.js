@@ -49,7 +49,8 @@ const update = async (req, res, next) => {
   };
 
   try {
-    await userService.update(payload);
+    const updatedUser = await userService.update(payload);
+    res.data = updatedUser;
     res.message = 'User updated successfully!';
     res.statusCode = 200;
     next();
