@@ -3,14 +3,7 @@ const { Op } = require('sequelize');
 const { throwCustomError } = require('../helpers/common.helper');
 
 const create = async payload => {
-  const {
-    movieId,
-    theaterId,
-    type,
-    price,
-    showTime: show_time,
-    availableSeats,
-  } = payload;
+  const { movieId, theaterId, type, price, time, availableSeats } = payload;
 
   const [theater, movie] = await Promise.all([
     Theater.findOne({
@@ -35,7 +28,7 @@ const create = async payload => {
     throwCustomError('Movie duration is required to create a show');
   }
 
-  const startTime = new Date(show_time);
+  const startTime = new Date(time);
   const endTime = new Date(startTime);
   endTime.setMinutes(startTime.getMinutes() + movieDuration);
 
@@ -44,15 +37,15 @@ const create = async payload => {
       theater_id: theaterId,
       [Op.or]: [
         {
-          show_time: {
+          time: {
             [Op.between]: [startTime, endTime],
           },
         },
         {
           [Op.and]: [
-            { show_time: { [Op.lte]: startTime } },
+            { time: { [Op.lte]: startTime } },
             sequelize.literal(
-              `"show_time" + interval '1 minute' * ${movieDuration} >= '${startTime.toISOString()}'`,
+              `"time" + interval '1 minute' * ${movieDuration} >= '${startTime.toISOString()}'`,
             ),
           ],
         },
@@ -70,7 +63,7 @@ const create = async payload => {
   const show = await Show.create({
     movie_id: movieId,
     theater_id: theaterId,
-    show_time: startTime,
+    time,
     type,
     price,
     available_seats: availableSeats,
