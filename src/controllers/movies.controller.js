@@ -6,15 +6,12 @@ const fs = require('fs');
 
 const create = async (req, res, next) => {
   try {
-    const posterUrl = await uploadOnS3(req.files.poster[0], 'poster');
-    const trailerUrl = await uploadOnS3(req.files.trailer[0], 'trailer');
+    const poster = await uploadOnS3(req.files.poster[0], 'poster');
+    const trailer = await uploadOnS3(req.files.trailer[0], 'trailer');
 
     const { theaterIds, ...movieData } = req.body;
-    movieData.poster = posterUrl;
-    movieData.trailer = trailerUrl;
-
-    movieData.poster = posterUrl;
-    movieData.trailer = trailerUrl;
+    movieData.posterUrl = poster;
+    movieData.trailerUrl = trailer;
 
     const movie = await movieService.create(theaterIds, movieData);
 

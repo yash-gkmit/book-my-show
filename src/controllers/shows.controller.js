@@ -10,7 +10,8 @@ const create = async (req, res, next) => {
     res.statusCode = 201;
     next();
   } catch (error) {
-    errorHandler(req, res, error, error.statusCode || 400);
+    console.log(error);
+    errorHandler(req, res, error.message, error.statusCode || 400);
   }
 };
 
