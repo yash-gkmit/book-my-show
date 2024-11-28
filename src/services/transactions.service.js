@@ -43,18 +43,18 @@ const create = async payload => {
       throwCustomError('Show not found', 404);
     }
 
-    const transaction_amount = booking.total_amount;
+    const amount = booking.total_amount;
 
-    const GST = transaction_amount * 0.18;
-    const CGST = transaction_amount * 0.18;
-    const IGST = transaction_amount * 0.18;
-    const SGST = transaction_amount * 0.18;
+    const GST = amount * 0.18;
+    const CGST = amount * 0.18;
+    const IGST = amount * 0.18;
+    const SGST = amount * 0.18;
     const total_gst = GST + CGST + IGST + SGST;
-    const amount_paid = transaction_amount + total_gst;
+    const amount_paid = amount + total_gst;
 
     const transaction = await Transaction.create(
       {
-        transaction_amount,
+        amount,
         GST,
         CGST,
         IGST,
@@ -64,34 +64,42 @@ const create = async payload => {
       { transaction: t },
     );
 
-    transaction.transaction_status = 'Success';
+    console.log('cvbnm', transaction);
+
+    transaction.status = 'Success';
     await transaction.save({ transaction: t });
 
-    if (transaction.transaction_status === 'Success') {
-      booking.booking_status = 'Confirmed';
+    if (transaction.status === 'Success') {
+      booking.status = 'Confirmed';
       await booking.save({ transaction: t });
 
       show.available_seats -= booking.number_of_seats;
       await show.save({ transaction: t });
 
-      await sendTransactionEmail({
-        to: booking.user.email,
-        subject: 'Transaction Completed',
+      const templateData = {
         description: 'Your booking transaction was successful.',
         movie_name: show.movie.name,
-        show_time: show.show_time,
+        time: show.time,
         show_date: booking.booking_date,
         booking_date: booking.created_at,
-        total_amount: transaction_amount,
+        total_amount: amount,
         total_gst,
         amount_paid,
         booking_status: 'Confirmed',
+      };
+
+      await sendTransactionEmail({
+        to: booking.user.email,
+        subject: 'Transaction Completed',
+        templateName: 'transaction-complete',
+        templateData: templateData,
       });
     }
 
     await t.commit();
     return transaction;
   } catch (error) {
+    console.log('dfg', error);
     await t.rollback();
     throw error;
   }

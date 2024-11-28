@@ -4,19 +4,21 @@ const { throwCustomError } = require('../helpers/common.helper');
 const create = async payload => {
   const { id } = payload.id;
   const data = payload.body;
+  console.log(data);
 
   const show = await Show.findByPk(data.showId);
   if (!show) {
     throwCustomError('Show not found', 404);
   }
 
-  if (show.available_seats < data.number_of_seat) {
+  if (show.available_seats < data.number_of_seats) {
     throwCustomError('Seats not available', 404);
   }
 
-  const showtimeDate = new Date(show.show_time);
+  const showtimeDate = new Date(show.time);
+  console.log(showtimeDate);
   const bookingDateDate = new Date(data.bookingDate);
-
+  console.log(bookingDateDate);
   if (showtimeDate.toDateString() !== bookingDateDate.toDateString()) {
     throwCustomError(`Show not available for that date`, 400);
   }
@@ -26,14 +28,14 @@ const create = async payload => {
     show_id: data.showId,
     number_of_seats: data.numberOfSeats,
     total_amount: data.numberOfSeats * show.price,
-    booking_status: 'Pending',
+    status: 'Pending',
     booking_date: data.bookingDate,
   };
 
   const booking = await Booking.create(bookingData);
 
-  if (show.available_seats > data.number_of_seat) {
-    show.available_seats -= data.number_of_seat;
+  if (show.available_seats > data.number_of_seats) {
+    show.available_seats -= data.number_of_seats;
     await show.save();
   }
   return booking;
