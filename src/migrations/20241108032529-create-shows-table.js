@@ -24,7 +24,7 @@ module.exports = {
           key: 'id',
         },
       },
-      show_time: {
+      time: {
         type: Sequelize.DATE,
         allowNull: false,
       },

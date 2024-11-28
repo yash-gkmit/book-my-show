@@ -9,7 +9,7 @@ module.exports = {
         defaultValue: Sequelize.literal('gen_random_uuid()'),
       },
       name: {
-        type: Sequelize.STRING(150),
+        type: Sequelize.STRING,
         allowNull: false,
       },
       summary: {
@@ -17,10 +17,10 @@ module.exports = {
         allowNull: true,
       },
       release_date: {
-        type: Sequelize.STRING,
+        type: Sequelize.DATE,
         allowNull: false,
       },
-      cast_member_list: {
+      casts: {
         type: Sequelize.ARRAY(Sequelize.STRING),
         allowNull: false,
       },
@@ -43,11 +43,11 @@ module.exports = {
         type: Sequelize.ENUM('U', 'U/A', 'A'),
         allowNull: true,
       },
-      poster: {
+      poster_url: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      trailer: {
+      trailer_url: {
         type: Sequelize.STRING,
         allowNull: false,
       },
@@ -66,7 +66,7 @@ module.exports = {
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
       },
       deleted_at: {
-        type: Sequelize.BOOLEAN,
+        type: Sequelize.DATE,
         allowNull: true,
       },
     });

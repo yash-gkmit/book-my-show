@@ -24,29 +24,29 @@ module.exports = {
           key: 'id',
         },
       },
-      transaction_status: {
+      status: {
         type: Sequelize.ENUM('Success', 'Pending', 'Failed'),
         allowNull: true,
         defaultValue: 'Pending',
       },
-      transaction_amount: {
-        type: Sequelize.BIGINT,
+      amount: {
+        type: Sequelize.DECIMAL(10, 2),
         allowNull: false,
       },
       GST: {
-        type: Sequelize.DECIMAL,
+        type: Sequelize.DECIMAL(10, 2),
         allowNull: false,
       },
       CGST: {
-        type: Sequelize.DECIMAL,
+        type: Sequelize.DECIMAL(10, 2),
         allowNull: false,
       },
       IGST: {
-        type: Sequelize.DECIMAL,
+        type: Sequelize.DECIMAL(10, 2),
         allowNull: false,
       },
       SGST: {
-        type: Sequelize.DECIMAL,
+        type: Sequelize.DECIMAL(10, 2),
         allowNull: false,
       },
       created_at: {
