@@ -11,9 +11,9 @@ const createValidation = (req, res, next) => {
       'string.uuid': '"Theater ID" must be a valid UUID',
       'any.required': '"Theater ID" is required',
     }),
-    showTime: Joi.date().required().messages({
-      'date.base': '"Show time" must be a valid date',
-      'any.required': '"Show time" is required',
+    time: Joi.date().required().messages({
+      'date.base': '"time" must be a valid date',
+      'any.required': '"time" is required',
     }),
     availableSeats: Joi.number().integer().required().messages({
       'number.base': '"Available seats" should be a valid number',
@@ -47,12 +47,12 @@ const createValidation = (req, res, next) => {
 
 const updateValidation = (req, res, next) => {
   const schema = Joi.object({
-    showTime: Joi.string()
+    time: Joi.string()
       .valid('Morning', 'Afternoon', 'Evening', 'Night')
       .messages({
         'any.only':
-          '"Show time" must be one of: Morning, Afternoon, Evening, or Night',
-        'any.required': '"Show time" is required',
+          '"time" must be one of: Morning, Afternoon, Evening, or Night',
+        'any.required': '"time" is required',
       }),
     availableSeats: Joi.number().integer().messages({
       'number.base': '"Available seats" should be a valid number',

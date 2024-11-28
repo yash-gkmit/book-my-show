@@ -10,7 +10,7 @@ const createValidation = (req, res, next) => {
     releaseDate: Joi.string().required().messages({
       'any.required': 'Release date is required',
     }),
-    castMemberList: Joi.array().items(Joi.string()).required().messages({
+    casts: Joi.array().items(Joi.string()).required().messages({
       'any.required': 'Cast members must be provided',
       'array.base': 'Cast members must be an array',
     }),
@@ -65,8 +65,8 @@ const updateValidation = (req, res, next) => {
       'string.base': 'Invalid name',
     }),
     summary: Joi.string().optional(),
-    release_date: Joi.string().optional().allow(''),
-    cast_member_list: Joi.array().items(Joi.string()).optional().messages({
+    releaseDate: Joi.string().optional().allow(''),
+    casts: Joi.array().items(Joi.string()).optional().messages({
       'array.base': 'Cast members must be an array',
     }),
     genre: Joi.string()
