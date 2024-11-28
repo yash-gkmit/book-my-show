@@ -7,6 +7,7 @@ module.exports = (sequelize, DataTypes) => {
         through: 'users_roles',
         foreignKey: 'user_id',
         otherKey: 'role_id',
+        as: 'Roles',
       });
 
       User.hasMany(models.Booking, {
