@@ -34,7 +34,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.UUID,
         allowNull: false,
       },
-      show_time: {
+      time: {
         type: DataTypes.DATE,
         allowNull: false,
       },

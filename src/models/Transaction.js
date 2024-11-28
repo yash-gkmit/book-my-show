@@ -29,12 +29,12 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.UUID,
         allowNull: false,
       },
-      transaction_status: {
+      status: {
         type: DataTypes.ENUM('Success', 'Pending', 'Failed'),
         allowNull: true,
         defaultValue: 'Pending',
       },
-      transaction_amount: {
+      amount: {
         type: DataTypes.BIGINT,
         allowNull: false,
       },

@@ -25,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       name: {
-        type: DataTypes.STRING(150),
+        type: DataTypes.STRING,
         allowNull: false,
       },
       summary: {
@@ -36,7 +36,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      cast_member_list: {
+      casts: {
         type: DataTypes.ARRAY(DataTypes.STRING),
         allowNull: false,
       },
@@ -59,11 +59,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.ENUM('U', 'U/A', 'A'),
         allowNull: true,
       },
-      poster: {
+      poster_url: {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      trailer: {
+      trailer_url: {
         type: DataTypes.STRING,
         allowNull: false,
       },
