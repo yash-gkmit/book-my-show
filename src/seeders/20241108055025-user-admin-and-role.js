@@ -1,5 +1,5 @@
 'use strict';
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const process = require('process');
 
 require('dotenv').config({ path: __dirname + '/../../.env' });
