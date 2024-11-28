@@ -1,5 +1,7 @@
 const nodemailer = require('nodemailer');
 const { throwCustomError } = require('./common.helper');
+const path = require('path');
+const ejs = require('ejs');
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -28,35 +30,33 @@ const sendOtpEmail = async (email, otp) => {
 const sendTransactionEmail = async ({
   to,
   subject,
-  description,
-  movie_name,
-  show_time,
-  show_date,
-  booking_date,
-  total_amount,
-  total_gst,
-  amount_paid,
-  booking_status,
+  templateName,
+  templateData,
 }) => {
-  const emailOptions = {
-    from: process.env.SMTP_USER,
-    to,
-    subject,
-    html: `
-      <h1>${subject}</h1>
-      <p>${description}</p>
-      <p><strong>Movie:</strong> ${movie_name}</p>
-      <p><strong>Show Time:</strong> ${show_time}</p>
-      <p><strong>Show Date:</strong> ${show_date}</p>
-      <p><strong>Booking Date:</strong> ${new Date(booking_date).toLocaleString()}</p>
-      <p><strong>Total Amount:</strong> ₹${total_amount}</p>
-      <p><strong>Total GST:</strong> ₹${total_gst}</p>
-      <p><strong>Amount Paid:</strong> ₹${amount_paid}</p>
-      <p><strong>Booking Status:</strong> ${booking_status}</p>
-    `,
-  };
+  try {
+    const templatePath = path.join(
+      __dirname,
+      '../templates',
+      `${templateName}.ejs`,
+    );
 
-  await transporter.sendMail(emailOptions);
+    const htmlContent = await ejs.renderFile(templatePath, {
+      templateData,
+      subject,
+    });
+
+    const mailOptions = {
+      from: 'yashgupta@gkmit.co',
+      to,
+      subject,
+      html: htmlContent,
+    };
+
+    transporter.sendMail(mailOptions);
+    console.log('Email sent successfully');
+  } catch (error) {
+    throwCustomError(`Error sending email: ${error}`, 400);
+  }
 };
 
 module.exports = {
