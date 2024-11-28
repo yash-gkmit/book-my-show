@@ -15,14 +15,14 @@ const moment = require('moment');
 
 const create = async (theaterIds, movieData) => {
   const movieDetails = {
-    poster: movieData.poster,
-    trailer: movieData.trailer,
+    poster_url: movieData.posterUrl,
+    trailer_url: movieData.trailerUrl,
     name: movieData.name,
     summary: movieData.summary,
     release_date: movieData.releaseDate,
     genre: movieData.genre,
     language: movieData.language,
-    cast_member_list: movieData.castMemberList,
+    casts: movieData.casts,
     category: movieData.category,
     duration: movieData.duration,
   };
@@ -59,16 +59,16 @@ const create = async (theaterIds, movieData) => {
 };
 
 const getAll = async query => {
-  const { page = 1, limit = 10, cast_member_list, ...filters } = query;
+  const { page = 1, limit = 10, casts, ...filters } = query;
 
   const offset = (page - 1) * limit;
   const whereConditions = {};
 
-  if (cast_member_list) {
-    if (Array.isArray(cast_member_list)) {
-      whereConditions.cast_member_list = { [Op.contains]: cast_member_list };
+  if (casts) {
+    if (Array.isArray(casts)) {
+      whereConditions.casts = { [Op.contains]: casts };
     } else {
-      whereConditions.cast_member_list = { [Op.eq]: cast_member_list };
+      whereConditions.casts = { [Op.eq]: casts };
     }
   }
 

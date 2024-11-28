@@ -23,6 +23,7 @@ const register = async payload => {
         include: [
           {
             model: Role,
+            as: 'Roles',
           },
         ],
       },
